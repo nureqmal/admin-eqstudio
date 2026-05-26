@@ -646,7 +646,6 @@ elif "🆕 Jana Kad Baru" in page:
         </div>
         """, unsafe_allow_html=True)
         photo_method = st.radio("Cara masukkan gambar", ["📎 Upload File", "🔗 Paste Link URL"], horizontal=True)
-
         if photo_method == "📎 Upload File":
             col_p1, col_p2 = st.columns(2)
             with col_p1:
@@ -670,37 +669,36 @@ elif "🆕 Jana Kad Baru" in page:
             with col_p2:
                 photo2_url = st.text_input("📸 Gallery Foto 2 URL (utama)", placeholder="https://...")
                 photo3_url = st.text_input("📸 Gallery Foto 3 URL", placeholder="https://...")
-
         st.markdown("---")
 
-        # ── VIDEO (Cinematic & Prestige) ──
-            if selected_tmpl.get("has_video"):
-                st.markdown("---")
-                st.markdown("## 🎬 Video Pengantin")
-                st.markdown("""
-                <div class='info-box'>
-                    💡 Upload video ke Google Drive → klik kanan → <b>Get link</b> → tukar sharing ke <b>"Anyone with the link"</b><br>
-                    Paste link tu kat bawah.
-                </div>
-                """, unsafe_allow_html=True)
-                video_url = st.text_input("Link Google Drive Video", placeholder="https://drive.google.com/file/d/xxx/view")
-            else:
-                video_url = ""
+    # ── VIDEO (Cinematic & Prestige) ──
+    if selected_tmpl.get("has_video"):
+        st.markdown("---")
+        st.markdown("## 🎬 Video Pengantin")
+        st.markdown("""
+        <div class='info-box'>
+            💡 Upload video ke Google Drive → klik kanan → <b>Get link</b> → tukar sharing ke <b>"Anyone with the link"</b><br>
+            Paste link tu kat bawah.
+        </div>
+        """, unsafe_allow_html=True)
+        video_url = st.text_input("Link Google Drive Video", placeholder="https://drive.google.com/file/d/xxx/view")
+    else:
+        video_url = ""
 
-        # ── GALLERY (Prestige) ──
-            if selected_tmpl.get("has_gallery"):
-                st.markdown("---")
-                st.markdown("## 🖼️ Gallery Gambar")
-                col_g1, col_g2 = st.columns(2)
-                with col_g1:
-                    gallery1_url = st.text_input("Gambar Gallery 1", placeholder="https://drive.google.com/...")
-                    gallery2_url = st.text_input("Gambar Gallery 2", placeholder="https://drive.google.com/...")
-                    gallery3_url = st.text_input("Gambar Gallery 3", placeholder="https://drive.google.com/...")
-                with col_g2:
-                    gallery4_url = st.text_input("Gambar Gallery 4", placeholder="https://drive.google.com/...")
-                    gallery5_url = st.text_input("Gambar Gallery 5", placeholder="https://drive.google.com/...")
-            else:
-                gallery1_url = gallery2_url = gallery3_url = gallery4_url = gallery5_url = ""
+    # ── GALLERY (Prestige) ──
+    if selected_tmpl.get("has_gallery"):
+        st.markdown("---")
+        st.markdown("## 🖼️ Gallery Gambar")
+        col_g1, col_g2 = st.columns(2)
+        with col_g1:
+            gallery1_url = st.text_input("Gambar Gallery 1", placeholder="https://drive.google.com/...")
+            gallery2_url = st.text_input("Gambar Gallery 2", placeholder="https://drive.google.com/...")
+            gallery3_url = st.text_input("Gambar Gallery 3", placeholder="https://drive.google.com/...")
+        with col_g2:
+            gallery4_url = st.text_input("Gambar Gallery 4", placeholder="https://drive.google.com/...")
+            gallery5_url = st.text_input("Gambar Gallery 5", placeholder="https://drive.google.com/...")
+    else:
+        gallery1_url = gallery2_url = gallery3_url = gallery4_url = gallery5_url = ""
 
     # ── STEP 9: JANA & DEPLOY ──
     st.markdown("## 9️⃣ Jana & Deploy")
