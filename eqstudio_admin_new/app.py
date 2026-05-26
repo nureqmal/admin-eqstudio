@@ -352,7 +352,7 @@ with st.sidebar:
     st.markdown("---")
     page = st.radio(
         "Navigation",
-        ["🆕 Jana Kad Baru", "⚙️ GitHub Settings", "📋 Cara Guna", "🗂️ Template Info"],
+        ["🆕 Jana Kad Baru", "🔧 Template Converter", "⚙️ GitHub Settings", "📋 Cara Guna", "🗂️ Template Info"],
         label_visibility="collapsed"
     )
     st.markdown("---")
