@@ -331,8 +331,8 @@ with st.sidebar:
     st.markdown("---")
 
     # Quick status GitHub
-    gh_token = st.session_state.get("gh_token", "")
-    gh_repo = st.session_state.get("gh_repo", "")
+    gh_token = st.session_state.get("gh_token", "") or st.secrets.get("GH_TOKEN", "")
+    gh_repo = st.session_state.get("gh_repo", "") or st.secrets.get("GH_REPO", "")
     if gh_token and gh_repo:
         st.markdown("""
         <div style='font-size:0.75rem; color:#4CAF50; line-height:1.8'>
