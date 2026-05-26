@@ -179,7 +179,8 @@ TEMPLATES = {
         "preview_emoji": "💎",
         "desc": "Penerangan ringkas",
         },
-    }
+    },
+}
 
 PLACEHOLDERS = {
     "{{GROOM_NAME}}":       "Nama pengantin lelaki",
