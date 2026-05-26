@@ -943,3 +943,295 @@ elif "🗂️ Template Info" in page:
     },
     ```
     """)
+
+
+# ─────────────────────────────────────────
+#  PAGE: TEMPLATE CONVERTER
+#  Paste this entire block into app.py
+#  Add "🔧 Template Converter" to the page radio list in sidebar
+# ─────────────────────────────────────────
+elif "🔧 Template Converter" in page:
+    st.markdown("# 🔧 Template Converter")
+    st.markdown("Upload HTML template kau, app akan detect hardcoded values, kau map ke placeholders, siap!")
+    st.markdown("---")
+
+    # ── STEP 1: UPLOAD ──
+    st.markdown("## 1️⃣ Upload HTML Template")
+    uploaded_html = st.file_uploader("Upload fail HTML", type=["html", "htm"])
+
+    if uploaded_html:
+        raw_html = uploaded_html.read().decode("utf-8")
+        st.success(f"✅ Fail dibaca — {len(raw_html):,} characters")
+
+        st.markdown("---")
+
+        # ── STEP 2: AUTO-DETECT ──
+        st.markdown("## 2️⃣ Map Hardcoded Values → Placeholders")
+        st.markdown("""
+        <div class='info-box'>
+            Masukkan nilai sebenar yang ada dalam template kau (contoh: nama pengantin, tarikh, lokasi).<br>
+            App akan replace semua nilai tu dengan placeholder yang betul.
+        </div>
+        """, unsafe_allow_html=True)
+
+        # All available placeholders with friendly labels
+        PLACEHOLDER_OPTIONS = {
+            "-- Pilih Placeholder --": "",
+            "{{GROOM_NAME}} — Nama panggilan pengantin lelaki": "{{GROOM_NAME}}",
+            "{{BRIDE_NAME}} — Nama panggilan pengantin perempuan": "{{BRIDE_NAME}}",
+            "{{GROOM_FULL}} — Nama penuh pengantin lelaki": "{{GROOM_FULL}}",
+            "{{BRIDE_FULL}} — Nama penuh pengantin perempuan": "{{BRIDE_FULL}}",
+            "{{FATHER_NAME}} — Nama bapa": "{{FATHER_NAME}}",
+            "{{MOTHER_NAME}} — Nama ibu": "{{MOTHER_NAME}}",
+            "{{PARENT_SIDE}} — Pihak (Perempuan/Lelaki)": "{{PARENT_SIDE}}",
+            "{{DATE_DISPLAY}} — Tarikh papar (eg: 10 Ogos 2026)": "{{DATE_DISPLAY}}",
+            "{{DATE_DAY}} — Hari (eg: Sabtu)": "{{DATE_DAY}}",
+            "{{DATE_HIJRI}} — Tarikh Hijri": "{{DATE_HIJRI}}",
+            "{{DATE_ISO}} — Tarikh ISO untuk countdown": "{{DATE_ISO}}",
+            "{{TIME_DISPLAY}} — Masa papar (eg: 12:00 Tengahari)": "{{TIME_DISPLAY}}",
+            "{{TIME_RAW}} — Masa raw (eg: 12:00)": "{{TIME_RAW}}",
+            "{{VENUE_NAME}} — Nama dewan": "{{VENUE_NAME}}",
+            "{{VENUE_ADDRESS}} — Alamat penuh": "{{VENUE_ADDRESS}}",
+            "{{WAZE_LINK}} — Link Waze": "{{WAZE_LINK}}",
+            "{{GMAP_LINK}} — Link Google Maps": "{{GMAP_LINK}}",
+            "{{CONTACT_NAME}} — Nama contact person": "{{CONTACT_NAME}}",
+            "{{CONTACT_PHONE}} — No telefon": "{{CONTACT_PHONE}}",
+            "{{CONTACT_PHONE_WA}} — No WhatsApp": "{{CONTACT_PHONE_WA}}",
+            "{{MUSIC_URL}} — Link MP3": "{{MUSIC_URL}}",
+            "{{MUSIC_LABEL}} — Nama lagu": "{{MUSIC_LABEL}}",
+            "{{HERO_PHOTO_URL}} — Gambar hero": "{{HERO_PHOTO_URL}}",
+            "{{PHOTO1_URL}} — Gambar gallery 1": "{{PHOTO1_URL}}",
+            "{{PHOTO2_URL}} — Gambar gallery 2": "{{PHOTO2_URL}}",
+            "{{PHOTO3_URL}} — Gambar gallery 3": "{{PHOTO3_URL}}",
+            "{{OPENING_PHOTO_URL}} — Gambar opening": "{{OPENING_PHOTO_URL}}",
+            "{{VIDEO_URL}} — Link video": "{{VIDEO_URL}}",
+            "{{GALLERY1_URL}} — Gallery 1": "{{GALLERY1_URL}}",
+            "{{GALLERY2_URL}} — Gallery 2": "{{GALLERY2_URL}}",
+            "{{GALLERY3_URL}} — Gallery 3": "{{GALLERY3_URL}}",
+            "{{GALLERY4_URL}} — Gallery 4": "{{GALLERY4_URL}}",
+            "{{GALLERY5_URL}} — Gallery 5": "{{GALLERY5_URL}}",
+        }
+
+        # Session state untuk simpan mapping rows
+        if "converter_rows" not in st.session_state:
+            st.session_state.converter_rows = [{"value": "", "placeholder": ""}]
+
+        # Add/remove rows
+        col_add, col_remove, _ = st.columns([1, 1, 4])
+        with col_add:
+            if st.button("➕ Tambah baris"):
+                st.session_state.converter_rows.append({"value": "", "placeholder": ""})
+                st.rerun()
+        with col_remove:
+            if st.button("➖ Buang baris") and len(st.session_state.converter_rows) > 1:
+                st.session_state.converter_rows.pop()
+                st.rerun()
+
+        st.markdown("<br>", unsafe_allow_html=True)
+
+        # Header
+        col_h1, col_h2, col_h3 = st.columns([2, 3, 1])
+        with col_h1:
+            st.markdown("**Nilai dalam HTML (hardcoded)**")
+        with col_h2:
+            st.markdown("**Ganti dengan Placeholder**")
+        with col_h3:
+            st.markdown("**Jumpa?**")
+
+        # Mapping rows
+        for i, row in enumerate(st.session_state.converter_rows):
+            col1, col2, col3 = st.columns([2, 3, 1])
+            with col1:
+                val = st.text_input(
+                    f"Nilai {i+1}",
+                    value=row["value"],
+                    placeholder="cth: Ahmad Nazmi",
+                    key=f"conv_val_{i}",
+                    label_visibility="collapsed"
+                )
+                st.session_state.converter_rows[i]["value"] = val
+            with col2:
+                ph_label = st.selectbox(
+                    f"Placeholder {i+1}",
+                    list(PLACEHOLDER_OPTIONS.keys()),
+                    key=f"conv_ph_{i}",
+                    label_visibility="collapsed"
+                )
+                st.session_state.converter_rows[i]["placeholder"] = PLACEHOLDER_OPTIONS[ph_label]
+            with col3:
+                if val and val in raw_html:
+                    count = raw_html.count(val)
+                    st.markdown(f"<div style='color:#4CAF50;padding-top:8px'>✅ {count}x</div>", unsafe_allow_html=True)
+                elif val:
+                    st.markdown("<div style='color:#ff6b6b;padding-top:8px'>❌ Tak jumpa</div>", unsafe_allow_html=True)
+                else:
+                    st.markdown("<div style='color:#666;padding-top:8px'>—</div>", unsafe_allow_html=True)
+
+        st.markdown("---")
+
+        # ── STEP 3: PREVIEW ──
+        st.markdown("## 3️⃣ Preview Conversion")
+
+        valid_mappings = [
+            r for r in st.session_state.converter_rows
+            if r["value"] and r["placeholder"] and r["value"] in raw_html
+        ]
+        invalid_mappings = [
+            r for r in st.session_state.converter_rows
+            if r["value"] and not r["placeholder"]
+        ]
+        not_found = [
+            r for r in st.session_state.converter_rows
+            if r["value"] and r["placeholder"] and r["value"] not in raw_html
+        ]
+
+        if valid_mappings:
+            st.markdown(f"""
+            <div class='info-box'>
+                ✅ <b>{len(valid_mappings)} replacement</b> akan dibuat<br>
+                {f"⚠️ {len(not_found)} nilai tidak dijumpai dalam HTML" if not_found else ""}
+            </div>
+            """, unsafe_allow_html=True)
+
+            for m in valid_mappings:
+                count = raw_html.count(m["value"])
+                st.markdown(f"- `{m['value']}` → `{m['placeholder']}` &nbsp;({count} tempat)", unsafe_allow_html=True)
+        else:
+            st.warning("⚠️ Belum ada mapping yang valid. Isi nilai dan pilih placeholder.")
+
+        st.markdown("---")
+
+        # ── STEP 4: TEMPLATE INFO ──
+        st.markdown("## 4️⃣ Info Template Baru")
+
+        col_t1, col_t2 = st.columns(2)
+        with col_t1:
+            tmpl_category = st.selectbox(
+                "Category",
+                ["Essential", "Portrait", "Cinematic", "Prestige"],
+                help="Pilih category yang sesuai"
+            )
+            tmpl_name = st.text_input("Nama Template", placeholder="cth: Sakura — Tema Bunga Jepun")
+            tmpl_emoji = st.text_input("Emoji", placeholder="🌸", max_chars=2)
+        with col_t2:
+            tmpl_desc = st.text_input("Penerangan Ringkas", placeholder="cth: Tema minimalis, pink & white")
+            tmpl_filename = st.text_input(
+                "Nama Fail (tanpa .html)",
+                placeholder="cth: v5_sakura",
+                help="Guna huruf kecil dan underscore sahaja"
+            )
+            # Auto-sanitize filename
+            if tmpl_filename:
+                safe_name = re.sub(r'[^a-z0-9_]', '_', tmpl_filename.lower().strip())
+                if safe_name != tmpl_filename:
+                    st.caption(f"✏️ Akan disimpan sebagai: `{safe_name}.html`")
+                    tmpl_filename = safe_name
+
+        st.markdown("---")
+
+        # ── STEP 5: CONVERT & DEPLOY ──
+        st.markdown("## 5️⃣ Convert & Upload ke GitHub")
+
+        gh_token = st.session_state.get("gh_token", "") or st.secrets.get("GH_TOKEN", "")
+        gh_repo = st.session_state.get("gh_repo", "") or st.secrets.get("GH_REPO", "")
+
+        if not gh_token or not gh_repo:
+            st.markdown("""
+            <div class='warning-box'>
+                ⚠️ GitHub belum setup. Pergi <b>⚙️ GitHub Settings</b> dulu.
+            </div>
+            """, unsafe_allow_html=True)
+
+        # Validation
+        can_convert = bool(valid_mappings and tmpl_name and tmpl_filename and gh_token and gh_repo)
+
+        if not can_convert:
+            missing_things = []
+            if not valid_mappings: missing_things.append("mapping values")
+            if not tmpl_name: missing_things.append("nama template")
+            if not tmpl_filename: missing_things.append("nama fail")
+            if not gh_token or not gh_repo: missing_things.append("GitHub settings")
+            st.warning(f"⚠️ Sila lengkapkan: {', '.join(missing_things)}")
+
+        if st.button("🚀 Convert & Upload Template!", disabled=not can_convert):
+            # Apply all replacements
+            converted_html = raw_html
+            for mapping in valid_mappings:
+                converted_html = converted_html.replace(mapping["value"], mapping["placeholder"])
+
+            final_filename = f"{tmpl_filename}.html"
+
+            # Upload to GitHub (Streamlit repo — templates folder)
+            with st.spinner("📤 Uploading template ke GitHub..."):
+                # Upload template file ke Streamlit repo
+                streamlit_repo = gh_repo  # same repo as admin tool
+                result = github_upload_file(
+                    token=gh_token,
+                    repo=streamlit_repo,
+                    filepath=f"eqstudio_admin_new/templates/{final_filename}",
+                    content=converted_html,
+                    commit_msg=f"Add template: {tmpl_name} [{final_filename}]"
+                )
+
+            if result["success"]:
+                # Save to session state so can use immediately
+                if "session_templates" not in st.session_state:
+                    st.session_state.session_templates = {}
+
+                st.session_state.session_templates[tmpl_filename] = {
+                    "name": tmpl_name,
+                    "file": final_filename,
+                    "has_photo": tmpl_category in ["Portrait", "Cinematic", "Prestige"],
+                    "has_video": tmpl_category in ["Cinematic", "Prestige"],
+                    "has_gallery": tmpl_category == "Prestige",
+                    "preview_emoji": tmpl_emoji or "✨",
+                    "desc": tmpl_desc,
+                    "category": tmpl_category,
+                    "_converted": True,
+                }
+
+                st.markdown(f"""
+                <div class='success-box'>
+                    <h3 style='color:#4CAF50;margin:0 0 .5rem'>✅ Template Berjaya Diupload!</h3>
+                    <b>Nama:</b> {tmpl_name}<br>
+                    <b>Fail:</b> {final_filename}<br>
+                    <b>Category:</b> {tmpl_category}<br>
+                    <b>Replacements:</b> {len(valid_mappings)} placeholder<br><br>
+                    <small style='color:#888'>⚠️ Template dah upload ke GitHub. Tapi untuk ia muncul dalam dropdown Jana Kad, kau perlu tambah manually dalam TEMPLATES dict dalam app.py.<br>
+                    Code dia ada kat bawah — copy paste je.</small>
+                </div>
+                """, unsafe_allow_html=True)
+
+                # Generate the code snippet to add to TEMPLATES
+                has_photo_val = tmpl_category in ["Portrait", "Cinematic", "Prestige"]
+                has_video_val = tmpl_category in ["Cinematic", "Prestige"]
+                has_gallery_val = tmpl_category == "Prestige"
+
+                code_snippet = f'        "{tmpl_filename}": {{\n'
+                code_snippet += f'            "name": "{tmpl_name}",\n'
+                code_snippet += f'            "file": "{final_filename}",\n'
+                code_snippet += f'            "has_photo": {has_photo_val},\n'
+                if has_video_val:
+                    code_snippet += f'            "has_video": {has_video_val},\n'
+                if has_gallery_val:
+                    code_snippet += f'            "has_gallery": {has_gallery_val},\n'
+                code_snippet += f'            "preview_emoji": "{tmpl_emoji or "✨"}",\n'
+                code_snippet += f'            "desc": "{tmpl_desc}",\n'
+                code_snippet += f'        }},'
+
+                st.markdown("### 📋 Copy code ni, tambah dalam TEMPLATES dict:")
+                st.code(f'# Letak dalam "{tmpl_category}" section:\n{code_snippet}', language="python")
+
+                # Reset converter
+                st.session_state.converter_rows = [{"value": "", "placeholder": ""}]
+
+            else:
+                st.error(f"❌ Upload gagal: {result['error']}")
+
+        # Show converted preview
+        if valid_mappings:
+            with st.expander("👁️ Preview HTML selepas conversion (raw)"):
+                preview_html = raw_html
+                for mapping in valid_mappings:
+                    preview_html = preview_html.replace(mapping["value"], mapping["placeholder"])
+                st.code(preview_html[:3000] + "\n\n... [truncated]", language="html")
