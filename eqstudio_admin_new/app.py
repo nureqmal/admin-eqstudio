@@ -159,7 +159,27 @@ TEMPLATES = {
             "desc": "Tema mewah burgundy & champagne, gallery gambar",
         },
     },
-}
+    "Cinematic": {
+    "v1_cinematic": {
+        "name": "Cinematic — Contoh Nama",
+        "file": "v1_cinematic.html",
+        "has_photo": True,
+        "has_video": True,
+        "preview_emoji": "🎬",
+        "desc": "Penerangan ringkas",
+    },
+},
+    "Prestige": {
+    "v1_prestige": {
+        "name": "Prestige — Contoh Nama",
+        "file": "v1_prestige.html",
+        "has_photo": True,
+        "has_video": True,
+        "has_gallery": True,
+        "preview_emoji": "💎",
+        "desc": "Penerangan ringkas",
+    },
+},
 
 PLACEHOLDERS = {
     "{{GROOM_NAME}}":       "Nama pengantin lelaki",
@@ -188,6 +208,12 @@ PLACEHOLDERS = {
     "{{PHOTO2_URL}}":       "Link gambar gallery 2",
     "{{PHOTO3_URL}}":       "Link gambar gallery 3",
     "{{OPENING_PHOTO_URL}}":"Link gambar opening",
+    "{{VIDEO_URL}}":        "Link Google Drive video",
+    "{{GALLERY1_URL}}":     "Link gambar gallery 1",
+    "{{GALLERY2_URL}}":     "Link gambar gallery 2",
+    "{{GALLERY3_URL}}":     "Link gambar gallery 3",
+    "{{GALLERY4_URL}}":     "Link gambar gallery 4",
+    "{{GALLERY5_URL}}":     "Link gambar gallery 5",
 }
 
 # ─────────────────────────────────────────
@@ -646,6 +672,35 @@ elif "🆕 Jana Kad Baru" in page:
 
         st.markdown("---")
 
+        # ── VIDEO (Cinematic & Prestige) ──
+            if selected_tmpl.get("has_video"):
+                st.markdown("---")
+                st.markdown("## 🎬 Video Pengantin")
+                st.markdown("""
+                <div class='info-box'>
+                    💡 Upload video ke Google Drive → klik kanan → <b>Get link</b> → tukar sharing ke <b>"Anyone with the link"</b><br>
+                    Paste link tu kat bawah.
+                </div>
+                """, unsafe_allow_html=True)
+                video_url = st.text_input("Link Google Drive Video", placeholder="https://drive.google.com/file/d/xxx/view")
+            else:
+                video_url = ""
+
+        # ── GALLERY (Prestige) ──
+            if selected_tmpl.get("has_gallery"):
+                st.markdown("---")
+                st.markdown("## 🖼️ Gallery Gambar")
+                col_g1, col_g2 = st.columns(2)
+                with col_g1:
+                    gallery1_url = st.text_input("Gambar Gallery 1", placeholder="https://drive.google.com/...")
+                    gallery2_url = st.text_input("Gambar Gallery 2", placeholder="https://drive.google.com/...")
+                    gallery3_url = st.text_input("Gambar Gallery 3", placeholder="https://drive.google.com/...")
+                with col_g2:
+                    gallery4_url = st.text_input("Gambar Gallery 4", placeholder="https://drive.google.com/...")
+                    gallery5_url = st.text_input("Gambar Gallery 5", placeholder="https://drive.google.com/...")
+            else:
+                gallery1_url = gallery2_url = gallery3_url = gallery4_url = gallery5_url = ""
+
     # ── STEP 9: JANA & DEPLOY ──
     st.markdown("## 9️⃣ Jana & Deploy")
 
@@ -704,6 +759,12 @@ elif "🆕 Jana Kad Baru" in page:
                 "{{CONTACT_PHONE_WA}}": wa_num,
                 "{{MUSIC_URL}}":        music_url or "",
                 "{{MUSIC_LABEL}}":      music_label or "Lagu Perkahwinan",
+                "{{VIDEO_URL}}":    video_url,
+                "{{GALLERY1_URL}}": gallery1_url,
+                "{{GALLERY2_URL}}": gallery2_url,
+                "{{GALLERY3_URL}}": gallery3_url,
+                "{{GALLERY4_URL}}": gallery4_url,
+                "{{GALLERY5_URL}}": gallery5_url,
             }
 
             if selected_tmpl["has_photo"]:
