@@ -128,12 +128,12 @@ TEMPLATES = {
             "desc": "Tema langit malam, bintang bersinar, navy & gold",
         },
 
-            "v5_namabaru": {           # ← tambah ni
-        "name": "Nama Template Kau",
-        "file": "Jemputan Ijab Kabul Afifi & Zahidah (RSVP2)",
-        "has_photo": False,
-        "preview_emoji": "✨",
-        "desc": "test afifi punya",
+        "v5_namabaru": {           # ← tambah ni
+            "name": "Sliding Style",
+            "file": "Jemputan Ijab Kabul Afifi & Zahidah (RSVP2)",
+            "has_photo": False,
+            "preview_emoji": "✨",
+            "desc": "test afifi punya",
     },
         "v3_garden": {
             "name": "Garden — Taman Botanik",
