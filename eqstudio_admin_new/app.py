@@ -167,8 +167,8 @@ TEMPLATES = {
         "has_video": True,
         "preview_emoji": "🎬",
         "desc": "Penerangan ringkas",
+        },
     },
-},
     "Prestige": {
     "v1_prestige": {
         "name": "Prestige — Contoh Nama",
@@ -178,8 +178,8 @@ TEMPLATES = {
         "has_gallery": True,
         "preview_emoji": "💎",
         "desc": "Penerangan ringkas",
-    },
-}
+        },
+    }
 
 PLACEHOLDERS = {
     "{{GROOM_NAME}}":       "Nama pengantin lelaki",
