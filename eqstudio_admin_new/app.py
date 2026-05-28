@@ -301,9 +301,32 @@ def load_template(filename: str) -> str:
     return path.read_text(encoding="utf-8")
 
 def apply_replacements(html: str, data: dict) -> str:
+    BRACKET_MAP = {
+        "{{GROOM_NAME}}":       "[NAMA PENGANTIN LELAKI]",
+        "{{GROOM_FULL}}":       "[NAMA PENUH PENGANTIN LELAKI]",
+        "{{BRIDE_NAME}}":       "[NAMA PENGANTIN PEREMPUAN]",
+        "{{BRIDE_FULL}}":       "[NAMA PENUH PENGANTIN PEREMPUAN]",
+        "{{FATHER_NAME}}":      "[NAMA BAPA LELAKI]",
+        "{{MOTHER_NAME}}":      "[NAMA IBU LELAKI]",
+        "{{DATE_DISPLAY}}":     "[TARIKH]",
+        "{{DATE_DAY}}":         "[HARI]",
+        "{{DATE_HIJRI}}":       "[TARIKH HIJRI]",
+        "{{DATE_ISO}}":         "[YYYY]-[MM]-[DD]T[HH]:00:00",
+        "{{TIME_DISPLAY}}":     "[MASA MULA]",
+        "{{VENUE_NAME}}":       "[NAMA VENUE]",
+        "{{VENUE_ADDRESS}}":    "[ALAMAT VENUE]",
+        "{{WAZE_LINK}}":        "https://waze.com/ul?q=[NAMA+VENUE]",
+        "{{GMAP_LINK}}":        "https://maps.google.com/?q=[NAMA+VENUE]",
+        "{{CONTACT_PHONE_WA}}": "[NO_TELEFON_TANPA_+]",
+        "{{MUSIC_URL}}":        "PLACEHOLDER_AUDIO_URL",
+        "{{VIDEO_URL}}":        "[VIDEO_URL]",
+    }
     for key, val in data.items():
         if val:
             html = html.replace(key, str(val))
+            bracket_key = BRACKET_MAP.get(key)
+            if bracket_key:
+                html = html.replace(bracket_key, str(val))
     return html
 
 def generate_order_id() -> str:
