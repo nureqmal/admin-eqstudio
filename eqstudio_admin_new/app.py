@@ -1,5 +1,4 @@
 import streamlit as st
-import json
 import os
 import base64
 import re
@@ -31,86 +30,52 @@ st.markdown("""
     h1, h2, h3 { color: #C9A96E !important; }
     .stButton > button {
         background: linear-gradient(135deg, #C9A96E, #8B6B2E);
-        color: white;
-        border: none;
-        border-radius: 8px;
-        font-weight: 600;
-        padding: 0.6rem 1.5rem;
-        width: 100%;
+        color: white; border: none; border-radius: 8px;
+        font-weight: 600; padding: 0.6rem 1.5rem; width: 100%;
     }
     .stButton > button:hover { opacity: 0.9; }
     .stButton > button:disabled { opacity: 0.4; cursor: not-allowed; }
     .stTextInput > div > div > input,
     .stTextArea > div > div > textarea,
     .stSelectbox > div > div {
-        background: #1e1e1e !important;
-        color: #f0e8d8 !important;
-        border: 1px solid #333 !important;
-        border-radius: 8px !important;
+        background: #1e1e1e !important; color: #f0e8d8 !important;
+        border: 1px solid #333 !important; border-radius: 8px !important;
     }
     .stNumberInput > div > div > input { background: #1e1e1e !important; color: #f0e8d8 !important; }
     .success-box {
         background: linear-gradient(135deg, #1a2e1a, #0f1f0f);
-        border: 1px solid #2d5a2d;
-        border-radius: 12px;
-        padding: 1.5rem;
-        margin: 1rem 0;
+        border: 1px solid #2d5a2d; border-radius: 12px; padding: 1.5rem; margin: 1rem 0;
     }
     .info-box {
         background: linear-gradient(135deg, #1a1a2e, #0f0f1f);
-        border: 1px solid #2d2d5a;
-        border-radius: 12px;
-        padding: 1rem;
-        margin: .5rem 0;
-        font-size: 0.85rem;
-        color: #a0a8c0;
+        border: 1px solid #2d2d5a; border-radius: 12px;
+        padding: 1rem; margin: .5rem 0; font-size: 0.85rem; color: #a0a8c0;
     }
     .warning-box {
         background: linear-gradient(135deg, #2e2a1a, #1f1a0f);
-        border: 1px solid #5a4a2d;
-        border-radius: 12px;
-        padding: 1rem;
-        margin: .5rem 0;
-        font-size: 0.85rem;
-        color: #c0b08a;
+        border: 1px solid #5a4a2d; border-radius: 12px;
+        padding: 1rem; margin: .5rem 0; font-size: 0.85rem; color: #c0b08a;
     }
     .link-box {
         background: linear-gradient(135deg, #0f2e1a, #0a1f12);
-        border: 1px solid #1a5a32;
-        border-radius: 12px;
-        padding: 1.2rem 1.5rem;
-        margin: 1rem 0;
-        word-break: break-all;
+        border: 1px solid #1a5a32; border-radius: 12px;
+        padding: 1.2rem 1.5rem; margin: 1rem 0; word-break: break-all;
     }
     .template-card {
-        background: #1e1e1e;
-        border: 1px solid #333;
-        border-radius: 12px;
-        padding: 1rem;
-        margin: .5rem 0;
+        background: #1e1e1e; border: 1px solid #333;
+        border-radius: 12px; padding: 1rem; margin: .5rem 0;
     }
     .category-badge {
-        display: inline-block;
-        background: rgba(201,169,110,0.15);
-        border: 1px solid rgba(201,169,110,0.3);
-        border-radius: 20px;
-        padding: 2px 10px;
-        font-size: 0.75rem;
-        color: #C9A96E;
-        margin-bottom: 0.5rem;
+        display: inline-block; background: rgba(201,169,110,0.15);
+        border: 1px solid rgba(201,169,110,0.3); border-radius: 20px;
+        padding: 2px 10px; font-size: 0.75rem; color: #C9A96E; margin-bottom: 0.5rem;
     }
     .order-id {
-        font-family: monospace;
-        background: #2a2a2a;
-        padding: 4px 10px;
-        border-radius: 6px;
-        color: #C9A96E;
-        font-size: 0.85rem;
+        font-family: monospace; background: #2a2a2a;
+        padding: 4px 10px; border-radius: 6px; color: #C9A96E; font-size: 0.85rem;
     }
     div[data-testid="stExpander"] {
-        background: #1a1a1a;
-        border: 1px solid #333;
-        border-radius: 10px;
+        background: #1a1a1a; border: 1px solid #333; border-radius: 10px;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -127,14 +92,6 @@ TEMPLATES = {
             "preview_emoji": "🌙",
             "desc": "Tema langit malam, bintang bersinar, navy & gold",
         },
-
-        "v5_namabaru": {           # ← tambah ni
-            "name": "Sliding Style",
-            "file": "Jemputan Ijab Kabul Afifi & Zahidah (RSVP2)",
-            "has_photo": False,
-            "preview_emoji": "✨",
-            "desc": "test afifi punya",
-    },
         "v3_garden": {
             "name": "Garden — Taman Botanik",
             "file": "v3_garden.html",
@@ -160,107 +117,112 @@ TEMPLATES = {
         },
     },
     "Cinematic": {
-    "v1_cinematic": {
-        "name": "Cinematic — Contoh Nama",
-        "file": "v1_cinematic.html",
-        "has_photo": True,
-        "has_video": True,
-        "preview_emoji": "🎬",
-        "desc": "Penerangan ringkas",
+        "v1_cinematic": {
+            "name": "Cinematic — Contoh Nama",
+            "file": "v1_cinematic.html",
+            "has_photo": True,
+            "has_video": True,
+            "preview_emoji": "🎬",
+            "desc": "Penerangan ringkas",
         },
     },
     "Prestige": {
-    "v1_prestige": {
-        "name": "Prestige — Contoh Nama",
-        "file": "v1_prestige.html",
-        "has_photo": True,
-        "has_video": True,
-        "has_gallery": True,
-        "preview_emoji": "💎",
-        "desc": "Penerangan ringkas",
+        "v1_prestige": {
+            "name": "Prestige — Contoh Nama",
+            "file": "v1_prestige.html",
+            "has_photo": True,
+            "has_video": True,
+            "has_gallery": True,
+            "preview_emoji": "💎",
+            "desc": "Penerangan ringkas",
         },
     },
 }
 
-PLACEHOLDERS = {
-    "{{GROOM_NAME}}":       "Nama pengantin lelaki",
-    "{{BRIDE_NAME}}":       "Nama pengantin perempuan",
-    "{{GROOM_FULL}}":       "Nama penuh pengantin lelaki",
-    "{{BRIDE_FULL}}":       "Nama penuh pengantin perempuan",
-    "{{FATHER_NAME}}":      "Nama bapa tuan rumah",
-    "{{MOTHER_NAME}}":      "Nama ibu tuan rumah",
-    "{{PARENT_SIDE}}":      "Pihak (Perempuan/Lelaki)",
-    "{{DATE_DISPLAY}}":     "Tarikh papar (eg: 10 Ogos 2026)",
-    "{{DATE_DAY}}":         "Hari (eg: Isnin)",
-    "{{DATE_HIJRI}}":       "Tarikh hijri (eg: 15 Safar 1448H)",
-    "{{DATE_ISO}}":         "Tarikh ISO untuk countdown (eg: 2026-08-10T12:00:00+08:00)",
-    "{{TIME_DISPLAY}}":     "Masa (eg: 12:00 Tengahari)",
-    "{{VENUE_NAME}}":       "Nama dewan",
-    "{{VENUE_ADDRESS}}":    "Alamat penuh",
-    "{{WAZE_LINK}}":        "Link Waze",
-    "{{GMAP_LINK}}":        "Link Google Maps",
-    "{{CONTACT_NAME}}":     "Nama contact person",
-    "{{CONTACT_PHONE}}":    "No telefon (format: 0123456789)",
-    "{{CONTACT_PHONE_WA}}": "No telefon WhatsApp (format: 60123456789)",
-    "{{MUSIC_URL}}":        "Link direct MP3",
-    "{{MUSIC_LABEL}}":      "Label nama lagu (eg: Beautiful In White)",
-    "{{HERO_PHOTO_URL}}":   "Link gambar hero (fullscreen)",
-    "{{PHOTO1_URL}}":       "Link gambar gallery 1",
-    "{{PHOTO2_URL}}":       "Link gambar gallery 2",
-    "{{PHOTO3_URL}}":       "Link gambar gallery 3",
-    "{{OPENING_PHOTO_URL}}":"Link gambar opening",
-    "{{VIDEO_URL}}":        "Link Google Drive video",
-    "{{GALLERY1_URL}}":     "Link gambar gallery 1",
-    "{{GALLERY2_URL}}":     "Link gambar gallery 2",
-    "{{GALLERY3_URL}}":     "Link gambar gallery 3",
-    "{{GALLERY4_URL}}":     "Link gambar gallery 4",
-    "{{GALLERY5_URL}}":     "Link gambar gallery 5",
+# ─────────────────────────────────────────
+#  PLACEHOLDER OPTIONS (untuk Template Converter)
+# ─────────────────────────────────────────
+PLACEHOLDER_OPTIONS = {
+    "-- Pilih Placeholder --": "",
+    "[NAMA PENGANTIN LELAKI] — Nama panggilan pengantin lelaki": "[NAMA PENGANTIN LELAKI]",
+    "[NAMA PENGANTIN PEREMPUAN] — Nama panggilan pengantin perempuan": "[NAMA PENGANTIN PEREMPUAN]",
+    "[NAMA PENUH PENGANTIN LELAKI] — Nama penuh pengantin lelaki": "[NAMA PENUH PENGANTIN LELAKI]",
+    "[NAMA PENUH PENGANTIN PEREMPUAN] — Nama penuh pengantin perempuan": "[NAMA PENUH PENGANTIN PEREMPUAN]",
+    "[NAMA BAPA LELAKI] — Nama bapa pengantin lelaki": "[NAMA BAPA LELAKI]",
+    "[NAMA IBU LELAKI] — Nama ibu pengantin lelaki": "[NAMA IBU LELAKI]",
+    "[NAMA BAPA PEREMPUAN] — Nama bapa pengantin perempuan": "[NAMA BAPA PEREMPUAN]",
+    "[NAMA IBU PEREMPUAN] — Nama ibu pengantin perempuan": "[NAMA IBU PEREMPUAN]",
+    "[NAMA TUAN RUMAH] — Nama tuan rumah / keluarga penganjur": "[NAMA TUAN RUMAH]",
+    "[NAMA TUAN RUMAH / KELUARGA PENGANJUR] — Nama tuan rumah penuh": "[NAMA TUAN RUMAH / KELUARGA PENGANJUR]",
+    "[NAMA LELAKI] — Nama pendek lelaki (envelope)": "[NAMA LELAKI]",
+    "[NAMA PEREMPUAN] — Nama pendek perempuan (envelope)": "[NAMA PEREMPUAN]",
+    "[TARIKH] — Tarikh papar (eg: 10 Ogos 2026)": "[TARIKH]",
+    "[DD] [BULAN] [YYYY] — Format tarikh penuh": "[DD] [BULAN] [YYYY]",
+    "[DD] · [BULAN] · [YYYY] — Format tarikh dengan titik": "[DD] · [BULAN] · [YYYY]",
+    "[HARI], [NAMA BULAN] — Hari dan bulan": "[HARI], [NAMA BULAN]",
+    "[HARI] — Hari majlis (eg: Sabtu)": "[HARI]",
+    "[NAMA BULAN] — Nama bulan (eg: Ogos)": "[NAMA BULAN]",
+    "[DD] — Nombor hari": "[DD]",
+    "[MM] — Nombor bulan": "[MM]",
+    "[YYYY] — Tahun": "[YYYY]",
+    "[TARIKH HIJRI] — Tarikh Hijri": "[TARIKH HIJRI]",
+    "[MASA MULA] — Masa mula majlis (eg: 11:00)": "[MASA MULA]",
+    "[HH] — Jam (eg: 11)": "[HH]",
+    "[NAMA VENUE] — Nama dewan / tempat": "[NAMA VENUE]",
+    "[NAMA VENUE PENDEK] — Nama venue pendek": "[NAMA VENUE PENDEK]",
+    "[NAMA VENUE PENUH] — Nama venue penuh": "[NAMA VENUE PENUH]",
+    "[NAMA+VENUE] — Nama venue untuk URL": "[NAMA+VENUE]",
+    "[ALAMAT VENUE] — Alamat venue": "[ALAMAT VENUE]",
+    "[ALAMAT PENUH VENUE] — Alamat penuh venue": "[ALAMAT PENUH VENUE]",
+    "[NAMA BANDAR / VENUE] — Nama bandar": "[NAMA BANDAR / VENUE]",
+    "[NO_TELEFON_TANPA_+] — No WhatsApp (eg: 60123456789)": "[NO_TELEFON_TANPA_+]",
+    "[NO TELEFON] — No telefon (eg: 011-12345678)": "[NO TELEFON]",
+    "[NO TELEFON DENGAN FORMAT 01X-XXXXXXX] — No telefon berformat": "[NO TELEFON DENGAN FORMAT 01X-XXXXXXX]",
+    "[NAMA PERTANYAAN] — Nama contact person": "[NAMA PERTANYAAN]",
+    "[NAMA CONTACT PERSON] — Nama contact person (alt)": "[NAMA CONTACT PERSON]",
+    "PLACEHOLDER_AUDIO_URL — Link MP3 lagu": "PLACEHOLDER_AUDIO_URL",
+    "[NAMA MAJLIS] — Nama majlis penuh": "[NAMA MAJLIS]",
+    "[YYYYMMDD] — Tarikh format calendar": "[YYYYMMDD]",
+    "[HHMM00] — Masa format calendar": "[HHMM00]",
+    "[YYYY]-[MM]-[DD]T[HH]:00:00 — Tarikh ISO countdown": "[YYYY]-[MM]-[DD]T[HH]:00:00",
+    "[VIDEO_URL] — Link video Google Drive": "[VIDEO_URL]",
+    "[HERO_PHOTO_URL] — Link gambar hero": "[HERO_PHOTO_URL]",
+    "[PHOTO1_URL] — Link gambar gallery 1": "[PHOTO1_URL]",
+    "[PHOTO2_URL] — Link gambar gallery 2": "[PHOTO2_URL]",
+    "[PHOTO3_URL] — Link gambar gallery 3": "[PHOTO3_URL]",
+    "[OPENING_PHOTO_URL] — Link gambar opening": "[OPENING_PHOTO_URL]",
+    "[GALLERY1_URL] — Link gallery 1": "[GALLERY1_URL]",
+    "[GALLERY2_URL] — Link gallery 2": "[GALLERY2_URL]",
+    "[GALLERY3_URL] — Link gallery 3": "[GALLERY3_URL]",
+    "[GALLERY4_URL] — Link gallery 4": "[GALLERY4_URL]",
+    "[GALLERY5_URL] — Link gallery 5": "[GALLERY5_URL]",
 }
 
 # ─────────────────────────────────────────
 #  GITHUB HELPER FUNCTIONS
 # ─────────────────────────────────────────
-def github_upload_file(token: str, repo: str, filepath: str, content: str, commit_msg: str) -> dict:
-    """
-    Upload / overwrite satu file ke GitHub repo via API.
-    content = raw string (bukan base64) — function ni akan encode sendiri.
-    Returns dict dengan 'success', 'url', 'raw_url', 'error'.
-    """
+def github_upload_file(token, repo, filepath, content, commit_msg):
     api_url = f"https://api.github.com/repos/{repo}/contents/{filepath}"
     headers = {
         "Authorization": f"token {token}",
         "Accept": "application/vnd.github.v3+json",
         "X-GitHub-Api-Version": "2022-11-28",
     }
-
-    # Check kalau file dah wujud — kena ambik SHA dulu untuk update
     sha = None
     r = requests.get(api_url, headers=headers, timeout=15)
     if r.status_code == 200:
         sha = r.json().get("sha")
-
-    # Encode content ke base64
     content_b64 = base64.b64encode(content.encode("utf-8")).decode("utf-8")
-
-    payload = {
-        "message": commit_msg,
-        "content": content_b64,
-    }
+    payload = {"message": commit_msg, "content": content_b64}
     if sha:
-        payload["sha"] = sha  # Required untuk update file sedia ada
-
+        payload["sha"] = sha
     r = requests.put(api_url, headers=headers, json=payload, timeout=30)
-
     if r.status_code in (200, 201):
         data = r.json()
         raw_url = data["content"]["download_url"]
-        # Convert raw URL ke GitHub Pages URL
-        # raw: https://raw.githubusercontent.com/USER/REPO/main/path
-        # pages: https://USER.github.io/REPO/path
         parts = raw_url.replace("https://raw.githubusercontent.com/", "").split("/")
         user = parts[0]
         repo_name = parts[1]
-        # parts[2] = branch
         file_path = "/".join(parts[3:])
         pages_url = f"https://{user}.github.io/{repo_name}/{file_path}"
         return {"success": True, "pages_url": pages_url, "raw_url": raw_url}
@@ -271,17 +233,11 @@ def github_upload_file(token: str, repo: str, filepath: str, content: str, commi
             err = r.text
         return {"success": False, "error": f"GitHub API error {r.status_code}: {err}"}
 
-
-def validate_github_token(token: str, repo: str) -> tuple[bool, str]:
-    """Check token valid dan ada access ke repo."""
-    headers = {
-        "Authorization": f"token {token}",
-        "Accept": "application/vnd.github.v3+json",
-    }
+def validate_github_token(token, repo):
+    headers = {"Authorization": f"token {token}", "Accept": "application/vnd.github.v3+json"}
     r = requests.get(f"https://api.github.com/repos/{repo}", headers=headers, timeout=10)
     if r.status_code == 200:
-        data = r.json()
-        has_pages = data.get("has_pages", False)
+        has_pages = r.json().get("has_pages", False)
         return True, "ok" if has_pages else "no_pages"
     elif r.status_code == 401:
         return False, "Token tidak valid atau expired."
@@ -290,55 +246,29 @@ def validate_github_token(token: str, repo: str) -> tuple[bool, str]:
     else:
         return False, f"Error {r.status_code}"
 
-
 # ─────────────────────────────────────────
 #  HELPER FUNCTIONS
 # ─────────────────────────────────────────
-def load_template(filename: str) -> str:
+def load_template(filename):
     path = BASE_DIR / "templates" / filename
     if not path.exists():
         return None
     return path.read_text(encoding="utf-8")
 
-def apply_replacements(html: str, data: dict) -> str:
-    BRACKET_MAP = {
-        "{{GROOM_NAME}}":       "[NAMA PENGANTIN LELAKI]",
-        "{{GROOM_FULL}}":       "[NAMA PENUH PENGANTIN LELAKI]",
-        "{{BRIDE_NAME}}":       "[NAMA PENGANTIN PEREMPUAN]",
-        "{{BRIDE_FULL}}":       "[NAMA PENUH PENGANTIN PEREMPUAN]",
-        "{{FATHER_NAME}}":      "[NAMA BAPA LELAKI]",
-        "{{MOTHER_NAME}}":      "[NAMA IBU LELAKI]",
-        "{{DATE_DISPLAY}}":     "[TARIKH]",
-        "{{DATE_DAY}}":         "[HARI]",
-        "{{DATE_HIJRI}}":       "[TARIKH HIJRI]",
-        "{{DATE_ISO}}":         "[YYYY]-[MM]-[DD]T[HH]:00:00",
-        "{{TIME_DISPLAY}}":     "[MASA MULA]",
-        "{{VENUE_NAME}}":       "[NAMA VENUE]",
-        "{{VENUE_ADDRESS}}":    "[ALAMAT VENUE]",
-        "{{WAZE_LINK}}":        "https://waze.com/ul?q=[NAMA+VENUE]",
-        "{{GMAP_LINK}}":        "https://maps.google.com/?q=[NAMA+VENUE]",
-        "{{CONTACT_PHONE_WA}}": "[NO_TELEFON_TANPA_+]",
-        "{{MUSIC_URL}}":        "PLACEHOLDER_AUDIO_URL",
-        "{{VIDEO_URL}}":        "[VIDEO_URL]",
-    }
+def apply_replacements(html, data):
     for key, val in data.items():
         if val:
             html = html.replace(key, str(val))
-            bracket_key = BRACKET_MAP.get(key)
-            if bracket_key:
-                html = html.replace(bracket_key, str(val))
     return html
 
-def generate_order_id() -> str:
-    now = datetime.now()
-    return f"EQ{now.strftime('%y%m%d%H%M')}"
+def generate_order_id():
+    return f"EQ{datetime.now().strftime('%y%m%d%H%M')}"
 
-def file_to_data_url(uploaded_file) -> str:
+def file_to_data_url(uploaded_file):
     b64 = base64.b64encode(uploaded_file.read()).decode()
-    mime = uploaded_file.type
-    return f"data:{mime};base64,{b64}"
+    return f"data:{uploaded_file.type};base64,{b64}"
 
-def get_whatsapp_number(phone: str) -> str:
+def get_whatsapp_number(phone):
     phone = re.sub(r'\D', '', phone)
     if phone.startswith('0'):
         phone = '60' + phone[1:]
@@ -346,13 +276,16 @@ def get_whatsapp_number(phone: str) -> str:
         phone = '60' + phone
     return phone
 
-def get_waze_link(address: str) -> str:
-    encoded = address.replace(' ', '+')
-    return f"https://waze.com/ul?q={encoded}&navigate=yes"
+def get_waze_link(address):
+    return f"https://waze.com/ul?q={address.replace(' ', '+')}&navigate=yes"
 
-def get_gmap_link(address: str) -> str:
-    encoded = address.replace(' ', '+')
-    return f"https://maps.google.com/?q={encoded}"
+def get_gmap_link(address):
+    return f"https://maps.google.com/?q={address.replace(' ', '+')}"
+
+def sanitize_filename(name):
+    name = name.lower().strip()
+    name = re.sub(r'[^a-z0-9]+', '-', name)
+    return name.strip('-')
 
 def get_all_templates_flat():
     flat = {}
@@ -361,14 +294,8 @@ def get_all_templates_flat():
             flat[key] = {**info, "category": cat}
     return flat
 
-def sanitize_filename(name: str) -> str:
-    """Convert nama ke URL-safe string."""
-    name = name.lower().strip()
-    name = re.sub(r'[^a-z0-9]+', '-', name)
-    return name.strip('-')
-
 # ─────────────────────────────────────────
-#  SIDEBAR — NAVIGATION + GITHUB SETTINGS
+#  SIDEBAR
 # ─────────────────────────────────────────
 with st.sidebar:
     st.markdown("## 💍 EQStudio Admin")
@@ -379,33 +306,15 @@ with st.sidebar:
         label_visibility="collapsed"
     )
     st.markdown("---")
-
-    # Quick status GitHub
     gh_token = st.session_state.get("gh_token", "") or st.secrets.get("GH_TOKEN", "")
-    gh_repo = st.session_state.get("gh_repo", "") or st.secrets.get("GH_REPO", "")
+    gh_repo  = st.session_state.get("gh_repo",  "") or st.secrets.get("GH_REPO",  "")
     if gh_token and gh_repo:
-        st.markdown("""
-        <div style='font-size:0.75rem; color:#4CAF50; line-height:1.8'>
-        ✅ <b style='color:#C9A96E'>GitHub</b> Connected<br>
-        </div>
-        """, unsafe_allow_html=True)
+        st.markdown("<div style='font-size:0.75rem;color:#4CAF50'>✅ <b style='color:#C9A96E'>GitHub</b> Connected</div>", unsafe_allow_html=True)
         st.markdown(f"<div style='font-size:0.7rem;color:#666;margin-top:2px'>📁 {gh_repo}</div>", unsafe_allow_html=True)
     else:
-        st.markdown("""
-        <div style='font-size:0.75rem; color:#888; line-height:1.8'>
-        ⚠️ GitHub belum setup<br>
-        <small>Pergi ⚙️ GitHub Settings</small>
-        </div>
-        """, unsafe_allow_html=True)
-
+        st.markdown("<div style='font-size:0.75rem;color:#888'>⚠️ GitHub belum setup<br><small>Pergi ⚙️ GitHub Settings</small></div>", unsafe_allow_html=True)
     st.markdown("---")
-    st.markdown("""
-    <div style='font-size:0.75rem; color:#666; line-height:1.8'>
-    <b style='color:#C9A96E'>EQStudio</b><br>
-    Admin Dashboard v2.0<br>
-    Kad Kahwin Digital
-    </div>
-    """, unsafe_allow_html=True)
+    st.markdown("<div style='font-size:0.75rem;color:#666'><b style='color:#C9A96E'>EQStudio</b><br>Admin Dashboard v2.0<br>Kad Kahwin Digital</div>", unsafe_allow_html=True)
 
 # ─────────────────────────────────────────
 #  PAGE: GITHUB SETTINGS
@@ -414,56 +323,36 @@ if "⚙️ GitHub Settings" in page:
     st.markdown("# ⚙️ GitHub Settings")
     st.markdown("Setup sekali, guna selama-lamanya. Kad customer akan auto-deploy ke GitHub Pages.")
     st.markdown("---")
-
-    st.markdown("## 📋 Setup Guide")
-    with st.expander("Langkah-langkah setup (klik untuk buka)", expanded=True):
+    with st.expander("📋 Langkah-langkah setup (klik untuk buka)", expanded=True):
         st.markdown("""
         ### 1️⃣ Buat repo baru di GitHub
-        Pergi [github.com/new](https://github.com/new) dan buat repo baru:
-        - **Repository name:** contoh `eqstudio-cards` (nama ikut suka)
-        - **Visibility:** ✅ **Public** (wajib untuk GitHub Pages free)
-        - Tick **"Add a README file"** (supaya repo tak kosong)
+        Pergi [github.com/new](https://github.com/new):
+        - **Repository name:** contoh `eqstudio-cards`
+        - **Visibility:** ✅ **Public**
+        - Tick **"Add a README file"**
         - Klik **Create repository**
 
         ### 2️⃣ Aktifkan GitHub Pages
-        Dalam repo baru tu:
-        - Pergi **Settings** → **Pages** (dalam sidebar kiri)
-        - **Source:** Deploy from a branch
-        - **Branch:** `main` → folder `/` (root)
+        - Pergi **Settings → Pages**
+        - **Source:** Deploy from a branch → `main` → `/` (root)
         - Klik **Save**
-        - URL pages kau akan jadi: `https://USERNAME.github.io/REPO-NAME/`
 
         ### 3️⃣ Jana GitHub Token
         Pergi [github.com/settings/tokens/new](https://github.com/settings/tokens/new):
-        - **Note:** `EQStudio Admin` (nama ikut suka)
-        - **Expiration:** No expiration (atau 1 year)
-        - **Scopes:** Tick ✅ **`repo`** (full control of private repositories)
-        - Klik **Generate token**
-        - **COPY TOKEN SEKARANG** — lepas refresh page, token tak boleh tengok balik!
+        - **Expiration:** No expiration
+        - **Scopes:** Tick ✅ `repo`
+        - **COPY TOKEN SEKARANG**
 
-        ### 4️⃣ Isi details kat bawah ni
+        ### 4️⃣ Isi details kat bawah
         """)
-
     st.markdown("---")
-    st.markdown("## 🔑 Masukkan Details")
-
     col1, col2 = st.columns(2)
     with col1:
-        input_token = st.text_input(
-            "GitHub Personal Access Token",
-            type="password",
-            value=st.session_state.get("gh_token", ""),
-            placeholder="ghp_xxxxxxxxxxxxxxxxxxxx",
-            help="Token dari github.com/settings/tokens"
-        )
+        input_token = st.text_input("GitHub Personal Access Token", type="password",
+            value=st.session_state.get("gh_token", ""), placeholder="ghp_xxxxxxxxxxxxxxxxxxxx")
     with col2:
-        input_repo = st.text_input(
-            "GitHub Repo (format: username/repo-name)",
-            value=st.session_state.get("gh_repo", ""),
-            placeholder="nureqmal/eqstudio-cards",
-            help="Contoh: nureqmal/eqstudio-cards"
-        )
-
+        input_repo = st.text_input("GitHub Repo (username/repo-name)",
+            value=st.session_state.get("gh_repo", ""), placeholder="nureqmal/eqstudio-cards")
     col3, col4 = st.columns([1, 3])
     with col3:
         if st.button("🔍 Test Connection"):
@@ -476,7 +365,7 @@ if "⚙️ GitHub Settings" in page:
                     st.session_state["gh_token"] = input_token
                     st.session_state["gh_repo"] = input_repo
                     if msg == "no_pages":
-                        st.warning("✅ Token & repo OK! Tapi GitHub Pages **belum diaktifkan** untuk repo ni. Pergi Settings → Pages dalam repo kau.")
+                        st.warning("✅ Token OK! Tapi GitHub Pages belum diaktifkan.")
                     else:
                         st.success("✅ Connected! Token valid, repo accessible, Pages aktif.")
                 else:
@@ -488,16 +377,16 @@ if "⚙️ GitHub Settings" in page:
             else:
                 st.session_state["gh_token"] = input_token
                 st.session_state["gh_repo"] = input_repo
-                st.success("✅ Settings disimpan untuk sesi ini.")
-
+                st.success("✅ Settings disimpan.")
     if st.session_state.get("gh_token") and st.session_state.get("gh_repo"):
         st.markdown("---")
+        r = st.session_state['gh_repo']
         st.markdown(f"""
         <div class='success-box'>
             <b style='color:#4CAF50'>✅ GitHub Configured</b><br><br>
-            📁 Repo: <code>{st.session_state['gh_repo']}</code><br>
-            🌐 Pages URL: <code>https://{st.session_state['gh_repo'].split('/')[0]}.github.io/{st.session_state['gh_repo'].split('/')[1]}/</code><br>
-            🔑 Token: <code>{'*' * 20}{st.session_state['gh_token'][-4:]}</code>
+            📁 Repo: <code>{r}</code><br>
+            🌐 Pages: <code>https://{r.split('/')[0]}.github.io/{r.split('/')[1]}/</code><br>
+            🔑 Token: <code>{'*'*20}{st.session_state['gh_token'][-4:]}</code>
         </div>
         """, unsafe_allow_html=True)
 
@@ -505,85 +394,65 @@ if "⚙️ GitHub Settings" in page:
 #  PAGE: JANA KAD BARU
 # ─────────────────────────────────────────
 elif "🆕 Jana Kad Baru" in page:
-
     st.markdown("# 🆕 Jana Kad Kahwin Digital")
     st.markdown("Isi semua maklumat customer, tekan **Jana & Deploy**, dan dapat link terus!")
 
-    # Check GitHub configured
-    gh_token = st.session_state.get("gh_token", "")
-    gh_repo = st.session_state.get("gh_repo", "")
+    gh_token = st.session_state.get("gh_token", "") or st.secrets.get("GH_TOKEN", "")
+    gh_repo  = st.session_state.get("gh_repo",  "") or st.secrets.get("GH_REPO",  "")
     github_ready = bool(gh_token and gh_repo)
 
     if not github_ready:
-        st.markdown("""
-        <div class='warning-box'>
-            ⚠️ <b>GitHub belum setup.</b> Kad boleh dijana dan di-download, tapi <b>auto-deploy ke link permanent tidak aktif</b>.<br>
-            Pergi <b>⚙️ GitHub Settings</b> dalam sidebar untuk setup.
-        </div>
-        """, unsafe_allow_html=True)
+        st.markdown("<div class='warning-box'>⚠️ <b>GitHub belum setup.</b> Pergi <b>⚙️ GitHub Settings</b>.</div>", unsafe_allow_html=True)
     else:
-        username = gh_repo.split('/')[0]
-        repo_name = gh_repo.split('/')[1]
-        st.markdown(f"""
-        <div class='info-box'>
-            ✅ GitHub connected → <code>https://{username}.github.io/{repo_name}/</code>
-        </div>
-        """, unsafe_allow_html=True)
+        u, r = gh_repo.split('/')
+        st.markdown(f"<div class='info-box'>✅ GitHub connected → <code>https://{u}.github.io/{r}/</code></div>", unsafe_allow_html=True)
 
     st.markdown("---")
 
-    # ── STEP 1: PILIH TEMPLATE ──
+    # STEP 1: TEMPLATE
     st.markdown("## 1️⃣ Pilih Template")
-    all_templates = get_all_templates_flat()
-    cat_selected = st.selectbox(
-        "Pilih Category",
-        list(TEMPLATES.keys()),
-        format_func=lambda x: f"{'⭐' if x == 'Essential' else '📸' if x == 'Portrait' else '✨'} {x}"
-    )
+    cat_selected = st.selectbox("Pilih Category", list(TEMPLATES.keys()),
+        format_func=lambda x: f"{'⭐' if x=='Essential' else '📸' if x=='Portrait' else '🎬' if x=='Cinematic' else '💎'} {x}")
     tmpl_options = TEMPLATES[cat_selected]
-    tmpl_key = st.selectbox(
-        "Pilih Template",
-        list(tmpl_options.keys()),
-        format_func=lambda k: f"{tmpl_options[k]['preview_emoji']}  {tmpl_options[k]['name']}"
-    )
+    tmpl_key = st.selectbox("Pilih Template", list(tmpl_options.keys()),
+        format_func=lambda k: f"{tmpl_options[k]['preview_emoji']}  {tmpl_options[k]['name']}")
     selected_tmpl = tmpl_options[tmpl_key]
     st.markdown(f"""
     <div class='info-box'>
         <span class='category-badge'>{cat_selected}</span><br>
         <b style='color:#f0e8d8'>{selected_tmpl['preview_emoji']} {selected_tmpl['name']}</b><br>
         {selected_tmpl['desc']}<br>
-        {'📸 Template ini memerlukan gambar pengantin' if selected_tmpl['has_photo'] else '🎨 Template tanpa gambar'}
+        {'📸 Template ini memerlukan gambar' if selected_tmpl.get('has_photo') else '🎨 Template tanpa gambar'}
     </div>
     """, unsafe_allow_html=True)
-
     st.markdown("---")
 
-    # ── STEP 2: INFO PENGANTIN ──
+    # STEP 2: PENGANTIN
     st.markdown("## 2️⃣ Maklumat Pengantin")
     col1, col2 = st.columns(2)
     with col1:
         st.markdown("**🤵 Pengantin Lelaki**")
-        groom_name = st.text_input("Nama Panggilan", placeholder="Ahmad Nazmi", key="groom")
-        groom_full = st.text_input("Nama Penuh (opsional)", placeholder="Ahmad Nazmi bin Abdullah", key="groom_full")
+        groom_name = st.text_input("Nama Panggilan", placeholder="Ahmad", key="groom")
+        groom_full = st.text_input("Nama Penuh", placeholder="Ahmad bin Abdullah", key="groom_full")
     with col2:
         st.markdown("**👰 Pengantin Perempuan**")
-        bride_name = st.text_input("Nama Panggilan", placeholder="Nur Farhana", key="bride")
-        bride_full = st.text_input("Nama Penuh (opsional)", placeholder="Nur Farhana binti Ibrahim", key="bride_full")
-
+        bride_name = st.text_input("Nama Panggilan", placeholder="Sarah", key="bride")
+        bride_full = st.text_input("Nama Penuh", placeholder="Sarah binti Ibrahim", key="bride_full")
     st.markdown("---")
 
-    # ── STEP 3: IBU BAPA / TUAN RUMAH ──
+    # STEP 3: TUAN RUMAH
     st.markdown("## 3️⃣ Maklumat Tuan Rumah")
     col3, col4 = st.columns(2)
     with col3:
-        father_name = st.text_input("Nama Bapa", placeholder="Sufian bin Salleh")
-        parent_side = st.selectbox("Pihak", ["Perempuan", "Lelaki", "Perempuan & Lelaki"])
+        father_name = st.text_input("Nama Bapa", placeholder="Abdullah bin Salleh")
+        mother_name = st.text_input("Nama Ibu", placeholder="Siti binti Ahmad")
     with col4:
-        mother_name = st.text_input("Nama Ibu", placeholder="Siti Maimun")
-
+        father_bride = st.text_input("Nama Bapa (Perempuan)", placeholder="Ibrahim bin Hassan")
+        mother_bride = st.text_input("Nama Ibu (Perempuan)", placeholder="Aminah binti Yusof")
+        parent_side  = st.selectbox("Pihak Tuan Rumah", ["Perempuan", "Lelaki", "Perempuan & Lelaki"])
     st.markdown("---")
 
-    # ── STEP 4: TARIKH & MASA ──
+    # STEP 4: TARIKH
     st.markdown("## 4️⃣ Tarikh & Masa Majlis")
     col5, col6 = st.columns(2)
     with col5:
@@ -591,141 +460,108 @@ elif "🆕 Jana Kad Baru" in page:
         event_time = st.time_input("Masa Majlis")
         hijri_date = st.text_input("Tarikh Hijri", placeholder="15 Safar 1448H")
     with col6:
-        days_ms = ["Isnin","Selasa","Rabu","Khamis","Jumaat","Sabtu","Ahad"]
+        days_ms   = ["Isnin","Selasa","Rabu","Khamis","Jumaat","Sabtu","Ahad"]
         months_ms = ["","Januari","Februari","Mac","April","Mei","Jun","Julai","Ogos","September","Oktober","November","Disember"]
-        day_name = days_ms[event_date.weekday()]
+        day_name     = days_ms[event_date.weekday()]
         date_display = f"{event_date.day} {months_ms[event_date.month]} {event_date.year}"
-        time_display = event_time.strftime("%I:%M %p").lstrip("0").replace("AM","Pagi").replace("PM","Tengahari/Petang")
-        date_iso = f"{event_date.isoformat()}T{event_time.strftime('%H:%M:%S')}+08:00"
+        date_iso     = f"{event_date.isoformat()}T{event_time.strftime('%H:%M:%S')}+08:00"
         st.markdown(f"""
         <div class='info-box'>
-            <b style='color:#C9A96E'>Preview Tarikh:</b><br>
+            <b style='color:#C9A96E'>Preview:</b><br>
             📅 {day_name}, {date_display}<br>
-            🕐 {event_time.strftime('%H:%M')} ({time_display})<br>
+            🕐 {event_time.strftime('%H:%M')}<br>
             🗓️ {hijri_date if hijri_date else '—'}<br>
             <small style='opacity:0.5'>ISO: {date_iso}</small>
         </div>
         """, unsafe_allow_html=True)
-
     st.markdown("---")
 
-    # ── STEP 5: LOKASI ──
+    # STEP 5: LOKASI
     st.markdown("## 5️⃣ Lokasi Majlis")
-    venue_name = st.text_input("Nama Dewan / Tempat", placeholder="Sebening Embun Garden Glass Hall")
-    venue_address = st.text_area("Alamat Penuh", placeholder="Lot 15, Jalan Durian 1, Kg. Sungai Buah, 43800 Dengkil, Selangor", height=80)
+    venue_name    = st.text_input("Nama Dewan / Tempat", placeholder="Dewan Seri Kenangan")
+    venue_address = st.text_area("Alamat Penuh", placeholder="No 1, Jalan Bahagia, 43000 Kajang, Selangor", height=80)
     col7, col8 = st.columns(2)
     with col7:
-        waze_custom = st.text_input("Link Waze (opsional — auto-generate kalau kosong)", placeholder="https://waze.com/ul?...")
+        waze_custom = st.text_input("Link Waze (kosong = auto)", placeholder="https://waze.com/ul?...")
     with col8:
-        gmap_custom = st.text_input("Link Google Maps (opsional)", placeholder="https://maps.google.com/...")
+        gmap_custom = st.text_input("Link Google Maps (kosong = auto)", placeholder="https://maps.google.com/...")
     waze_link = waze_custom if waze_custom else (get_waze_link(f"{venue_name} {venue_address}") if venue_name else "")
     gmap_link = gmap_custom if gmap_custom else (get_gmap_link(f"{venue_name} {venue_address}") if venue_name else "")
-
     st.markdown("---")
 
-    # ── STEP 6: CONTACT PERSON ──
+    # STEP 6: CONTACT
     st.markdown("## 6️⃣ Contact Person")
     col9, col10 = st.columns(2)
     with col9:
-        contact_name = st.text_input("Nama Contact Person", placeholder="Sufian bin Salleh")
-        contact_phone = st.text_input("No Telefon", placeholder="011-3562 3312")
+        contact_name  = st.text_input("Nama Contact Person", placeholder="Abdullah bin Salleh")
+        contact_phone = st.text_input("No Telefon", placeholder="011-12345678")
     with col10:
+        wa_num = get_whatsapp_number(contact_phone) if contact_phone else ""
         if contact_phone:
-            wa_num = get_whatsapp_number(contact_phone)
-            st.markdown(f"""
-            <div class='info-box'>
-                <b style='color:#C9A96E'>WhatsApp Number:</b><br>
-                📱 {wa_num}<br>
-                <small style='opacity:0.5'>Format untuk wa.me link</small>
-            </div>
-            """, unsafe_allow_html=True)
-        else:
-            wa_num = ""
-
+            st.markdown(f"<div class='info-box'>📱 WhatsApp: <b>{wa_num}</b></div>", unsafe_allow_html=True)
     st.markdown("---")
 
-    # ── STEP 7: LAGU ──
+    # STEP 7: LAGU
     st.markdown("## 7️⃣ Lagu Latar")
-    st.markdown("""
-    <div class='info-box'>
-        💡 <b>Cara host lagu:</b> Upload MP3 ke GitHub repo (public) → guna link jsDelivr:<br>
-        <code>https://cdn.jsdelivr.net/gh/USERNAME/REPO@main/lagu.mp3</code>
-    </div>
-    """, unsafe_allow_html=True)
-    music_url = st.text_input("Link Direct MP3", placeholder="https://cdn.jsdelivr.net/gh/nureqmal/eqstudio@main/assets/lagu.mp3")
-    music_label = st.text_input("Nama Lagu (untuk label player)", placeholder="Beautiful In White — Westlife")
-
+    st.markdown("<div class='info-box'>💡 Host MP3 di GitHub → guna jsDelivr: <code>https://cdn.jsdelivr.net/gh/USERNAME/REPO@main/lagu.mp3</code></div>", unsafe_allow_html=True)
+    music_url   = st.text_input("Link Direct MP3", placeholder="https://cdn.jsdelivr.net/gh/...")
+    music_label = st.text_input("Nama Lagu", placeholder="Beautiful In White — Westlife")
     st.markdown("---")
 
-    # ── STEP 8: GAMBAR (Portrait sahaja) ──
+    # STEP 8: GAMBAR
     hero_url = photo1_url = photo2_url = photo3_url = opening_url = ""
-    if selected_tmpl["has_photo"]:
-        st.markdown("## 8️⃣ Gambar Pengantin (Portrait)")
-        st.markdown("""
-        <div class='info-box'>
-            📸 Untuk gambar, boleh:<br>
-            • <b>Upload file terus</b> — gambar akan di-embed dalam HTML (saiz fail jadi besar sikit)<br>
-            • <b>Paste link URL</b> — gambar dari Google Drive / GitHub / mana-mana hosting
-        </div>
-        """, unsafe_allow_html=True)
+    if selected_tmpl.get("has_photo"):
+        st.markdown("## 8️⃣ Gambar Pengantin")
         photo_method = st.radio("Cara masukkan gambar", ["📎 Upload File", "🔗 Paste Link URL"], horizontal=True)
         if photo_method == "📎 Upload File":
             col_p1, col_p2 = st.columns(2)
             with col_p1:
-                hero_file = st.file_uploader("🖼️ Hero Background (fullscreen)", type=["jpg","jpeg","png","webp"], key="hero")
-                photo1_file = st.file_uploader("📸 Gallery Foto 1", type=["jpg","jpeg","png","webp"], key="p1")
+                hero_file    = st.file_uploader("🖼️ Hero Background", type=["jpg","jpeg","png","webp"], key="hero")
+                photo1_file  = st.file_uploader("📸 Gallery Foto 1", type=["jpg","jpeg","png","webp"], key="p1")
                 opening_file = st.file_uploader("🎴 Opening Photo", type=["jpg","jpeg","png","webp"], key="op")
             with col_p2:
-                photo2_file = st.file_uploader("📸 Gallery Foto 2 (utama)", type=["jpg","jpeg","png","webp"], key="p2")
+                photo2_file = st.file_uploader("📸 Gallery Foto 2", type=["jpg","jpeg","png","webp"], key="p2")
                 photo3_file = st.file_uploader("📸 Gallery Foto 3", type=["jpg","jpeg","png","webp"], key="p3")
-            if hero_file: hero_url = file_to_data_url(hero_file)
-            if photo1_file: photo1_url = file_to_data_url(photo1_file)
-            if photo2_file: photo2_url = file_to_data_url(photo2_file)
-            if photo3_file: photo3_url = file_to_data_url(photo3_file)
+            if hero_file:    hero_url    = file_to_data_url(hero_file)
+            if photo1_file:  photo1_url  = file_to_data_url(photo1_file)
+            if photo2_file:  photo2_url  = file_to_data_url(photo2_file)
+            if photo3_file:  photo3_url  = file_to_data_url(photo3_file)
             if opening_file: opening_url = file_to_data_url(opening_file)
         else:
             col_p1, col_p2 = st.columns(2)
             with col_p1:
-                hero_url = st.text_input("🖼️ Hero Background URL", placeholder="https://...")
-                photo1_url = st.text_input("📸 Gallery Foto 1 URL", placeholder="https://...")
-                opening_url = st.text_input("🎴 Opening Photo URL", placeholder="https://...")
+                hero_url    = st.text_input("🖼️ Hero URL",    placeholder="https://...")
+                photo1_url  = st.text_input("📸 Gallery 1 URL", placeholder="https://...")
+                opening_url = st.text_input("🎴 Opening URL",  placeholder="https://...")
             with col_p2:
-                photo2_url = st.text_input("📸 Gallery Foto 2 URL (utama)", placeholder="https://...")
-                photo3_url = st.text_input("📸 Gallery Foto 3 URL", placeholder="https://...")
+                photo2_url = st.text_input("📸 Gallery 2 URL", placeholder="https://...")
+                photo3_url = st.text_input("📸 Gallery 3 URL", placeholder="https://...")
         st.markdown("---")
 
-    # ── VIDEO (Cinematic & Prestige) ──
+    # VIDEO
+    video_url = ""
     if selected_tmpl.get("has_video"):
-        st.markdown("---")
         st.markdown("## 🎬 Video Pengantin")
-        st.markdown("""
-        <div class='info-box'>
-            💡 Upload video ke Google Drive → klik kanan → <b>Get link</b> → tukar sharing ke <b>"Anyone with the link"</b><br>
-            Paste link tu kat bawah.
-        </div>
-        """, unsafe_allow_html=True)
+        st.markdown("<div class='info-box'>💡 Upload ke Google Drive → Get link → Anyone with the link</div>", unsafe_allow_html=True)
         video_url = st.text_input("Link Google Drive Video", placeholder="https://drive.google.com/file/d/xxx/view")
-    else:
-        video_url = ""
-
-    # ── GALLERY (Prestige) ──
-    if selected_tmpl.get("has_gallery"):
         st.markdown("---")
+
+    # GALLERY
+    gallery1_url = gallery2_url = gallery3_url = gallery4_url = gallery5_url = ""
+    if selected_tmpl.get("has_gallery"):
         st.markdown("## 🖼️ Gallery Gambar")
         col_g1, col_g2 = st.columns(2)
         with col_g1:
-            gallery1_url = st.text_input("Gambar Gallery 1", placeholder="https://drive.google.com/...")
-            gallery2_url = st.text_input("Gambar Gallery 2", placeholder="https://drive.google.com/...")
-            gallery3_url = st.text_input("Gambar Gallery 3", placeholder="https://drive.google.com/...")
+            gallery1_url = st.text_input("Gallery 1", placeholder="https://drive.google.com/...")
+            gallery2_url = st.text_input("Gallery 2", placeholder="https://drive.google.com/...")
+            gallery3_url = st.text_input("Gallery 3", placeholder="https://drive.google.com/...")
         with col_g2:
-            gallery4_url = st.text_input("Gambar Gallery 4", placeholder="https://drive.google.com/...")
-            gallery5_url = st.text_input("Gambar Gallery 5", placeholder="https://drive.google.com/...")
-    else:
-        gallery1_url = gallery2_url = gallery3_url = gallery4_url = gallery5_url = ""
+            gallery4_url = st.text_input("Gallery 4", placeholder="https://drive.google.com/...")
+            gallery5_url = st.text_input("Gallery 5", placeholder="https://drive.google.com/...")
+        st.markdown("---")
 
-    # ── STEP 9: JANA & DEPLOY ──
+    # STEP 9: JANA
     st.markdown("## 9️⃣ Jana & Deploy")
-
     required = {
         "Nama pengantin lelaki": groom_name,
         "Nama pengantin perempuan": bride_name,
@@ -735,105 +571,102 @@ elif "🆕 Jana Kad Baru" in page:
         "No telefon contact": contact_phone,
     }
     missing = [k for k, v in required.items() if not v]
-
     if missing:
         st.warning(f"⚠️ Sila lengkapkan: **{', '.join(missing)}**")
 
-    # Deploy mode selection
     if github_ready:
-        deploy_mode = st.radio(
-            "Mode Deploy",
-            ["🚀 Jana + Deploy ke GitHub Pages (dapat link terus)", "⬇️ Jana + Download sahaja"],
-            horizontal=True
-        )
+        deploy_mode = st.radio("Mode Deploy",
+            ["🚀 Jana + Deploy ke GitHub Pages", "⬇️ Jana + Download sahaja"], horizontal=True)
     else:
         deploy_mode = "⬇️ Jana + Download sahaja"
         st.info("💡 Setup GitHub untuk enable auto-deploy.")
 
     if st.button("✨ Jana Kad Sekarang!", disabled=bool(missing)):
         template_html = load_template(selected_tmpl["file"])
-
         if template_html is None:
             st.error(f"❌ Template fail tidak dijumpai: `templates/{selected_tmpl['file']}`")
         else:
             order_id = generate_order_id()
 
+            # ── REPLACEMENTS — format [PLACEHOLDER] ──
             replacements = {
-    "[NAMA PENGANTIN LELAKI]":       groom_name,
-    "[NAMA PENGANTIN PEREMPUAN]":    bride_name,
-    "[NAMA PENUH PENGANTIN LELAKI]": groom_full or groom_name,
-    "[NAMA PENUH PENGANTIN PEREMPUAN]": bride_full or bride_name,
-    "[NAMA BAPA LELAKI]":            father_name,
-    "[NAMA IBU LELAKI]":             mother_name,
-    "[NAMA BAPA PEREMPUAN]":         father_name,
-    "[NAMA IBU PEREMPUAN]":          mother_name,
-    "[NAMA TUAN RUMAH / KELUARGA PENGANJUR]": father_name,
-    "[NAMA TUAN RUMAH]":             father_name,
-    "[PIHAK]":                       parent_side,
-    "[TARIKH]":                      date_display,
-    "[DD] [BULAN] [YYYY]":           date_display,
-    "[DD] · [MM] · [YYYY]":          f"{event_date.day} · {event_date.month} · {event_date.year}",
-    "[DD] · [BULAN] · [YYYY]":       f"{event_date.day} · {months_ms[event_date.month]} · {event_date.year}",
-    "[HARI], [NAMA BULAN]":          f"{day_name}, {months_ms[event_date.month]}",
-    "[HARI]":                        day_name,
-    "[NAMA BULAN]":                  months_ms[event_date.month],
-    "[DD]":                          str(event_date.day).zfill(2),
-    "[MM]":                          str(event_date.month).zfill(2),
-    "[YYYY]":                        str(event_date.year),
-    "[TARIKH HIJRI]":                hijri_date,
-    "[MASA MULA]":                   event_time.strftime('%H:%M'),
-    "[HH]":                          event_time.strftime('%H'),
-    "[MM]":                          event_time.strftime('%M'),
-    "[NAMA VENUE]":                  venue_name,
-    "[NAMA VENUE PENDEK]":           venue_name,
-    "[NAMA VENUE PENUH]":            venue_name,
-    "[NAMA+VENUE]":                  venue_name.replace(' ', '+'),
-    "[ALAMAT VENUE]":                venue_address,
-    "[ALAMAT PENUH VENUE]":          venue_address,
-    "[NAMA BANDAR / VENUE]":         venue_name,
-    "[NAMA PERTANYAAN]":             contact_name or father_name,
-    "[NAMA CONTACT PERSON]":         contact_name or father_name,
-    "[NO TELEFON]":                  contact_phone,
-    "[NO_TELEFON_TANPA_+]":          wa_num,
-    "[NO TELEFON DENGAN FORMAT 01X-XXXXXXX]": contact_phone,
-    "PLACEHOLDER_AUDIO_URL":         music_url or "",
-    "[NAMA MAJLIS]":                 f"Walimatul Urus {groom_name} & {bride_name}",
-    "[NAMA+MAJLIS]":                 f"Walimatul+Urus+{groom_name.replace(' ','+')}+%26+{bride_name.replace(' ','+')}",
-    "[YYYYMMDD]":                    event_date.strftime('%Y%m%d'),
-    "[HHMM00]":                      event_time.strftime('%H%M') + '00',
-    "[YYYY]-[MM]-[DD]T[HH]:00:00":  date_iso,
-    "[NAMA LELAKI]":                 groom_name,
-    "[NAMA PEREMPUAN]":              bride_name,
-}
-
-            if selected_tmpl["has_photo"]:
-                replacements.update({
-                    "{{HERO_PHOTO_URL}}":    hero_url,
-                    "{{PHOTO1_URL}}":        photo1_url,
-                    "{{PHOTO2_URL}}":        photo2_url,
-                    "{{PHOTO3_URL}}":        photo3_url,
-                    "{{OPENING_PHOTO_URL}}": opening_url,
-                })
+                "[NAMA PENGANTIN LELAKI]":                  groom_name,
+                "[NAMA PENGANTIN PEREMPUAN]":               bride_name,
+                "[NAMA PENUH PENGANTIN LELAKI]":            groom_full or groom_name,
+                "[NAMA PENUH PENGANTIN PEREMPUAN]":         bride_full or bride_name,
+                "[NAMA BAPA LELAKI]":                       father_name,
+                "[NAMA IBU LELAKI]":                        mother_name,
+                "[NAMA BAPA PEREMPUAN]":                    father_bride or father_name,
+                "[NAMA IBU PEREMPUAN]":                     mother_bride or mother_name,
+                "[NAMA TUAN RUMAH / KELUARGA PENGANJUR]":   father_name,
+                "[NAMA TUAN RUMAH]":                        father_name,
+                "[NAMA LELAKI]":                            groom_name,
+                "[NAMA PEREMPUAN]":                         bride_name,
+                "[PIHAK]":                                  parent_side,
+                # Tarikh — composite dulu, atomic kemudian
+                "[HARI], [NAMA BULAN]":                     f"{day_name}, {months_ms[event_date.month]}",
+                "[DD] · [BULAN] · [YYYY]":                  f"{event_date.day} · {months_ms[event_date.month]} · {event_date.year}",
+                "[DD] · [MM] · [YYYY]":                     f"{event_date.day} · {event_date.month} · {event_date.year}",
+                "[DD] [BULAN] [YYYY]":                      date_display,
+                "[TARIKH]":                                 date_display,
+                "[TARIKH HIJRI]":                           hijri_date,
+                "[NAMA BULAN]":                             months_ms[event_date.month],
+                "[HARI]":                                   day_name,
+                "[DD]":                                     str(event_date.day).zfill(2),
+                "[MM]":                                     str(event_date.month).zfill(2),
+                "[YYYY]":                                   str(event_date.year),
+                # Masa
+                "[MASA MULA]":                              event_time.strftime('%H:%M'),
+                "[HH]":                                     event_time.strftime('%H'),
+                # Venue
+                "[NAMA VENUE PENDEK]":                      venue_name,
+                "[NAMA VENUE PENUH]":                       venue_name,
+                "[NAMA VENUE]":                             venue_name,
+                "[NAMA+VENUE]":                             venue_name.replace(' ', '+'),
+                "[ALAMAT PENUH VENUE]":                     venue_address,
+                "[ALAMAT VENUE]":                           venue_address,
+                "[NAMA BANDAR / VENUE]":                    venue_name,
+                # Waze & Maps
+                "https://waze.com/ul?q=[NAMA+VENUE]":       waze_link,
+                "https://maps.google.com/?q=[NAMA+VENUE]":  gmap_link,
+                # Contact
+                "[NAMA PERTANYAAN]":                        contact_name or father_name,
+                "[NAMA CONTACT PERSON]":                    contact_name or father_name,
+                "[NO TELEFON DENGAN FORMAT 01X-XXXXXXX]":   contact_phone,
+                "[NO TELEFON]":                             contact_phone,
+                "[NO_TELEFON_TANPA_+]":                     wa_num,
+                # Lagu
+                "PLACEHOLDER_AUDIO_URL":                    music_url or "",
+                # Calendar & Countdown
+                "[NAMA MAJLIS]":                            f"Walimatul Urus {groom_name} & {bride_name}",
+                "[NAMA+MAJLIS]":                            f"Walimatul+Urus+{groom_name.replace(' ','+')}+%26+{bride_name.replace(' ','+')}",
+                "[YYYYMMDD]":                               event_date.strftime('%Y%m%d'),
+                "[HHMM00]":                                 event_time.strftime('%H%M') + '00',
+                "[YYYY]-[MM]-[DD]T[HH]:00:00":             date_iso,
+                # Media
+                "[VIDEO_URL]":                              video_url,
+                "[HERO_PHOTO_URL]":                         hero_url,
+                "[PHOTO1_URL]":                             photo1_url,
+                "[PHOTO2_URL]":                             photo2_url,
+                "[PHOTO3_URL]":                             photo3_url,
+                "[OPENING_PHOTO_URL]":                      opening_url,
+                "[GALLERY1_URL]":                           gallery1_url,
+                "[GALLERY2_URL]":                           gallery2_url,
+                "[GALLERY3_URL]":                           gallery3_url,
+                "[GALLERY4_URL]":                           gallery4_url,
+                "[GALLERY5_URL]":                           gallery5_url,
+            }
 
             final_html = apply_replacements(template_html, replacements)
             html_bytes = final_html.encode("utf-8")
-
-            # Generate filename yang cantik & URL-safe
             g = sanitize_filename(groom_name)
             b = sanitize_filename(bride_name)
             filename = f"kad-{g}-{b}-{order_id.lower()}.html"
 
-            # ── DEPLOY TO GITHUB ──
             if "Deploy ke GitHub" in deploy_mode and github_ready:
                 with st.spinner("🚀 Deploying ke GitHub Pages..."):
-                    result = github_upload_file(
-                        token=gh_token,
-                        repo=gh_repo,
-                        filepath=f"cards/{filename}",
-                        content=final_html,
-                        commit_msg=f"Add kad: {groom_name} & {bride_name} [{order_id}]"
-                    )
-
+                    result = github_upload_file(gh_token, gh_repo, f"cards/{filename}", final_html,
+                        f"Add kad: {groom_name} & {bride_name} [{order_id}]")
                 if result["success"]:
                     pages_url = result["pages_url"]
                     st.markdown(f"""
@@ -842,221 +675,57 @@ elif "🆕 Jana Kad Baru" in page:
                         <span class='order-id'>Order ID: {order_id}</span><br><br>
                         <b>Customer:</b> {groom_name} & {bride_name}<br>
                         <b>Tarikh:</b> {date_display}<br>
-                        <b>Template:</b> {selected_tmpl['name']}<br>
+                        <b>Template:</b> {selected_tmpl['name']}
                     </div>
                     """, unsafe_allow_html=True)
-
                     st.markdown(f"""
                     <div class='link-box'>
                         <b style='color:#C9A96E;font-size:0.85rem'>🔗 LINK KAD CUSTOMER</b><br>
-                        <a href='{pages_url}' target='_blank' style='color:#4ade80;font-size:1.1rem;font-weight:600;text-decoration:none'>
-                            {pages_url}
-                        </a><br><br>
-                        <small style='color:#666'>⚠️ GitHub Pages ambik 1-2 minit untuk aktif kali pertama. Kalau 404, tunggu sekejap dan refresh.</small>
+                        <a href='{pages_url}' target='_blank' style='color:#4ade80;font-size:1.1rem;font-weight:600;text-decoration:none'>{pages_url}</a><br><br>
+                        <small style='color:#666'>⚠️ GitHub Pages ambik 1-2 minit kali pertama. Kalau 404, tunggu dan refresh.</small>
                     </div>
                     """, unsafe_allow_html=True)
-
                     st.code(pages_url, language=None)
-                    st.caption("☝️ Copy link kat atas untuk hantar ke customer via WhatsApp")
-
                 else:
                     st.error(f"❌ Deploy gagal: {result['error']}")
-                    st.info("Fail masih boleh di-download di bawah.")
-
             else:
-                # Download only mode
                 st.markdown(f"""
                 <div class='success-box'>
                     <h3 style='color:#4CAF50;margin:0 0 .5rem'>✅ Kad Berjaya Dijana!</h3>
                     <span class='order-id'>Order ID: {order_id}</span><br><br>
                     <b>Customer:</b> {groom_name} & {bride_name}<br>
-                    <b>Tarikh:</b> {date_display}<br>
-                    <b>Template:</b> {selected_tmpl['name']}<br>
-                    <b>Fail:</b> {filename}
+                    <b>Tarikh:</b> {date_display}
                 </div>
                 """, unsafe_allow_html=True)
 
-            # Download button sentiasa ada
-            st.download_button(
-                label="⬇️ Download HTML Kad (backup)",
-                data=html_bytes,
-                file_name=filename,
-                mime="text/html",
-                use_container_width=True,
-            )
+            st.download_button("⬇️ Download HTML Kad", data=html_bytes,
+                file_name=filename, mime="text/html", use_container_width=True)
 
             with st.expander("👁️ Preview HTML (raw)"):
                 st.code(final_html[:3000] + "\n\n... [truncated]", language="html")
 
 # ─────────────────────────────────────────
-#  PAGE: CARA GUNA
-# ─────────────────────────────────────────
-elif "📋 Cara Guna" in page:
-    st.markdown("# 📋 Cara Guna Admin Dashboard")
-    st.markdown("---")
-    st.markdown("""
-    ## 🔄 Workflow Lengkap (dengan GitHub Auto-Deploy)
-
-    ### 1. Setup GitHub (sekali je)
-    - Pergi **⚙️ GitHub Settings** dalam sidebar
-    - Ikut langkah setup: buat repo, aktif Pages, jana token
-    - Test connection
-
-    ### 2. Terima Order dari Customer
-    Customer order melalui website → masuk WhatsApp dengan:
-    - Nama pengantin & keluarga
-    - Tarikh majlis
-    - Template yang dipilih
-    - Gambar (kalau Portrait)
-    - Lagu pilihan
-
-    ### 3. Host Lagu Customer
-    Customer hantar MP3 → upload ke GitHub repo public:
-    ```
-    https://cdn.jsdelivr.net/gh/USERNAME/REPO@main/assets/NAMA_LAGU.mp3
-    ```
-
-    ### 4. Jana Kad dalam App
-    - Isi semua maklumat customer
-    - Pilih **"Jana + Deploy ke GitHub Pages"**
-    - Klik **Jana Kad Sekarang!**
-
-    ### 5. Hantar Link ke Customer
-    - Link terus keluar dalam app selepas deploy
-    - Copy dan hantar via WhatsApp
-    - Link format: `https://USERNAME.github.io/REPO/cards/kad-xxxxx.html`
-    - ⚠️ Tunggu 1-2 minit kali pertama untuk GitHub Pages aktif
-
-    ---
-
-    ## 📁 Setup Template Baru
-
-    1. Buat HTML template baru dengan **placeholders** `{{GROOM_NAME}}` etc
-    2. Letak dalam folder `templates/`
-    3. Daftar dalam `TEMPLATES` dict dalam `app.py`
-
-    ### Senarai Semua Placeholders
-    """)
-
-    for placeholder, desc in PLACEHOLDERS.items():
-        st.markdown(f"- `{placeholder}` — {desc}")
-
-# ─────────────────────────────────────────
-#  PAGE: TEMPLATE INFO
-# ─────────────────────────────────────────
-elif "🗂️ Template Info" in page:
-    st.markdown("# 🗂️ Senarai Template")
-    st.markdown("---")
-
-    for category, templates in TEMPLATES.items():
-        st.markdown(f"## {'⭐' if category == 'Essential' else '📸' if category == 'Portrait' else '✨'} {category}")
-        for key, info in templates.items():
-            file_exists = (BASE_DIR / "templates" / info['file']).exists()
-            status = "✅ Fail ada" if file_exists else "❌ Fail tidak jumpa"
-            st.markdown(f"""
-            <div class='template-card'>
-                <span class='category-badge'>{category}</span>
-                <b style='color:#f0e8d8;font-size:1.05rem'>{info['preview_emoji']} {info['name']}</b><br>
-                <small style='color:#888'>{info['desc']}</small><br><br>
-                <small>
-                    📁 <code>{info['file']}</code> — {status}<br>
-                    {'📸 Perlu gambar' if info['has_photo'] else '🎨 Tanpa gambar'}
-                </small>
-            </div>
-            """, unsafe_allow_html=True)
-        st.markdown("")
-
-    st.markdown("---")
-    st.markdown("""
-    ### ➕ Cara Tambah Template Baru
-
-    Edit `app.py`, cari bahagian `TEMPLATES` di atas, tambah template baru:
-    ```python
-    "NamaCategory": {
-        "template_key": {
-            "name": "Nama Template",
-            "file": "nama_fail.html",
-            "has_photo": True,  # atau False
-            "preview_emoji": "✨",
-            "desc": "Penerangan ringkas",
-        },
-    },
-    ```
-    """)
-
-
-# ─────────────────────────────────────────
 #  PAGE: TEMPLATE CONVERTER
-#  Paste this entire block into app.py
-#  Add "🔧 Template Converter" to the page radio list in sidebar
 # ─────────────────────────────────────────
 elif "🔧 Template Converter" in page:
     st.markdown("# 🔧 Template Converter")
-    st.markdown("Upload HTML template kau, app akan detect hardcoded values, kau map ke placeholders, siap!")
+    st.markdown("Upload HTML template, map nilai hardcoded ke placeholders, auto-upload ke GitHub.")
     st.markdown("---")
 
-    # ── STEP 1: UPLOAD ──
     st.markdown("## 1️⃣ Upload HTML Template")
-    uploaded_html = st.file_uploader("Upload fail HTML", type=["html", "htm"])
+    uploaded_html = st.file_uploader("Upload fail HTML", type=["html","htm"])
 
     if uploaded_html:
         raw_html = uploaded_html.read().decode("utf-8")
         st.success(f"✅ Fail dibaca — {len(raw_html):,} characters")
-
         st.markdown("---")
 
-        # ── STEP 2: AUTO-DETECT ──
-        st.markdown("## 2️⃣ Map Hardcoded Values → Placeholders")
-        st.markdown("""
-        <div class='info-box'>
-            Masukkan nilai sebenar yang ada dalam template kau (contoh: nama pengantin, tarikh, lokasi).<br>
-            App akan replace semua nilai tu dengan placeholder yang betul.
-        </div>
-        """, unsafe_allow_html=True)
+        st.markdown("## 2️⃣ Map Nilai → Placeholder")
+        st.markdown("<div class='info-box'>Masukkan nilai hardcoded dalam template (eg: nama pengantin sebenar), pilih placeholder yang sesuai.</div>", unsafe_allow_html=True)
 
-        # All available placeholders with friendly labels
-        PLACEHOLDER_OPTIONS = {
-            "-- Pilih Placeholder --": "",
-            "{{GROOM_NAME}} — Nama panggilan pengantin lelaki": "{{GROOM_NAME}}",
-            "{{BRIDE_NAME}} — Nama panggilan pengantin perempuan": "{{BRIDE_NAME}}",
-            "{{GROOM_FULL}} — Nama penuh pengantin lelaki": "{{GROOM_FULL}}",
-            "{{BRIDE_FULL}} — Nama penuh pengantin perempuan": "{{BRIDE_FULL}}",
-            "{{FATHER_NAME}} — Nama bapa": "{{FATHER_NAME}}",
-            "{{MOTHER_NAME}} — Nama ibu": "{{MOTHER_NAME}}",
-            "{{PARENT_SIDE}} — Pihak (Perempuan/Lelaki)": "{{PARENT_SIDE}}",
-            "{{DATE_DISPLAY}} — Tarikh papar (eg: 10 Ogos 2026)": "{{DATE_DISPLAY}}",
-            "{{DATE_DAY}} — Hari (eg: Sabtu)": "{{DATE_DAY}}",
-            "{{DATE_HIJRI}} — Tarikh Hijri": "{{DATE_HIJRI}}",
-            "{{DATE_ISO}} — Tarikh ISO untuk countdown": "{{DATE_ISO}}",
-            "{{TIME_DISPLAY}} — Masa papar (eg: 12:00 Tengahari)": "{{TIME_DISPLAY}}",
-            "{{TIME_RAW}} — Masa raw (eg: 12:00)": "{{TIME_RAW}}",
-            "{{VENUE_NAME}} — Nama dewan": "{{VENUE_NAME}}",
-            "{{VENUE_ADDRESS}} — Alamat penuh": "{{VENUE_ADDRESS}}",
-            "{{WAZE_LINK}} — Link Waze": "{{WAZE_LINK}}",
-            "{{GMAP_LINK}} — Link Google Maps": "{{GMAP_LINK}}",
-            "{{CONTACT_NAME}} — Nama contact person": "{{CONTACT_NAME}}",
-            "{{CONTACT_PHONE}} — No telefon": "{{CONTACT_PHONE}}",
-            "{{CONTACT_PHONE_WA}} — No WhatsApp": "{{CONTACT_PHONE_WA}}",
-            "{{MUSIC_URL}} — Link MP3": "{{MUSIC_URL}}",
-            "{{MUSIC_LABEL}} — Nama lagu": "{{MUSIC_LABEL}}",
-            "{{HERO_PHOTO_URL}} — Gambar hero": "{{HERO_PHOTO_URL}}",
-            "{{PHOTO1_URL}} — Gambar gallery 1": "{{PHOTO1_URL}}",
-            "{{PHOTO2_URL}} — Gambar gallery 2": "{{PHOTO2_URL}}",
-            "{{PHOTO3_URL}} — Gambar gallery 3": "{{PHOTO3_URL}}",
-            "{{OPENING_PHOTO_URL}} — Gambar opening": "{{OPENING_PHOTO_URL}}",
-            "{{VIDEO_URL}} — Link video": "{{VIDEO_URL}}",
-            "{{GALLERY1_URL}} — Gallery 1": "{{GALLERY1_URL}}",
-            "{{GALLERY2_URL}} — Gallery 2": "{{GALLERY2_URL}}",
-            "{{GALLERY3_URL}} — Gallery 3": "{{GALLERY3_URL}}",
-            "{{GALLERY4_URL}} — Gallery 4": "{{GALLERY4_URL}}",
-            "{{GALLERY5_URL}} — Gallery 5": "{{GALLERY5_URL}}",
-        }
-
-        # Session state untuk simpan mapping rows
         if "converter_rows" not in st.session_state:
             st.session_state.converter_rows = [{"value": "", "placeholder": ""}]
 
-        # Add/remove rows
         col_add, col_remove, _ = st.columns([1, 1, 4])
         with col_add:
             if st.button("➕ Tambah baris"):
@@ -1068,99 +737,54 @@ elif "🔧 Template Converter" in page:
                 st.rerun()
 
         st.markdown("<br>", unsafe_allow_html=True)
-
-        # Header
         col_h1, col_h2, col_h3 = st.columns([2, 3, 1])
-        with col_h1:
-            st.markdown("**Nilai dalam HTML (hardcoded)**")
-        with col_h2:
-            st.markdown("**Ganti dengan Placeholder**")
-        with col_h3:
-            st.markdown("**Jumpa?**")
+        with col_h1: st.markdown("**Nilai dalam HTML**")
+        with col_h2: st.markdown("**Ganti dengan Placeholder**")
+        with col_h3: st.markdown("**Jumpa?**")
 
-        # Mapping rows
         for i, row in enumerate(st.session_state.converter_rows):
             col1, col2, col3 = st.columns([2, 3, 1])
             with col1:
-                val = st.text_input(
-                    f"Nilai {i+1}",
-                    value=row["value"],
-                    placeholder="cth: Ahmad Nazmi",
-                    key=f"conv_val_{i}",
-                    label_visibility="collapsed"
-                )
+                val = st.text_input(f"Nilai {i+1}", value=row["value"],
+                    placeholder="cth: Ahmad Nazmi", key=f"conv_val_{i}", label_visibility="collapsed")
                 st.session_state.converter_rows[i]["value"] = val
             with col2:
-                ph_label = st.selectbox(
-                    f"Placeholder {i+1}",
-                    list(PLACEHOLDER_OPTIONS.keys()),
-                    key=f"conv_ph_{i}",
-                    label_visibility="collapsed"
-                )
+                ph_label = st.selectbox(f"Placeholder {i+1}", list(PLACEHOLDER_OPTIONS.keys()),
+                    key=f"conv_ph_{i}", label_visibility="collapsed")
                 st.session_state.converter_rows[i]["placeholder"] = PLACEHOLDER_OPTIONS[ph_label]
             with col3:
                 if val and val in raw_html:
-                    count = raw_html.count(val)
-                    st.markdown(f"<div style='color:#4CAF50;padding-top:8px'>✅ {count}x</div>", unsafe_allow_html=True)
+                    st.markdown(f"<div style='color:#4CAF50;padding-top:8px'>✅ {raw_html.count(val)}x</div>", unsafe_allow_html=True)
                 elif val:
                     st.markdown("<div style='color:#ff6b6b;padding-top:8px'>❌ Tak jumpa</div>", unsafe_allow_html=True)
                 else:
                     st.markdown("<div style='color:#666;padding-top:8px'>—</div>", unsafe_allow_html=True)
 
         st.markdown("---")
-
-        # ── STEP 3: PREVIEW ──
         st.markdown("## 3️⃣ Preview Conversion")
 
-        valid_mappings = [
-            r for r in st.session_state.converter_rows
-            if r["value"] and r["placeholder"] and r["value"] in raw_html
-        ]
-        invalid_mappings = [
-            r for r in st.session_state.converter_rows
-            if r["value"] and not r["placeholder"]
-        ]
-        not_found = [
-            r for r in st.session_state.converter_rows
-            if r["value"] and r["placeholder"] and r["value"] not in raw_html
-        ]
+        valid_mappings = [r for r in st.session_state.converter_rows
+            if r["value"] and r["placeholder"] and r["value"] in raw_html]
+        not_found = [r for r in st.session_state.converter_rows
+            if r["value"] and r["placeholder"] and r["value"] not in raw_html]
 
         if valid_mappings:
-            st.markdown(f"""
-            <div class='info-box'>
-                ✅ <b>{len(valid_mappings)} replacement</b> akan dibuat<br>
-                {f"⚠️ {len(not_found)} nilai tidak dijumpai dalam HTML" if not_found else ""}
-            </div>
-            """, unsafe_allow_html=True)
-
+            st.markdown(f"<div class='info-box'>✅ <b>{len(valid_mappings)} replacement</b> akan dibuat{f'<br>⚠️ {len(not_found)} nilai tidak dijumpai' if not_found else ''}</div>", unsafe_allow_html=True)
             for m in valid_mappings:
-                count = raw_html.count(m["value"])
-                st.markdown(f"- `{m['value']}` → `{m['placeholder']}` &nbsp;({count} tempat)", unsafe_allow_html=True)
+                st.markdown(f"- `{m['value']}` → `{m['placeholder']}` ({raw_html.count(m['value'])} tempat)")
         else:
-            st.warning("⚠️ Belum ada mapping yang valid. Isi nilai dan pilih placeholder.")
+            st.warning("⚠️ Belum ada mapping yang valid.")
 
         st.markdown("---")
-
-        # ── STEP 4: TEMPLATE INFO ──
         st.markdown("## 4️⃣ Info Template Baru")
-
         col_t1, col_t2 = st.columns(2)
         with col_t1:
-            tmpl_category = st.selectbox(
-                "Category",
-                ["Essential", "Portrait", "Cinematic", "Prestige"],
-                help="Pilih category yang sesuai"
-            )
-            tmpl_name = st.text_input("Nama Template", placeholder="cth: Sakura — Tema Bunga Jepun")
-            tmpl_emoji = st.text_input("Emoji", placeholder="🌸", max_chars=2)
+            tmpl_category = st.selectbox("Category", ["Essential","Portrait","Cinematic","Prestige"])
+            tmpl_name     = st.text_input("Nama Template", placeholder="cth: Sakura — Tema Bunga Jepun")
+            tmpl_emoji    = st.text_input("Emoji", placeholder="🌸", max_chars=2)
         with col_t2:
-            tmpl_desc = st.text_input("Penerangan Ringkas", placeholder="cth: Tema minimalis, pink & white")
-            tmpl_filename = st.text_input(
-                "Nama Fail (tanpa .html)",
-                placeholder="cth: v5_sakura",
-                help="Guna huruf kecil dan underscore sahaja"
-            )
-            # Auto-sanitize filename
+            tmpl_desc     = st.text_input("Penerangan Ringkas", placeholder="cth: Tema minimalis, pink & white")
+            tmpl_filename = st.text_input("Nama Fail (tanpa .html)", placeholder="cth: v5_sakura")
             if tmpl_filename:
                 safe_name = re.sub(r'[^a-z0-9_]', '_', tmpl_filename.lower().strip())
                 if safe_name != tmpl_filename:
@@ -1168,23 +792,15 @@ elif "🔧 Template Converter" in page:
                     tmpl_filename = safe_name
 
         st.markdown("---")
-
-        # ── STEP 5: CONVERT & DEPLOY ──
         st.markdown("## 5️⃣ Convert & Upload ke GitHub")
 
         gh_token = st.session_state.get("gh_token", "") or st.secrets.get("GH_TOKEN", "")
-        gh_repo = st.session_state.get("gh_repo", "") or st.secrets.get("GH_REPO", "")
+        gh_repo  = st.session_state.get("gh_repo",  "") or st.secrets.get("GH_REPO",  "")
 
         if not gh_token or not gh_repo:
-            st.markdown("""
-            <div class='warning-box'>
-                ⚠️ GitHub belum setup. Pergi <b>⚙️ GitHub Settings</b> dulu.
-            </div>
-            """, unsafe_allow_html=True)
+            st.markdown("<div class='warning-box'>⚠️ GitHub belum setup. Pergi <b>⚙️ GitHub Settings</b>.</div>", unsafe_allow_html=True)
 
-        # Validation
         can_convert = bool(valid_mappings and tmpl_name and tmpl_filename and gh_token and gh_repo)
-
         if not can_convert:
             missing_things = []
             if not valid_mappings: missing_things.append("mapping values")
@@ -1194,84 +810,123 @@ elif "🔧 Template Converter" in page:
             st.warning(f"⚠️ Sila lengkapkan: {', '.join(missing_things)}")
 
         if st.button("🚀 Convert & Upload Template!", disabled=not can_convert):
-            # Apply all replacements
             converted_html = raw_html
             for mapping in valid_mappings:
                 converted_html = converted_html.replace(mapping["value"], mapping["placeholder"])
 
             final_filename = f"{tmpl_filename}.html"
-
-            # Upload to GitHub (Streamlit repo — templates folder)
             with st.spinner("📤 Uploading template ke GitHub..."):
-                # Upload template file ke Streamlit repo
-                streamlit_repo = gh_repo  # same repo as admin tool
-                result = github_upload_file(
-                    token=gh_token,
-                    repo=streamlit_repo,
-                    filepath=f"eqstudio_admin_new/templates/{final_filename}",
-                    content=converted_html,
-                    commit_msg=f"Add template: {tmpl_name} [{final_filename}]"
-                )
+                result = github_upload_file(gh_token, gh_repo,
+                    f"eqstudio_admin_new/templates/{final_filename}",
+                    converted_html, f"Add template: {tmpl_name} [{final_filename}]")
 
             if result["success"]:
-                # Save to session state so can use immediately
-                if "session_templates" not in st.session_state:
-                    st.session_state.session_templates = {}
+                has_photo_val   = tmpl_category in ["Portrait","Cinematic","Prestige"]
+                has_video_val   = tmpl_category in ["Cinematic","Prestige"]
+                has_gallery_val = tmpl_category == "Prestige"
 
-                st.session_state.session_templates[tmpl_filename] = {
-                    "name": tmpl_name,
-                    "file": final_filename,
-                    "has_photo": tmpl_category in ["Portrait", "Cinematic", "Prestige"],
-                    "has_video": tmpl_category in ["Cinematic", "Prestige"],
-                    "has_gallery": tmpl_category == "Prestige",
-                    "preview_emoji": tmpl_emoji or "✨",
-                    "desc": tmpl_desc,
-                    "category": tmpl_category,
-                    "_converted": True,
-                }
+                code  = f'        "{tmpl_filename}": {{\n'
+                code += f'            "name": "{tmpl_name}",\n'
+                code += f'            "file": "{final_filename}",\n'
+                code += f'            "has_photo": {has_photo_val},\n'
+                if has_video_val:   code += f'            "has_video": True,\n'
+                if has_gallery_val: code += f'            "has_gallery": True,\n'
+                code += f'            "preview_emoji": "{tmpl_emoji or "✨"}",\n'
+                code += f'            "desc": "{tmpl_desc}",\n'
+                code += f'        }},'
 
                 st.markdown(f"""
                 <div class='success-box'>
                     <h3 style='color:#4CAF50;margin:0 0 .5rem'>✅ Template Berjaya Diupload!</h3>
                     <b>Nama:</b> {tmpl_name}<br>
                     <b>Fail:</b> {final_filename}<br>
-                    <b>Category:</b> {tmpl_category}<br>
-                    <b>Replacements:</b> {len(valid_mappings)} placeholder<br><br>
-                    <small style='color:#888'>⚠️ Template dah upload ke GitHub. Tapi untuk ia muncul dalam dropdown Jana Kad, kau perlu tambah manually dalam TEMPLATES dict dalam app.py.<br>
-                    Code dia ada kat bawah — copy paste je.</small>
+                    <b>Replacements:</b> {len(valid_mappings)}
                 </div>
                 """, unsafe_allow_html=True)
-
-                # Generate the code snippet to add to TEMPLATES
-                has_photo_val = tmpl_category in ["Portrait", "Cinematic", "Prestige"]
-                has_video_val = tmpl_category in ["Cinematic", "Prestige"]
-                has_gallery_val = tmpl_category == "Prestige"
-
-                code_snippet = f'        "{tmpl_filename}": {{\n'
-                code_snippet += f'            "name": "{tmpl_name}",\n'
-                code_snippet += f'            "file": "{final_filename}",\n'
-                code_snippet += f'            "has_photo": {has_photo_val},\n'
-                if has_video_val:
-                    code_snippet += f'            "has_video": {has_video_val},\n'
-                if has_gallery_val:
-                    code_snippet += f'            "has_gallery": {has_gallery_val},\n'
-                code_snippet += f'            "preview_emoji": "{tmpl_emoji or "✨"}",\n'
-                code_snippet += f'            "desc": "{tmpl_desc}",\n'
-                code_snippet += f'        }},'
-
-                st.markdown("### 📋 Copy code ni, tambah dalam TEMPLATES dict:")
-                st.code(f'# Letak dalam "{tmpl_category}" section:\n{code_snippet}', language="python")
-
-                # Reset converter
+                st.markdown("### 📋 Tambah dalam TEMPLATES dict:")
+                st.code(f'# Letak dalam "{tmpl_category}" section:\n{code}', language="python")
                 st.session_state.converter_rows = [{"value": "", "placeholder": ""}]
-
             else:
                 st.error(f"❌ Upload gagal: {result['error']}")
 
-        # Show converted preview
         if valid_mappings:
-            with st.expander("👁️ Preview HTML selepas conversion (raw)"):
-                preview_html = raw_html
-                for mapping in valid_mappings:
-                    preview_html = preview_html.replace(mapping["value"], mapping["placeholder"])
-                st.code(preview_html[:3000] + "\n\n... [truncated]", language="html")
+            with st.expander("👁️ Preview HTML selepas conversion"):
+                preview = raw_html
+                for m in valid_mappings:
+                    preview = preview.replace(m["value"], m["placeholder"])
+                st.code(preview[:3000] + "\n\n... [truncated]", language="html")
+
+# ─────────────────────────────────────────
+#  PAGE: CARA GUNA
+# ─────────────────────────────────────────
+elif "📋 Cara Guna" in page:
+    st.markdown("# 📋 Cara Guna Admin Dashboard")
+    st.markdown("---")
+    st.markdown("""
+    ## 🔄 Workflow Lengkap
+
+    ### 1. Setup GitHub (sekali je)
+    Pergi **⚙️ GitHub Settings** → ikut langkah setup.
+
+    ### 2. Tambah Template Baru
+    - Buat HTML template dengan placeholders format `[NAMA PENGANTIN LELAKI]` dll
+    - Atau gunakan **🔧 Template Converter** kalau template masih hardcoded
+    - Upload ke folder `templates/` dalam repo Streamlit
+    - Daftar dalam `TEMPLATES` dict dalam `app.py`
+
+    ### 3. Terima Order
+    Customer order via WhatsApp dengan maklumat: nama, tarikh, venue, lagu, gambar.
+
+    ### 4. Jana Kad
+    - Pergi **🆕 Jana Kad Baru**
+    - Isi semua maklumat
+    - Klik **Jana + Deploy ke GitHub Pages**
+    - Copy link → hantar ke customer
+
+    ---
+
+    ## 📋 Senarai Placeholder yang Disokong
+    """)
+    for ph in PLACEHOLDER_OPTIONS:
+        if ph != "-- Pilih Placeholder --":
+            st.markdown(f"- `{ph.split(' — ')[0]}` — {ph.split(' — ')[1] if ' — ' in ph else ''}")
+
+# ─────────────────────────────────────────
+#  PAGE: TEMPLATE INFO
+# ─────────────────────────────────────────
+elif "🗂️ Template Info" in page:
+    st.markdown("# 🗂️ Senarai Template")
+    st.markdown("---")
+    for category, templates in TEMPLATES.items():
+        emoji = '⭐' if category=='Essential' else '📸' if category=='Portrait' else '🎬' if category=='Cinematic' else '💎'
+        st.markdown(f"## {emoji} {category}")
+        for key, info in templates.items():
+            file_exists = (BASE_DIR / "templates" / info['file']).exists()
+            status = "✅ Fail ada" if file_exists else "❌ Fail tidak jumpa"
+            st.markdown(f"""
+            <div class='template-card'>
+                <span class='category-badge'>{category}</span>
+                <b style='color:#f0e8d8;font-size:1.05rem'>{info['preview_emoji']} {info['name']}</b><br>
+                <small style='color:#888'>{info['desc']}</small><br><br>
+                <small>📁 <code>{info['file']}</code> — {status}<br>
+                {'📸 Perlu gambar' if info.get('has_photo') else '🎨 Tanpa gambar'}
+                {'· 🎬 Ada video' if info.get('has_video') else ''}
+                {'· 🖼️ Ada gallery' if info.get('has_gallery') else ''}</small>
+            </div>
+            """, unsafe_allow_html=True)
+        st.markdown("")
+    st.markdown("---")
+    st.markdown("""
+    ### ➕ Cara Tambah Template Baru
+    ```python
+    "NamaCategory": {
+        "template_key": {
+            "name": "Nama Template",
+            "file": "nama_fail.html",
+            "has_photo": False,
+            "preview_emoji": "✨",
+            "desc": "Penerangan ringkas",
+        },
+    },
+    ```
+    """)
