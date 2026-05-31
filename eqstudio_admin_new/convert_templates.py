@@ -1,232 +1,216 @@
 """
 convert_templates.py
 --------------------
-Convert HTML template yang ada [Square Bracket] placeholders
-kepada {{Double Curly}} format untuk dipakai dengan Streamlit app.
+Convert HTML template dengan nilai hardcoded kepada placeholders
+format [NAMA PENGANTIN LELAKI] — konsisten dengan app.py.
 
-Usage: python convert_templates.py
+Usage:
+  python convert_templates.py              # convert semua FILES
+  python convert_templates.py preview      # test dengan PREVIEW_FILES sahaja
 """
 
 import re
 from pathlib import Path
 
-# ─── Buat folder templates ───
 Path("templates").mkdir(exist_ok=True)
 
-# ─── Map: [placeholder asal] → {{PLACEHOLDER_BARU}} ───
-# Susunan PENTING — yang lebih spesifik kena datang dulu
-# supaya "Nama Pengantin Lelaki" di-replace sebelum "Pengantin Lelaki"
+# ─────────────────────────────────────────────────────────────────────
+#  MAP: nilai hardcoded dalam HTML → placeholder [FORMAT] untuk app.py
+#
+#  SUSUNAN PENTING:
+#  • String panjang/spesifik MESTI datang dulu sebelum substring dia
+#    (cth: "Sufian bin Salleh" sebelum "Sufian")
+#  • URL penuh sebelum URL pendek
+# ─────────────────────────────────────────────────────────────────────
+REPLACEMENTS = [
 
-BRACKET_REPLACEMENTS = [
-    # ── Pengantin ──────────────────────────────────────────────────
-    ("[Nama Pengantin Lelaki]",          "{{GROOM_NAME}}"),
-    ("[Nama Pengantin Perempuan]",        "{{BRIDE_NAME}}"),
+    # ── Nama pengantin ────────────────────────────────────────────────
+    ("Ahmad Nazmi",             "[NAMA PENGANTIN LELAKI]"),
+    ("Nur Farhana",             "[NAMA PENGANTIN PEREMPUAN]"),
 
-    # ── Ibu bapa pengantin lelaki ───────────────────────────────────
-    ("[Nama Bapa Pengantin Lelaki]",      "{{GROOM_FATHER_NAME}}"),
-    ("[Nama Ibu Pengantin Lelaki]",       "{{GROOM_MOTHER_NAME}}"),
+    # ── Ibu bapa pengantin lelaki ─────────────────────────────────────
+    ("Sufian bin Salleh",       "[NAMA BAPA LELAKI]"),
+    ("Sufian Salleh",           "[NAMA BAPA LELAKI]"),   # varian tanpa "bin"
+    ("Siti Maimun",             "[NAMA IBU LELAKI]"),
 
-    # ── Ibu bapa pengantin perempuan ────────────────────────────────
-    ("[Nama Bapa Pengantin Perempuan]",   "{{BRIDE_FATHER_NAME}}"),
-    ("[Nama Ibu Pengantin Perempuan]",    "{{BRIDE_MOTHER_NAME}}"),
+    # ── Tuan rumah ────────────────────────────────────────────────────
+    # (tambah nama ibu bapa pengantin perempuan kalau ada)
 
-    # ── Tuan rumah & contact ────────────────────────────────────────
-    ("[Nama Tuan Rumah]",                "{{HOST_NAME}}"),
-    ("[Contact Person 1]",               "{{CONTACT_1_NAME}}"),
-    ("[Contact Person 2]",               "{{CONTACT_2_NAME}}"),
+    # ── Tarikh ────────────────────────────────────────────────────────
+    ("10 Ogos 2026",            "[TARIKH]"),
+    ("15 Safar 1448H",          "[TARIKH HIJRI]"),
+    ("Isnin",                   "[HARI]"),
 
-    # ── Tarikh ──────────────────────────────────────────────────────
-    ("[Hari], [Tarikh Majlis]",          "{{DATE_DAY}}, {{DATE_DISPLAY}}"),
-    ("[Tarikh Majlis]",                  "{{DATE_DISPLAY}}"),
-    ("[Tarikh Hijri]",                   "{{DATE_HIJRI}}"),
-    ("[DD.MM.YYYY]",                     "{{DATE_DOTTED}}"),
-    ("[DD]",                             "{{DATE_DD}}"),
-    ("[MM]",                             "{{DATE_MM}}"),
-    ("[YYYY]",                           "{{DATE_YYYY}}"),
-    ("[Hari]",                           "{{DATE_DAY}}"),
+    # ── ISO tarikh dalam JS countdown ─────────────────────────────────
+    ("2026-08-10T12:00:00+08:00", "[YYYY]-[MM]-[DD]T[HH]:00:00"),
 
-    # ── Masa ────────────────────────────────────────────────────────
-    ("[Masa Mula — Tamat]",              "{{TIME_RANGE}}"),
-    ("[HH:MM] — [HH:MM]",               "{{TIME_START}} — {{TIME_END}}"),
+    # ── Masa ──────────────────────────────────────────────────────────
+    ("12 Tengahari",            "[MASA MULA]"),
+    ("12:00 Tengahari",         "[MASA MULA]"),
 
-    # ── Venue ───────────────────────────────────────────────────────
-    ("[Nama Venue]",                     "{{VENUE_NAME}}"),
-    ("[Alamat penuh venue majlis]",      "{{VENUE_ADDRESS}}"),
-    ("[Bandar / Negeri]",                "{{VENUE_CITY}}"),
-    ("[Lokasi]",                         "{{VENUE_CITY}}"),
+    # ── Venue ─────────────────────────────────────────────────────────
+    # URL-encoded versions DULU, kemudian plain text
+    ("Sebening+Embun+Garden+Glass+Hall,+Lot+15,+Jalan+Durian+1,+Kampung+Sungai+Buah,+43800+Dengkil,+Selangor",
+                                "[NAMA+VENUE]"),
+    ("Sebening+Embun+Garden+Glass+Hall,Lot+15,Jalan+Durian+1,43800+Dengkil,Selangor",
+                                "[NAMA+VENUE]"),
+    ("Sebening+Embun+Garden+Glass+Hall+Dengkil",
+                                "[NAMA+VENUE]"),
+    # Alamat penuh plain text DULU (lebih spesifik)
+    ("Lot 15, Jalan Durian 1, Kampung Sungai Buah, 43800 Dengkil, Selangor",
+                                "[ALAMAT PENUH VENUE]"),
+    ("Lot 15, Jalan Durian 1, Kg. Sungai Buah, 43800 Dengkil, Selangor",
+                                "[ALAMAT PENUH VENUE]"),
+    # Kemudian nama venue pendek
+    ("Sebening Embun Garden Glass Hall", "[NAMA VENUE]"),
 
-    # ── Aturcara masa ───────────────────────────────────────────────
-    # Guna lookahead supaya semua [00:00] diganti ikut konteks
-    # (handled via regex di bawah)
+    # ── No. telefon ───────────────────────────────────────────────────
+    # Format panjang/URL dulu
+    ("601135623312",            "[NO_TELEFON_TANPA_+]"),
+    ("01135623312",             "[NO_TELEFON_TANPA_+]"),
+    ("011-3562 3312",           "[NO TELEFON]"),
 
-    # ── Audio ───────────────────────────────────────────────────────
-    ("PLACEHOLDER_AUDIO_URL",            "{{MUSIC_URL}}"),
+    # ── WhatsApp URL penuh (dengan text param) — ganti keseluruhan URL ─
+    (
+        "https://wa.me/601135623312?text=Assalamualaikum%20Encik%20Sufian%2C%20saya%20ingin%20bertanya%20tentang%20majlis%20perkahwinan%20Ahmad%20Nazmi%20%26%20Nur%20Farhana.",
+        "https://wa.me/[NO_TELEFON_TANPA_+]?text=Assalamualaikum%2C%20saya%20ingin%20bertanya%20tentang%20majlis."
+    ),
+    # WhatsApp URL tanpa text param
+    ("https://wa.me/601135623312",  "https://wa.me/[NO_TELEFON_TANPA_+]"),
+
+    # ── Waze & Google Maps URL penuh ──────────────────────────────────
+    (
+        "https://waze.com/ul?q=Sebening+Embun+Garden+Glass+Hall+Dengkil&navigate=yes",
+        "https://waze.com/ul?q=[NAMA+VENUE]&navigate=yes"
+    ),
+    (
+        "https://maps.google.com/?q=Sebening+Embun+Garden+Glass+Hall,+Lot+15,+Jalan+Durian+1,+Kampung+Sungai+Buah,+43800+Dengkil,+Selangor",
+        "https://maps.google.com/?q=[NAMA+VENUE]"
+    ),
+    (
+        "https://maps.google.com/?q=Sebening+Embun+Garden+Glass+Hall,Lot+15,Jalan+Durian+1,43800+Dengkil,Selangor",
+        "https://maps.google.com/?q=[NAMA+VENUE]"
+    ),
+
+    # ── Audio ─────────────────────────────────────────────────────────
+    ("PLACEHOLDER_AUDIO_URL",   "PLACEHOLDER_AUDIO_URL"),  # kekal sama — app.py handle ni
 ]
 
-# ─── Regex replacements (untuk pattern yang tak boleh exact-match) ───
+# ─────────────────────────────────────────────────────────────────────
+#  REGEX REPLACEMENTS — untuk pattern yang tak boleh exact-match
+# ─────────────────────────────────────────────────────────────────────
 REGEX_REPLACEMENTS = [
-    # Masa dalam aturcara: [00:00] atau [HH:MM]
-    (r'\[(?:00:00|HH:MM)\]',             "{{EVENT_TIME}}"),
+    # Countdown target date dalam JS:  new Date('2026-08-10T12:00:00+08:00')
+    # (kalau exact replacement atas tak catch, regex ni backup)
+    (
+        r"new Date\('[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}[^']*'\)",
+        "new Date('[YYYY]-[MM]-[DD]T[HH]:00:00')"
+    ),
 
-    # Countdown target date dalam JS
-    (r"new Date\('\[YYYY-MM-DD\]T\d{2}:\d{2}:\d{2}'\)",
-     "new Date('{{DATE_ISO}}')"),
+    # <source src="..."> — ganti URL audio
+    (
+        r'(<source\s+src=")[^"]*(")',
+        r'\1PLACEHOLDER_AUDIO_URL\2'
+    ),
 
-    # Google Calendar link
-    (r'https://calendar\.google\.com/calendar/render\?action=TEMPLATE&text=Walimatul\+Urus\+\[Nama\+Pengantin\][^"]*',
-     "https://calendar.google.com/calendar/render?action=TEMPLATE&text=Walimatul+Urus+{{GROOM_NAME}}+%26+{{BRIDE_NAME}}&dates={{DATE_ISO_START}}/{{DATE_ISO_END}}&location={{VENUE_NAME_URL}}"),
+    # Calendar buildCalendar() — hardcoded highlight tarikh (d===8 = 10 Ogos)
+    # Biar je, app.py inject via JS
+]
 
-    # Apple Calendar .ics
-    (r'data:text/calendar;charset=utf8,BEGIN:VCALENDAR.*?VCALENDAR',
-     "{{APPLE_CALENDAR_LINK}}"),
+# ─────────────────────────────────────────────────────────────────────
+#  FILES nak di-convert
+#  Format: (source_file, output_file)
+# ─────────────────────────────────────────────────────────────────────
+FILES = [
+    ("../kad-kawin-v2-celestial.html",   "templates/v2_celestial.html"),
+    ("../kad-kawin-v3-garden.html",      "templates/v3_garden.html"),
+    ("../kad-kawin-v4-arabian.html",     "templates/v4_arabian.html"),
+    ("../kad-kawin-portrait-royal.html", "templates/portrait_royal.html"),
+]
 
-    # Waze link dengan [Alamat+Venue]
-    (r'https://waze\.com/ul\?q=\[Alamat\+Venue\]',
-     "{{WAZE_LINK}}"),
-
-    # Google Maps link dengan [Alamat+Venue]
-    (r'https://maps\.google\.com/\?q=\[Alamat\+Venue\]',
-     "{{GMAP_LINK}}"),
-
-    # WhatsApp links yang ada 601XXXXXXXXX
-    (r'https://wa\.me/601XXXXXXXXX',
-     "https://wa.me/{{CONTACT_PHONE_WA}}"),
-
-    # Nombor telefon +601X-XXXXXXX
-    (r'\+601X-XXXXXXX',
-     "{{CONTACT_PHONE_DISPLAY}}"),
-
-    # Tahun dalam love story [20XX]
-    (r'\[20XX\]',
-     "{{LOVE_YEAR}}"),
-
-    # Placeholder teks dalam love story
-    (r'\[Cerita bagaimana kami mula berkenalan[^\]]*\]',
-     "{{LOVE_STORY_1}}"),
-    (r'\[Kisah hubungan bermula[^\]]*\]',
-     "{{LOVE_STORY_2}}"),
-    (r'\[Kisah pertunangan[^\]]*\]',
-     "{{LOVE_STORY_3}}"),
-
-    # Mesej tuan rumah
-    (r'\[Mesej ikhlas dari tuan rumah[^\]]*\]',
-     "{{HOST_MESSAGE}}"),
-    (r'\[Heartfelt message from the hosts[^\]]*\]',
-     "{{HOST_MESSAGE}}"),
-    (r'\[رسالة صادقة من أصحاب البيت[^\]]*\]',
-     "{{HOST_MESSAGE}}"),
-
-    # Cal.buildCalendar hardcoded date (Ogos 2026, d===8)
-    # Biar je — app.py yang akan update ni via JS injection
-
-    # Audio source
-    (r'<source\s+src="[^"]*"\s+type="audio/mpeg">',
-     '<source src="{{MUSIC_URL}}" type="audio/mpeg">'),
-
-    # Teks dalam <title>
-    (r'<title>Walimatul Urus \| \[Nama Pengantin Lelaki\] &amp; \[Nama Pengantin Perempuan\]</title>',
-     '<title>Walimatul Urus | {{GROOM_NAME}} &amp; {{BRIDE_NAME}}</title>'),
+# Untuk test dengan satu fail sahaja
+PREVIEW_FILES = [
+    ("template_test.html", "templates/template_test_out.html"),
 ]
 
 
-def convert(src: str, dst: str):
+# ─────────────────────────────────────────────────────────────────────
+#  CORE FUNCTION
+# ─────────────────────────────────────────────────────────────────────
+def convert(src: str, dst: str) -> bool:
     path = Path(src)
     if not path.exists():
         print(f"  ⚠️  Skip — fail tidak jumpa: {src}")
-        return
+        return False
 
     html = path.read_text(encoding="utf-8")
     original = html
 
-    # ── Pass 1: Exact string replacements ───────────────────────────
-    exact_count = 0
-    for old, new in BRACKET_REPLACEMENTS:
-        if old in html:
+    # Pass 1 — exact string replacements
+    exact_hits = []
+    for old, new in REPLACEMENTS:
+        count = html.count(old)
+        if count > 0:
             html = html.replace(old, new)
-            exact_count += 1
+            exact_hits.append((old, new, count))
 
-    # ── Pass 2: Regex replacements ───────────────────────────────────
-    regex_count = 0
+    # Pass 2 — regex replacements
+    regex_hits = []
     for pattern, replacement in REGEX_REPLACEMENTS:
         new_html, n = re.subn(pattern, replacement, html, flags=re.DOTALL)
         if n > 0:
             html = new_html
-            regex_count += n
+            regex_hits.append((pattern[:40], n))
 
-    # ── Pass 3: Cari & warn kalau ada [Bracket] yang tertinggal ─────
-    leftover = re.findall(r'\[[A-Za-z][^\]]{2,60}\]', html)
-    # Tapis keluar yang bukan placeholder (e.g. CSS attribute selectors)
-    leftover = [
-        l for l in leftover
-        if not any(skip in l for skip in [
-            'onclick', 'class', 'id', 'data-', 'href', 'src',
-            '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-        ])
-    ]
-    leftover_unique = sorted(set(leftover))
+    # Pass 3 — detect sisa placeholder lama {{CURLY}} kalau ada
+    curly_leftovers = re.findall(r'\{\{[A-Z_]+\}\}', html)
 
     Path(dst).write_text(html, encoding="utf-8")
 
-    changed = html != original
+    # ── Report ────────────────────────────────────────────────────────
     print(f"\n  ✅  {src}")
     print(f"      → {dst}")
-    print(f"      Exact replacements : {exact_count}")
-    print(f"      Regex replacements : {regex_count}")
+    print(f"      Exact  : {len(exact_hits)} jenis replacement")
+    print(f"      Regex  : {len(regex_hits)} pattern")
 
-    if leftover_unique:
-        print(f"\n      ⚠️  {len(leftover_unique)} kemungkinan placeholder tertinggal:")
-        for item in leftover_unique[:15]:  # tunjuk max 15
-            print(f"         • {item}")
-        if len(leftover_unique) > 15:
-            print(f"         ... dan {len(leftover_unique)-15} lagi")
-    else:
-        print(f"      ✨ Tiada bracket placeholder yang tertinggal!")
+    if exact_hits:
+        for old, new, n in exact_hits:
+            trunc_old = (old[:45] + "…") if len(old) > 45 else old
+            print(f"         • \"{trunc_old}\"  →  {new}  ({n}x)")
 
-    if not changed:
-        print(f"      ℹ️  Tiada perubahan dibuat — semak semula source file")
+    if curly_leftovers:
+        uniq = sorted(set(curly_leftovers))
+        print(f"\n      ⚠️  Ada placeholder format lama {{{{...}}}} yang tertinggal:")
+        for c in uniq:
+            print(f"         • {c}")
 
+    if html == original:
+        print("      ℹ️  Tiada perubahan — semak nama nilai dalam REPLACEMENTS")
 
-# ─── Files nak convert ───────────────────────────────────────────────
-# (source_file, output_template_file)
-# Tukar path ikut struktur folder kau
-FILES = [
-    ("kad-kawin-v2-celestial.html",    "templates/v2_celestial.html"),
-    ("kad-kawin-v3-garden.html",       "templates/v3_garden.html"),
-    ("kad-kawin-v4-arabian.html",      "templates/v4_arabian.html"),
-    ("kad-kawin-portrait-royal.html",  "templates/portrait_royal.html"),
-]
-
-# ─── Preview mode: convert satu file untuk test ──────────────────────
-PREVIEW_FILES = [
-    ("template_test.html",             "templates/template_test_out.html"),
-]
+    return True
 
 
+# ─────────────────────────────────────────────────────────────────────
+#  MAIN
+# ─────────────────────────────────────────────────────────────────────
 if __name__ == "__main__":
     import sys
 
     mode = sys.argv[1] if len(sys.argv) > 1 else "all"
+    target = PREVIEW_FILES if mode == "preview" else FILES
 
     print("\n🔄 Converting templates...\n")
-    print("=" * 55)
+    print("=" * 60)
 
-    target_files = PREVIEW_FILES if mode == "preview" else FILES
+    ok = sum(1 for src, dst in target if convert(src, dst))
+    skipped = len(target) - ok
 
-    converted = 0
-    skipped = 0
-    for src, dst in target_files:
-        result = convert(src, dst)
-        if Path(src).exists():
-            converted += 1
-        else:
-            skipped += 1
+    print("\n" + "=" * 60)
+    print(f"\n✅  Selesai — {ok} fail diproses, {skipped} fail skip\n")
 
-    print("\n" + "=" * 55)
-    print(f"\n✅ Selesai! {converted} fail diproses, {skipped} fail skip.")
-
-    if converted > 0:
-        print("\n📁 Template disimpan dalam folder: templates/")
-        print("🚀 Seterusnya jalankan: streamlit run app.py\n")
+    if ok:
+        print("📁  Template disimpan dalam folder: templates/")
+        print("🚀  Seterusnya: streamlit run app.py\n")
     else:
-        print("\n💡 Tip: Letakkan HTML files dalam folder yang sama dengan script ini.")
-        print("   Atau edit senarai FILES di atas ikut path yang betul.\n")
+        print("💡  Tip: Pastikan HTML files ada dalam folder yang betul.")
+        print("    Edit senarai FILES di atas ikut path sebenar.\n")
