@@ -100,7 +100,7 @@ TEMPLATES = {
             "desc": "Tema taman bunga, sage green & dusty rose",
         },
         "Dark Olive": {
-            "name": "Garden — Taman Botanik",
+            "name": "Dark — Olive",
             "file": "dark olive.html",
             "has_photo": False,
             "preview_emoji": "🌸",
