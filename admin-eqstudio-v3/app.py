@@ -101,7 +101,7 @@ TEMPLATES = {
         },
         "Dark Olive": {
             "name": "Dark — Olive",
-            "file": "Dark_Olive.html",
+            "file": "Dark Olive.html",
             "has_photo": False,
             "preview_emoji": "🌸",
             "desc": "Tema taman bunga, sage green & dusty rose",
