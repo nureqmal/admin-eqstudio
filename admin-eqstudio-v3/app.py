@@ -99,6 +99,13 @@ TEMPLATES = {
             "preview_emoji": "🌸",
             "desc": "Tema taman bunga, sage green & dusty rose",
         },
+        "Dark Olive": {
+            "name": "Garden — Taman Botanik",
+            "file": "dark olive.html",
+            "has_photo": False,
+            "preview_emoji": "🌸",
+            "desc": "Tema taman bunga, sage green & dusty rose",
+        },
         "v4_arabian": {
             "name": "Arabian — Malam Seribu Bintang",
             "file": "v4_arabian.html",
