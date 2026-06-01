@@ -83,7 +83,14 @@ st.markdown("""
 # ─────────────────────────────────────────
 #  TEMPLATE REGISTRY
 # ─────────────────────────────────────────
-TEMPLATES = {
+# ─────────────────────────────────────────
+#  REGISTRY — load dari GitHub JSON
+#  File: templates/registry.json dalam repo kau
+#
+#  Fallback kepada TEMPLATES_DEFAULT kalau
+#  GitHub belum setup atau JSON belum ada.
+# ─────────────────────────────────────────
+TEMPLATES_DEFAULT = {
     "Essential": {
         "v2_celestial": {
             "name": "Celestial — Bintang & Bulan",
@@ -95,13 +102,6 @@ TEMPLATES = {
         "v3_garden": {
             "name": "Garden — Taman Botanik",
             "file": "v3_garden.html",
-            "has_photo": False,
-            "preview_emoji": "🌸",
-            "desc": "Tema taman bunga, sage green & dusty rose",
-        },
-        "Dark Olive": {
-            "name": "Dark — Olive",
-            "file": "Dark Olive.html",
             "has_photo": False,
             "preview_emoji": "🌸",
             "desc": "Tema taman bunga, sage green & dusty rose",
@@ -123,28 +123,36 @@ TEMPLATES = {
             "desc": "Tema mewah burgundy & champagne, gallery gambar",
         },
     },
-    "Cinematic": {
-        "v1_cinematic": {
-            "name": "Cinematic — Contoh Nama",
-            "file": "v1_cinematic.html",
-            "has_photo": True,
-            "has_video": True,
-            "preview_emoji": "🎬",
-            "desc": "Penerangan ringkas",
-        },
-    },
-    "Prestige": {
-        "v1_prestige": {
-            "name": "Prestige — Contoh Nama",
-            "file": "v1_prestige.html",
-            "has_photo": True,
-            "has_video": True,
-            "has_gallery": True,
-            "preview_emoji": "💎",
-            "desc": "Penerangan ringkas",
-        },
-    },
 }
+
+REGISTRY_PATH = "templates/registry.json"  # path dalam GitHub repo kau
+
+@st.cache_data(ttl=60)  # cache 60 saat — refresh bila ada template baru
+def load_registry(token, repo):
+    """Load registry.json dari GitHub. Return TEMPLATES_DEFAULT kalau gagal."""
+    if not token or not repo:
+        return TEMPLATES_DEFAULT
+    try:
+        url = f"https://api.github.com/repos/{repo}/contents/{REGISTRY_PATH}"
+        r = requests.get(url,
+            headers={"Authorization": f"token {token}", "Accept": "application/vnd.github.v3+json"},
+            timeout=8)
+        if r.status_code == 200:
+            import json, base64 as b64
+            content = b64.b64decode(r.json()["content"]).decode("utf-8")
+            return json.loads(content)
+        # 404 = registry belum wujud, guna default
+        return TEMPLATES_DEFAULT
+    except Exception:
+        return TEMPLATES_DEFAULT
+
+def save_registry(token, repo, registry):
+    """Simpan registry.json ke GitHub. Return True kalau berjaya."""
+    import json
+    content = json.dumps(registry, indent=2, ensure_ascii=False)
+    result = github_upload_file(token, repo, REGISTRY_PATH, content,
+        "Update template registry")
+    return result["success"]
 
 # ─────────────────────────────────────────
 #  PLACEHOLDER MASTER MAP
@@ -260,11 +268,27 @@ def apply_replacements(html, replacements):
 # ─────────────────────────────────────────
 #  HELPER FUNCTIONS
 # ─────────────────────────────────────────
-def load_template(filename):
+def load_template(filename, token="", repo=""):
+    """
+    Cuba fetch template dari GitHub dulu.
+    Fallback ke local disk kalau takde GitHub.
+    """
+    if token and repo:
+        try:
+            url = f"https://api.github.com/repos/{repo}/contents/templates/{filename}"
+            r = requests.get(url,
+                headers={"Authorization": f"token {token}", "Accept": "application/vnd.github.v3+json"},
+                timeout=10)
+            if r.status_code == 200:
+                import base64 as b64
+                return b64.b64decode(r.json()["content"]).decode("utf-8")
+        except Exception:
+            pass
+    # Fallback: local disk
     path = BASE_DIR / "templates" / filename
-    if not path.exists():
-        return None
-    return path.read_text(encoding="utf-8")
+    if path.exists():
+        return path.read_text(encoding="utf-8")
+    return None
 
 def generate_order_id():
     return f"EQ{datetime.now().strftime('%y%m%d%H%M')}"
@@ -414,6 +438,13 @@ elif "🆕 Jana Kad Baru" in page:
 
     st.markdown("---")
     st.markdown("## 1️⃣ Pilih Template")
+
+    TEMPLATES = load_registry(gh_token, gh_repo)
+
+    if st.button("🔄 Refresh senarai template"):
+        st.cache_data.clear()
+        st.rerun()
+
     cat_sel = st.selectbox("Category", list(TEMPLATES.keys()),
         format_func=lambda x: f"{'⭐' if x=='Essential' else '📸' if x=='Portrait' else '🎬' if x=='Cinematic' else '💎'} {x}")
     tmpl_opts = TEMPLATES[cat_sel]
@@ -422,7 +453,7 @@ elif "🆕 Jana Kad Baru" in page:
     sel = tmpl_opts[tmpl_key]
 
     # Detect format template
-    tmpl_html_check = load_template(sel["file"])
+    tmpl_html_check = load_template(sel["file"], gh_token, gh_repo)
     tmpl_fmt = detect_format(tmpl_html_check) if tmpl_html_check else "curly"
     fmt_badge = "🟢 `{{CURLY}}`" if tmpl_fmt == "curly" else "🔵 `[Square Bracket]`"
     st.markdown(f"<div class='info-box'>{sel['preview_emoji']} <b>{sel['name']}</b> — {sel['desc']}<br>Format: {fmt_badge}</div>", unsafe_allow_html=True)
@@ -569,7 +600,7 @@ elif "🆕 Jana Kad Baru" in page:
         st.info("Setup GitHub untuk auto-deploy.")
 
     if st.button("✨ Jana Kad Sekarang!", disabled=bool(missing)):
-        template_html = load_template(sel["file"])
+        template_html = load_template(sel["file"], gh_token, gh_repo)
         if template_html is None:
             st.error(f"❌ Template tidak jumpa: `templates/{sel['file']}`")
         else:
@@ -781,20 +812,41 @@ elif "🔧 Template Converter" in page:
             for m in sorted(valid, key=lambda x: len(x["value"]), reverse=True):
                 converted = converted.replace(m["value"], m["placeholder"])
             final_fn = f"{t_file}.html"
-            with st.spinner("Uploading..."):
+
+            # Step 1: Upload HTML template ke GitHub
+            with st.spinner("📤 Upload template..."):
                 res = github_upload_file(gh_token, gh_repo,
-                    f"eqstudio_admin_new/templates/{final_fn}",
+                    f"templates/{final_fn}",
                     converted, f"Add template: {t_name}")
+
             if res["success"]:
-                code  = f'        "{t_file}": {{\n'
-                code += f'            "name": "{t_name}",\n'
-                code += f'            "file": "{final_fn}",\n'
-                code += f'            "has_photo": {t_cat in ["Portrait","Cinematic","Prestige"]},\n'
-                code += f'            "preview_emoji": "{t_emoji or "✨"}",\n'
-                code += f'            "desc": "{t_desc}",\n'
-                code += f'        }},'
-                st.success(f"✅ Upload berjaya — {final_fn}")
-                st.code(f'# Letak dalam "{t_cat}" section:\n{code}', language="python")
+                # Step 2: Update registry.json
+                new_entry = {
+                    "name": t_name,
+                    "file": final_fn,
+                    "has_photo": t_cat in ["Portrait", "Cinematic", "Prestige"],
+                    "has_video": t_cat in ["Cinematic", "Prestige"],
+                    "has_gallery": t_cat == "Prestige",
+                    "preview_emoji": t_emoji or "✨",
+                    "desc": t_desc,
+                }
+                with st.spinner("📋 Update registry..."):
+                    registry = load_registry(gh_token, gh_repo)
+                    if t_cat not in registry:
+                        registry[t_cat] = {}
+                    registry[t_cat][t_file] = new_entry
+                    reg_ok = save_registry(gh_token, gh_repo, registry)
+
+                st.cache_data.clear()  # force refresh supaya template baru muncul
+
+                st.markdown(f"""
+                <div class='success-box'>
+                    <h3 style='color:#4CAF50;margin:0 0 .5rem'>✅ Template berjaya ditambah!</h3>
+                    <b>Nama:</b> {t_name}<br>
+                    <b>Fail:</b> {final_fn}<br>
+                    <b>Registry:</b> {"✅ Updated" if reg_ok else "⚠️ Gagal update — cuba refresh manual"}<br><br>
+                    Pergi <b>🆕 Jana Kad Baru</b> → template kau dah ada dalam senarai!
+                </div>""", unsafe_allow_html=True)
                 st.session_state.converter_rows = [{"value":"","placeholder":""}]
             else:
                 st.error(f"❌ {res['error']}")
