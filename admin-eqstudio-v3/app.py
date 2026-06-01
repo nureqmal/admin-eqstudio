@@ -157,6 +157,12 @@ def save_registry(token, repo, registry):
 # ─────────────────────────────────────────
 #  APPLY REPLACEMENTS — direct {{CURLY}} dict
 # ─────────────────────────────────────────
+def detect_format(html):
+    """Detect sama ada template guna {{CURLY}} atau [Square Bracket]."""
+    curly  = len(re.findall(r'\{\{[A-Z_]+\}\}', html))
+    square = len(re.findall(r'\[[A-Za-z][^\]]{2,50}\]', html))
+    return "curly" if curly >= square else "square"
+
 def build_replacements(data):
     """
     Bina dict {{{placeholder}}}: nilai} terus dari data dict.
@@ -880,12 +886,29 @@ elif "🔧 Template Converter" in page:
                 unsafe_allow_html=True
             )
 
-            ph_key = "square" if fmt == "square" else "curly"
+            all_phs = [
+                "{{GROOM_NAME}}","{{BRIDE_NAME}}","{{GROOM_FULL_NAME}}","{{BRIDE_FULL_NAME}}",
+                "{{GROOM_FATHER}}","{{GROOM_MOTHER}}","{{BRIDE_FATHER}}","{{BRIDE_MOTHER}}",
+                "{{HOST_FAMILY}}","{{HOST_FAMILY_FULL}}","{{HOST_MESSAGE_BM}}","{{HOST_MESSAGE_EN}}",
+                "{{DATE_DISPLAY}}","{{DATE_DAY}}","{{DATE_HIJRI}}","{{DATE_ISO}}",
+                "{{DATE_DD}}","{{DATE_MM}}","{{DATE_YYYY}}","{{DATE_YYYYMMDD}}",
+                "{{TIME_START}}","{{TIME_END}}","{{TIME_START_HHMM}}","{{TIME_END_HHMM}}",
+                "{{TIME_ARRIVAL}}","{{TIME_AKAD}}","{{TIME_BERSANDING}}","{{TIME_MAKAN}}","{{TIME_BERSURAI}}",
+                "{{VENUE_NAME}}","{{VENUE_FULLNAME}}","{{VENUE_ADDRESS}}","{{VENUE_CITY}}",
+                "{{VENUE_WAZE_QUERY}}","{{VENUE_GMAPS_QUERY}}","{{WAZE_LINK}}","{{GMAP_LINK}}",
+                "{{CONTACT1_NAME}}","{{CONTACT1_PHONE_DISPLAY}}","{{CONTACT1_PHONE_WA}}",
+                "{{CONTACT2_NAME}}","{{CONTACT2_PHONE_DISPLAY}}","{{CONTACT2_PHONE_WA}}",
+                "{{MUSIC_URL}}","{{MUSIC_LABEL}}",
+                "{{LOVE_YEAR_1}}","{{LOVE_STORY_1}}","{{LOVE_YEAR_2}}","{{LOVE_STORY_2}}",
+                "{{LOVE_YEAR_3}}","{{LOVE_STORY_3}}",
+                "{{DRESSCODE_THEME}}","{{DRESSCODE_THEME_EN}}",
+                "{{DOA_SAMPLE1_NAME}}","{{DOA_SAMPLE1_MSG}}","{{DOA_SAMPLE2_NAME}}","{{DOA_SAMPLE2_MSG}}",
+                "{{HERO_PHOTO_URL}}","{{PHOTO1_URL}}","{{PHOTO2_URL}}","{{PHOTO3_URL}}",
+                "{{OPENING_PHOTO_URL}}","{{VIDEO_URL}}",
+            ]
             ph_options = {"-- Pilih --": ""}
-            for field, info in PLACEHOLDER_MAP.items():
-                ph = info.get(ph_key)
-                if ph:
-                    ph_options[f"{ph}  —  {info['label']}"] = ph
+            for ph in all_phs:
+                ph_options[ph] = ph
 
             if "converter_rows" not in st.session_state:
                 st.session_state.converter_rows = [{"value": "", "placeholder": ""}]
@@ -1043,8 +1066,70 @@ elif "📋 Cara Guna" in page:
 
     ## Placeholders [Square Bracket] yang disokong
     """)
-    sq_phs = [(info["square"], info["label"]) for info in PLACEHOLDER_MAP.values() if info.get("square")]
-    for ph, label in sq_phs:
+    placeholders = [
+        ("{{GROOM_NAME}}", "Nama panggilan pengantin lelaki"),
+        ("{{BRIDE_NAME}}", "Nama panggilan pengantin perempuan"),
+        ("{{GROOM_FULL_NAME}}", "Nama penuh pengantin lelaki"),
+        ("{{BRIDE_FULL_NAME}}", "Nama penuh pengantin perempuan"),
+        ("{{GROOM_FATHER}}", "Nama bapa pengantin lelaki"),
+        ("{{GROOM_MOTHER}}", "Nama ibu pengantin lelaki"),
+        ("{{BRIDE_FATHER}}", "Nama bapa pengantin perempuan"),
+        ("{{BRIDE_MOTHER}}", "Nama ibu pengantin perempuan"),
+        ("{{HOST_FAMILY}}", "Nama keluarga tuan rumah (ringkas)"),
+        ("{{HOST_FAMILY_FULL}}", "Nama keluarga tuan rumah (penuh)"),
+        ("{{HOST_MESSAGE_BM}}", "Mesej tuan rumah dalam BM"),
+        ("{{HOST_MESSAGE_EN}}", "Mesej tuan rumah dalam EN"),
+        ("{{DATE_DISPLAY}}", "Tarikh papar (eg: 20 September 2026)"),
+        ("{{DATE_DAY}}", "Hari majlis (eg: Ahad)"),
+        ("{{DATE_HIJRI}}", "Tarikh Hijri"),
+        ("{{DATE_ISO}}", "Tarikh ISO"),
+        ("{{DATE_DD}}", "Nombor hari"),
+        ("{{DATE_MM}}", "Nombor bulan"),
+        ("{{DATE_YYYY}}", "Tahun"),
+        ("{{DATE_YYYYMMDD}}", "Tarikh format YYYYMMDD"),
+        ("{{TIME_START}}", "Masa mula (eg: 11:00 PG)"),
+        ("{{TIME_END}}", "Masa tamat (eg: 4:00 PTG)"),
+        ("{{TIME_START_HHMM}}", "Masa mula format HHMM"),
+        ("{{TIME_END_HHMM}}", "Masa tamat format HHMM"),
+        ("{{TIME_ARRIVAL}}", "Masa ketibaan tetamu"),
+        ("{{TIME_AKAD}}", "Masa akad nikah"),
+        ("{{TIME_BERSANDING}}", "Masa persandingan"),
+        ("{{TIME_MAKAN}}", "Masa jamuan makan"),
+        ("{{TIME_BERSURAI}}", "Masa majlis bersurai"),
+        ("{{VENUE_NAME}}", "Nama dewan / tempat"),
+        ("{{VENUE_FULLNAME}}", "Nama penuh venue"),
+        ("{{VENUE_ADDRESS}}", "Alamat penuh venue"),
+        ("{{VENUE_CITY}}", "Bandar / negeri"),
+        ("{{VENUE_WAZE_QUERY}}", "Query nama venue untuk Waze URL"),
+        ("{{VENUE_GMAPS_QUERY}}", "Query nama venue untuk Google Maps URL"),
+        ("{{WAZE_LINK}}", "Link Waze penuh"),
+        ("{{GMAP_LINK}}", "Link Google Maps penuh"),
+        ("{{CONTACT1_NAME}}", "Nama contact person 1"),
+        ("{{CONTACT1_PHONE_DISPLAY}}", "No telefon contact 1 (display)"),
+        ("{{CONTACT1_PHONE_WA}}", "No WhatsApp contact 1"),
+        ("{{CONTACT2_NAME}}", "Nama contact person 2"),
+        ("{{CONTACT2_PHONE_DISPLAY}}", "No telefon contact 2 (display)"),
+        ("{{CONTACT2_PHONE_WA}}", "No WhatsApp contact 2"),
+        ("{{MUSIC_URL}}", "Link direct MP3"),
+        ("{{MUSIC_LABEL}}", "Nama lagu"),
+        ("{{LOVE_YEAR_1}}", "Tahun kisah 1"),
+        ("{{LOVE_STORY_1}}", "Cerita kisah 1 — pertemuan"),
+        ("{{LOVE_YEAR_2}}", "Tahun kisah 2"),
+        ("{{LOVE_STORY_2}}", "Cerita kisah 2 — bercinta"),
+        ("{{LOVE_YEAR_3}}", "Tahun kisah 3"),
+        ("{{LOVE_STORY_3}}", "Cerita kisah 3 — bertunang"),
+        ("{{DRESSCODE_THEME}}", "Tema dress code (BM)"),
+        ("{{DRESSCODE_THEME_EN}}", "Tema dress code (EN)"),
+        ("{{DOA_SAMPLE1_NAME}}", "Nama contoh ucapan 1"),
+        ("{{DOA_SAMPLE1_MSG}}", "Mesej contoh ucapan 1"),
+        ("{{DOA_SAMPLE2_NAME}}", "Nama contoh ucapan 2"),
+        ("{{DOA_SAMPLE2_MSG}}", "Mesej contoh ucapan 2"),
+        ("{{HERO_PHOTO_URL}}", "Link gambar hero"),
+        ("{{PHOTO1_URL}}", "Link gallery gambar 1"),
+        ("{{PHOTO2_URL}}", "Link gallery gambar 2"),
+        ("{{PHOTO3_URL}}", "Link gallery gambar 3"),
+    ]
+    for ph, label in placeholders:
         st.markdown(f"- `{ph}` — {label}")
 
 # ─────────────────────────────────────────
