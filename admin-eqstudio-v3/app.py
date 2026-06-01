@@ -1137,25 +1137,72 @@ elif "📋 Cara Guna" in page:
 # ─────────────────────────────────────────
 elif "🗂️ Template Info" in page:
     st.markdown("# 🗂️ Senarai Template")
+
+    gh_token = st.session_state.get("gh_token", "") or st.secrets.get("GH_TOKEN", "")
+    gh_repo  = st.session_state.get("gh_repo",  "") or st.secrets.get("GH_REPO",  "")
+
+    TEMPLATES = load_registry(gh_token, gh_repo)
+
+    if st.button("🔄 Refresh"):
+        st.cache_data.clear()
+        st.rerun()
+
     st.markdown("---")
-    for category, templates in TEMPLATES.items():
-        emoji = '⭐' if category=='Essential' else '📸' if category=='Portrait' else '🎬' if category=='Cinematic' else '💎'
-        st.markdown(f"## {emoji} {category}")
-        for key, info in templates.items():
-            path = BASE_DIR / "templates" / info['file']
-            exists = path.exists()
-            if exists:
-                html = path.read_text(encoding="utf-8")
-                fmt = detect_format(html)
-                fmt_badge = "🟢 `{{CURLY}}`" if fmt == "curly" else "🔵 `[Square]`"
-                status = f"✅ Ada · {fmt_badge}"
-            else:
-                status = "❌ Fail tidak jumpa"
-            st.markdown(f"""
-            <div class='template-card'>
-                <span class='category-badge'>{category}</span>
-                <b style='color:#f0e8d8'>{info['preview_emoji']} {info['name']}</b><br>
-                <small style='color:#888'>{info['desc']}</small><br>
-                <small>📁 <code>{info['file']}</code> — {status}</small>
-            </div>""", unsafe_allow_html=True)
-        st.markdown("")
+
+    if not TEMPLATES:
+        st.info("Tiada template lagi. Upload template baru melalui 🔧 Template Converter.")
+    else:
+        for category, templates in TEMPLATES.items():
+            emoji = "⭐" if category=="Essential" else "📸" if category=="Portrait" else "🎬" if category=="Cinematic" else "💎"
+            st.markdown(f"## {emoji} {category}")
+            for key, info in templates.items():
+                # Fetch HTML untuk detect format
+                tmpl_html = load_template(info["file"], gh_token, gh_repo)
+                if tmpl_html:
+                    fmt = detect_format(tmpl_html)
+                    fmt_badge = "🟢 CURLY" if fmt == "curly" else "🔵 Square"
+                    status = f"✅ Ada · {fmt_badge}"
+                else:
+                    status = "❌ Fail tidak jumpa"
+
+                col_info, col_del = st.columns([5, 1])
+                with col_info:
+                    st.markdown(f"""
+                    <div class='template-card'>
+                        <span class='category-badge'>{category}</span>
+                        <b style='color:#f0e8d8'>{info.get("preview_emoji","✨")} {info["name"]}</b><br>
+                        <small style='color:#888'>{info.get("desc","")}</small><br>
+                        <small>📁 <code>{info["file"]}</code> — {status}</small>
+                    </div>""", unsafe_allow_html=True)
+                with col_del:
+                    st.markdown("<div style='padding-top:1.2rem'>", unsafe_allow_html=True)
+                    if st.button("🗑️", key=f"del_{key}", help=f"Padam {info['name']}"):
+                        st.session_state[f"confirm_del_{key}"] = True
+                    st.markdown("</div>", unsafe_allow_html=True)
+
+                # Confirm delete
+                if st.session_state.get(f"confirm_del_{key}"):
+                    st.warning(f"⚠️ Confirm padam **{info['name']}**? Ini akan remove dari registry.")
+                    c1, c2, _ = st.columns([1, 1, 4])
+                    with c1:
+                        if st.button("✅ Ya, padam", key=f"yes_del_{key}"):
+                            registry = load_registry(gh_token, gh_repo)
+                            if category in registry and key in registry[category]:
+                                del registry[category][key]
+                                # Buang category kalau kosong
+                                if not registry[category]:
+                                    del registry[category]
+                                ok = save_registry(gh_token, gh_repo, registry)
+                                st.cache_data.clear()
+                                del st.session_state[f"confirm_del_{key}"]
+                                if ok:
+                                    st.success(f"✅ {info['name']} dipadam dari registry.")
+                                    st.rerun()
+                                else:
+                                    st.error("❌ Gagal update registry.")
+                    with c2:
+                        if st.button("❌ Batal", key=f"no_del_{key}"):
+                            del st.session_state[f"confirm_del_{key}"]
+                            st.rerun()
+
+            st.markdown("")
