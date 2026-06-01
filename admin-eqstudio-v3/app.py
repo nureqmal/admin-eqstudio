@@ -155,108 +155,125 @@ def save_registry(token, repo, registry):
     return result["success"]
 
 # ─────────────────────────────────────────
-#  PLACEHOLDER MASTER MAP
-#
-#  Setiap entry:  "nama_field" : {
-#      "curly": "{{TOKEN}}",          ← format dalam templates lama (v2_celestial dll)
-#      "square": "[Square Bracket]",  ← format dalam templates baru
-#      "label": "Nama mesra untuk UI",
-#  }
-#
-#  apply_replacements() akan detect format mana yang ada dalam HTML
-#  dan guna yang betul secara automatik.
+#  APPLY REPLACEMENTS — direct {{CURLY}} dict
 # ─────────────────────────────────────────
-PLACEHOLDER_MAP = {
-    "groom_name":    {"curly": "{{GROOM_NAME}}",        "square": "[Nama Pengantin Lelaki]",         "label": "Nama Pengantin Lelaki"},
-    "bride_name":    {"curly": "{{BRIDE_NAME}}",         "square": "[Nama Pengantin Perempuan]",      "label": "Nama Pengantin Perempuan"},
-    "father_name":   {"curly": "{{FATHER_NAME}}",        "square": "[Nama Tuan Rumah]",               "label": "Nama Bapa / Tuan Rumah"},
-    "mother_name":   {"curly": "{{MOTHER_NAME}}",        "square": None,                              "label": "Nama Ibu / Tuan Rumah"},
-    "groom_father":  {"curly": None,                     "square": "[Nama Bapa Pengantin Lelaki]",    "label": "Nama Bapa Pengantin Lelaki"},
-    "groom_mother":  {"curly": None,                     "square": "[Nama Ibu Pengantin Lelaki]",     "label": "Nama Ibu Pengantin Lelaki"},
-    "bride_father":  {"curly": None,                     "square": "[Nama Bapa Pengantin Perempuan]", "label": "Nama Bapa Pengantin Perempuan"},
-    "bride_mother":  {"curly": None,                     "square": "[Nama Ibu Pengantin Perempuan]",  "label": "Nama Ibu Pengantin Perempuan"},
-    "date_display":  {"curly": "{{DATE_DISPLAY}}",       "square": "[Tarikh Majlis]",                 "label": "Tarikh papar (eg: 10 Ogos 2026)"},
-    "date_day":      {"curly": "{{DATE_DAY}}",           "square": "[Hari]",                          "label": "Hari majlis (eg: Isnin)"},
-    "date_hijri":    {"curly": "{{DATE_HIJRI}}",         "square": "[Tarikh Hijri]",                  "label": "Tarikh Hijri"},
-    "date_iso":      {"curly": "{{DATE_ISO}}",           "square": "[YYYY-MM-DD]T11:00:00",           "label": "Tarikh ISO (countdown)"},
-    "date_dd":       {"curly": "{{DATE_DD}}",            "square": "[DD]",                            "label": "Nombor hari (DD)"},
-    "date_mm":       {"curly": "{{DATE_MM}}",            "square": "[MM]",                            "label": "Nombor bulan (MM)"},
-    "date_yyyy":     {"curly": "{{DATE_YYYY}}",          "square": "[YYYY]",                          "label": "Tahun (YYYY)"},
-    "time_display":  {"curly": "{{TIME_DISPLAY}}",       "square": "[Masa Mula — Tamat]",             "label": "Masa majlis"},
-    "venue_name":    {"curly": "{{VENUE_NAME}}",         "square": "[Nama Venue]",                    "label": "Nama dewan / tempat"},
-    "venue_address": {"curly": "{{VENUE_ADDRESS}}",      "square": "[Alamat penuh venue majlis]",     "label": "Alamat penuh venue"},
-    "venue_city":    {"curly": "{{VENUE_CITY}}",         "square": "[Bandar / Negeri]",               "label": "Bandar / Negeri"},
-    "venue_locasi":  {"curly": None,                     "square": "[Lokasi]",                        "label": "Lokasi ringkas"},
-    "waze_link":     {"curly": "{{WAZE_LINK}}",          "square": "https://waze.com/ul?q=[Alamat+Venue]", "label": "Link Waze"},
-    "gmap_link":     {"curly": "{{GMAP_LINK}}",          "square": "https://maps.google.com/?q=[Alamat+Venue]", "label": "Link Google Maps"},
-    "contact_phone": {"curly": "{{CONTACT_PHONE}}",      "square": "+601X-XXXXXXX",                  "label": "No telefon display"},
-    "contact_wa":    {"curly": "{{CONTACT_PHONE_WA}}",   "square": "https://wa.me/601XXXXXXXXX",      "label": "No WhatsApp / WA link"},
-    "music_url":     {"curly": "{{MUSIC_URL}}",          "square": "PLACEHOLDER_AUDIO_URL",           "label": "Link MP3 lagu"},
-    "music_label":   {"curly": "{{MUSIC_LABEL}}",        "square": None,                              "label": "Nama lagu"},
-    "hero_url":      {"curly": "{{HERO_PHOTO_URL}}",     "square": "[HERO_PHOTO_URL]",                "label": "Gambar hero"},
-    "photo1_url":    {"curly": "{{PHOTO1_URL}}",         "square": "[PHOTO1_URL]",                    "label": "Gallery gambar 1"},
-    "photo2_url":    {"curly": "{{PHOTO2_URL}}",         "square": "[PHOTO2_URL]",                    "label": "Gallery gambar 2"},
-    "photo3_url":    {"curly": "{{PHOTO3_URL}}",         "square": "[PHOTO3_URL]",                    "label": "Gallery gambar 3"},
-    "opening_url":   {"curly": "{{OPENING_PHOTO_URL}}",  "square": "[OPENING_PHOTO_URL]",             "label": "Gambar opening"},
-    "video_url":     {"curly": "{{VIDEO_URL}}",          "square": "[VIDEO_URL]",                     "label": "Link video"},
-    "gallery1_url":  {"curly": "{{GALLERY1_URL}}",       "square": "[GALLERY1_URL]",                  "label": "Gallery 1"},
-    "gallery2_url":  {"curly": "{{GALLERY2_URL}}",       "square": "[GALLERY2_URL]",                  "label": "Gallery 2"},
-    "gallery3_url":  {"curly": "{{GALLERY3_URL}}",       "square": "[GALLERY3_URL]",                  "label": "Gallery 3"},
-    "gallery4_url":  {"curly": "{{GALLERY4_URL}}",       "square": "[GALLERY4_URL]",                  "label": "Gallery 4"},
-    "gallery5_url":  {"curly": "{{GALLERY5_URL}}",       "square": "[GALLERY5_URL]",                  "label": "Gallery 5"},
-}
-
-# ─────────────────────────────────────────
-#  DETECT FORMAT & BUILD REPLACEMENTS
-# ─────────────────────────────────────────
-def detect_format(html):
-    """Detect sama ada template guna {{CURLY}} atau [Square Bracket]."""
-    curly_count  = len(re.findall(r'\{\{[A-Z_]+\}\}', html))
-    square_count = len(re.findall(r'\[[A-Za-z][^\]]{2,50}\]', html))
-    if curly_count >= square_count:
-        return "curly"
-    return "square"
-
-def build_replacements(fmt, data):
+def build_replacements(data):
     """
-    Bina dict {placeholder: nilai} ikut format template.
-    fmt = "curly" atau "square"
-    data = dict {field_key: nilai}  (sama keys macam PLACEHOLDER_MAP)
+    Bina dict {{{placeholder}}}: nilai} terus dari data dict.
+    Semua placeholder guna format {{CURLY}}.
     """
-    result = {}
-    key = "curly" if fmt == "curly" else "square"
+    d = data
+    r = {}
 
-    # Sort panjang DESC supaya replace yang spesifik dulu
-    for field, ph_info in PLACEHOLDER_MAP.items():
-        ph = ph_info.get(key)
-        if ph and field in data and data[field]:
-            result[ph] = str(data[field])
+    def s(key): return str(d.get(key) or "")
 
-    # Square bracket format perlukan extra replacements untuk composite patterns
-    if fmt == "square":
-        # [Hari], [Tarikh Majlis] — composite
-        if data.get("date_day") and data.get("date_display"):
-            result[f"[Hari], [Tarikh Majlis]"] = f"{data['date_day']}, {data['date_display']}"
-        # [HH:MM] — [HH:MM] — masa range dalam clock widget
-        if data.get("time_display"):
-            result["[HH:MM] — [HH:MM]"] = data["time_display"]
-        # [DD.MM.YYYY]
-        if data.get("date_dd") and data.get("date_mm") and data.get("date_yyyy"):
-            result["[DD.MM.YYYY]"] = f"{data['date_dd']}.{data['date_mm']}.{data['date_yyyy']}"
-        # [Tarikh Majlis] · [Nama Venue] — footer
-        if data.get("date_display") and data.get("venue_name"):
-            result[f"[Tarikh Majlis] · [Nama Venue]"] = f"{data['date_display']} · {data['venue_name']}"
-        # Countdown JS date
-        if data.get("date_iso"):
-            result["'[YYYY-MM-DD]T11:00:00'"] = f"'{data['date_iso']}'"
-        # Alamat+Venue dalam Waze/Maps URL
-        if data.get("venue_name"):
-            venue_url = data["venue_name"].replace(' ', '+')
-            result["[Alamat+Venue]"] = venue_url
-            result["[Nama+Pengantin]"] = f"{data.get('groom_name','')}&{data.get('bride_name','')}".replace(' ','+')\
-                if data.get('groom_name') else ""
+    # ── Pengantin ────────────────────────────────────────
+    r["{{GROOM_NAME}}"]             = s("groom_name")
+    r["{{BRIDE_NAME}}"]             = s("bride_name")
+    r["{{GROOM_FULL_NAME}}"]        = s("groom_full") or s("groom_name")
+    r["{{BRIDE_FULL_NAME}}"]        = s("bride_full") or s("bride_name")
+    r["{{GROOM_FATHER}}"]           = s("groom_father")
+    r["{{GROOM_MOTHER}}"]           = s("groom_mother")
+    r["{{BRIDE_FATHER}}"]           = s("bride_father")
+    r["{{BRIDE_MOTHER}}"]           = s("bride_mother")
 
-    return result
+    # ── Tuan Rumah ───────────────────────────────────────
+    r["{{HOST_FAMILY}}"]            = s("host_family")
+    r["{{HOST_FAMILY_FULL}}"]       = s("host_family_full") or s("host_family")
+    r["{{HOST_MESSAGE_BM}}"]        = s("host_message_bm")
+    r["{{HOST_MESSAGE_EN}}"]        = s("host_message_en")
+
+    # ── Tarikh ───────────────────────────────────────────
+    r["{{DATE_DISPLAY}}"]           = s("date_display")
+    r["{{DATE_DAY}}"]               = s("date_day")
+    r["{{DATE_HIJRI}}"]             = s("date_hijri")
+    r["{{DATE_ISO}}"]               = s("date_iso")
+    r["{{DATE_DD}}"]                = s("date_dd")
+    r["{{DATE_MM}}"]                = s("date_mm")
+    r["{{DATE_YYYY}}"]              = s("date_yyyy")
+    r["{{DATE_YYYYMMDD}}"]          = s("date_yyyymmdd")
+
+    # ── Masa ─────────────────────────────────────────────
+    r["{{TIME_START}}"]             = s("time_start")
+    r["{{TIME_END}}"]               = s("time_end")
+    r["{{TIME_START_SHORT}}"]       = s("time_start")        # sama
+    r["{{TIME_END_SHORT}}"]         = s("time_end")          # sama
+    r["{{TIME_START_HHMM}}"]        = s("time_start_hhmm")
+    r["{{TIME_END_HHMM}}"]          = s("time_end_hhmm")
+
+    # ── Aturcara ─────────────────────────────────────────
+    r["{{TIME_ARRIVAL}}"]           = s("time_arrival")
+    r["{{TIME_AKAD}}"]              = s("time_akad")
+    r["{{TIME_BERSANDING}}"]        = s("time_bersanding")
+    r["{{TIME_MAKAN}}"]             = s("time_makan")
+    r["{{TIME_BERSURAI}}"]          = s("time_bersurai")
+
+    # ── Venue ────────────────────────────────────────────
+    r["{{VENUE_NAME}}"]             = s("venue_name")
+    r["{{VENUE_FULLNAME}}"]         = s("venue_fullname") or s("venue_name")
+    r["{{VENUE_ADDRESS}}"]          = s("venue_address")
+    r["{{VENUE_CITY}}"]             = s("venue_city")
+    r["{{VENUE_WAZE_QUERY}}"]       = s("venue_waze_query")
+    r["{{VENUE_GMAPS_QUERY}}"]      = s("venue_gmaps_query")
+    r["{{VENUE_NAME_URL}}"]         = s("venue_name").replace(" ", "+") if s("venue_name") else ""
+    r["{{GROOM_NAME_URL}}"]         = s("groom_name").replace(" ", "+") if s("groom_name") else ""
+    r["{{BRIDE_NAME_URL}}"]         = s("bride_name").replace(" ", "+") if s("bride_name") else ""
+
+    # ── Waze & Maps full link ────────────────────────────
+    r["{{WAZE_LINK}}"]              = s("waze_link")
+    r["{{GMAP_LINK}}"]              = s("gmap_link")
+
+    # ── Contact 1 ────────────────────────────────────────
+    r["{{CONTACT1_NAME}}"]          = s("contact1_name")
+    r["{{CONTACT1_PHONE_DISPLAY}}"] = s("contact1_phone_display")
+    r["{{CONTACT1_PHONE_WA}}"]      = s("contact1_phone_wa")
+
+    # ── Contact 2 ────────────────────────────────────────
+    r["{{CONTACT2_NAME}}"]          = s("contact2_name")
+    r["{{CONTACT2_PHONE_DISPLAY}}"] = s("contact2_phone_display")
+    r["{{CONTACT2_PHONE_WA}}"]      = s("contact2_phone_wa")
+
+    # ── Lagu ─────────────────────────────────────────────
+    r["{{MUSIC_URL}}"]              = s("music_url")
+    r["{{MUSIC_LABEL}}"]            = s("music_label")
+
+    # ── Kisah Cinta ──────────────────────────────────────
+    r["{{LOVE_YEAR_1}}"]            = s("love_year_1")
+    r["{{LOVE_STORY_1}}"]           = s("love_story_1")
+    r["{{LOVE_YEAR_2}}"]            = s("love_year_2")
+    r["{{LOVE_STORY_2}}"]           = s("love_story_2")
+    r["{{LOVE_YEAR_3}}"]            = s("love_year_3")
+    r["{{LOVE_STORY_3}}"]           = s("love_story_3")
+
+    # ── Dress Code ───────────────────────────────────────
+    r["{{DRESSCODE_THEME}}"]        = s("dresscode_theme")
+    r["{{DRESSCODE_THEME_EN}}"]     = s("dresscode_theme_en")
+
+    # ── Doa sample ───────────────────────────────────────
+    r["{{DOA_SAMPLE1_NAME}}"]       = s("doa_sample1_name")
+    r["{{DOA_SAMPLE1_MSG}}"]        = s("doa_sample1_msg")
+    r["{{DOA_SAMPLE2_NAME}}"]       = s("doa_sample2_name")
+    r["{{DOA_SAMPLE2_MSG}}"]        = s("doa_sample2_msg")
+
+    # ── Countdown JS ─────────────────────────────────────
+    # Template guna: new Date('{{DATE_YYYYMMDD}}T{{TIME_START_HHMM}}:00')
+    # dah covered oleh replacements atas
+
+    # ── Gambar & Video ───────────────────────────────────
+    r["{{HERO_PHOTO_URL}}"]         = s("hero_url")
+    r["{{PHOTO1_URL}}"]             = s("photo1_url")
+    r["{{PHOTO2_URL}}"]             = s("photo2_url")
+    r["{{PHOTO3_URL}}"]             = s("photo3_url")
+    r["{{OPENING_PHOTO_URL}}"]      = s("opening_url")
+    r["{{VIDEO_URL}}"]              = s("video_url")
+    r["{{GALLERY1_URL}}"]           = s("gallery1_url")
+    r["{{GALLERY2_URL}}"]           = s("gallery2_url")
+    r["{{GALLERY3_URL}}"]           = s("gallery3_url")
+    r["{{GALLERY4_URL}}"]           = s("gallery4_url")
+    r["{{GALLERY5_URL}}"]           = s("gallery5_url")
+
+    # Buang entries yang kosong
+    return {k: v for k, v in r.items() if v}
 
 def apply_replacements(html, replacements):
     """Replace semua placeholder, string panjang dulu."""
@@ -463,54 +480,85 @@ elif "🆕 Jana Kad Baru" in page:
     c1, c2 = st.columns(2)
     with c1:
         st.markdown("**🤵 Pengantin Lelaki**")
-        groom_name  = st.text_input("Nama Panggilan", placeholder="Ahmad", key="groom")
-        groom_full  = st.text_input("Nama Penuh", placeholder="Ahmad bin Abdullah", key="groom_full")
+        groom_name   = st.text_input("Nama Panggilan", placeholder="Ahmad", key="groom")
+        groom_full   = st.text_input("Nama Penuh", placeholder="Ahmad bin Abdullah", key="groom_full")
         groom_father = st.text_input("Nama Bapa", placeholder="Abdullah bin Salleh", key="gf")
         groom_mother = st.text_input("Nama Ibu", placeholder="Siti binti Ahmad", key="gm")
     with c2:
         st.markdown("**👰 Pengantin Perempuan**")
-        bride_name  = st.text_input("Nama Panggilan", placeholder="Sarah", key="bride")
-        bride_full  = st.text_input("Nama Penuh", placeholder="Sarah binti Ibrahim", key="bride_full")
+        bride_name   = st.text_input("Nama Panggilan", placeholder="Sarah", key="bride")
+        bride_full   = st.text_input("Nama Penuh", placeholder="Sarah binti Ibrahim", key="bride_full")
         bride_father = st.text_input("Nama Bapa", placeholder="Ibrahim bin Hassan", key="bf")
         bride_mother = st.text_input("Nama Ibu", placeholder="Aminah binti Yusof", key="bm")
 
     st.markdown("---")
-    st.markdown("## 3️⃣ Tuan Rumah")
-    parent_side = st.selectbox("Pihak Tuan Rumah", ["Perempuan", "Lelaki", "Perempuan & Lelaki"])
-    if parent_side == "Lelaki":
-        host_father = groom_father
-        host_mother = groom_mother
-    elif parent_side == "Perempuan":
-        host_father = bride_father or groom_father
-        host_mother = bride_mother or groom_mother
-    else:
-        host_father = f"{groom_father} & {bride_father}" if bride_father else groom_father
-        host_mother = f"{groom_mother} & {bride_mother}" if bride_mother else groom_mother
+    st.markdown("## 3️⃣ Tuan Rumah & Mesej")
+    c1, c2 = st.columns(2)
+    with c1:
+        parent_side = st.selectbox("Pihak Tuan Rumah", ["Perempuan", "Lelaki", "Perempuan & Lelaki"])
+        if parent_side == "Lelaki":
+            host_family = f"Keluarga {groom_father}" if groom_father else ""
+        elif parent_side == "Perempuan":
+            host_family = f"Keluarga {bride_father}" if bride_father else ""
+        else:
+            gf = groom_father.split()[1] if groom_father and len(groom_father.split()) > 1 else groom_father
+            bf = bride_father.split()[1] if bride_father and len(bride_father.split()) > 1 else bride_father
+            host_family = f"Keluarga {gf} & Keluarga {bf}" if (gf and bf) else f"Keluarga {gf or bf}"
+        host_family_custom = st.text_input("Nama Keluarga Tuan Rumah", value=host_family, placeholder="Keluarga Ahmad & Keluarga Ibrahim")
+        host_family_full   = st.text_input("Nama Penuh (footer)", placeholder="Keluarga Haji Ahmad & Keluarga Haji Ibrahim")
+    with c2:
+        host_message_bm = st.text_area("Mesej Tuan Rumah (BM)", height=100,
+            placeholder="Dengan penuh kerendahan hati dan rasa syukur ke hadrat Ilahi...")
+        host_message_en = st.text_area("Mesej Tuan Rumah (EN)", height=100,
+            placeholder="With heartfelt gratitude, we welcome you...")
 
     st.markdown("---")
     st.markdown("## 4️⃣ Tarikh & Masa")
     c1, c2 = st.columns(2)
     with c1:
         event_date = st.date_input("Tarikh Majlis")
-        event_time = st.time_input("Masa Majlis")
         hijri_date = st.text_input("Tarikh Hijri", placeholder="15 Safar 1448H")
+        time_start = st.text_input("Masa Mula", placeholder="11:00 PG", value="11:00 PG")
+        time_end   = st.text_input("Masa Tamat", placeholder="4:00 PTG", value="4:00 PTG")
     with c2:
         days_ms   = ["Isnin","Selasa","Rabu","Khamis","Jumaat","Sabtu","Ahad"]
         months_ms = ["","Januari","Februari","Mac","April","Mei","Jun","Julai","Ogos","September","Oktober","November","Disember"]
         day_name     = days_ms[event_date.weekday()]
         date_display = f"{event_date.day} {months_ms[event_date.month]} {event_date.year}"
-        date_iso     = f"{event_date.isoformat()}T{event_time.strftime('%H:%M:%S')}+08:00"
-        time_display = event_time.strftime('%H:%M')
+        date_yyyymmdd = event_date.strftime('%Y%m%d')
+        # parse masa mula untuk countdown & calendar
+        import re as _re
+        _hm = _re.search(r'(\d{1,2}):(\d{2})', time_start)
+        if _hm:
+            _h, _m = int(_hm.group(1)), int(_hm.group(2))
+            time_start_hhmm = f"{_h:02d}{_m:02d}"
+        else:
+            time_start_hhmm = "1100"
+        _hm2 = _re.search(r'(\d{1,2}):(\d{2})', time_end)
+        time_end_hhmm = f"{int(_hm2.group(1)):02d}{int(_hm2.group(2)):02d}" if _hm2 else "1600"
+        date_iso = f"{event_date.isoformat()}T{time_start_hhmm[:2]}:{time_start_hhmm[2:]}:00"
         st.markdown(f"""
         <div class='info-box'>
             📅 {day_name}, {date_display}<br>
-            🕐 {time_display} &nbsp;|&nbsp; 🗓️ {hijri_date or '—'}<br>
-            <small style='opacity:0.5'>ISO: {date_iso}</small>
+            🕐 {time_start} — {time_end}<br>
+            🗓️ {hijri_date or '—'}
         </div>""", unsafe_allow_html=True)
 
     st.markdown("---")
-    st.markdown("## 5️⃣ Lokasi")
+    st.markdown("## 5️⃣ Aturcara Majlis")
+    c1, c2 = st.columns(2)
+    with c1:
+        time_arrival   = st.text_input("🌅 Ketibaan Tetamu", value=time_start, placeholder="11:00 PG")
+        time_akad      = st.text_input("🌸 Akad Nikah", placeholder="11:30 PG")
+        time_bersanding = st.text_input("👑 Persandingan", placeholder="12:30 TG")
+    with c2:
+        time_makan     = st.text_input("🍽️ Jamuan Makan", placeholder="1:00 PTG")
+        time_bersurai  = st.text_input("🌙 Majlis Bersurai", value=time_end, placeholder="4:00 PTG")
+
+    st.markdown("---")
+    st.markdown("## 6️⃣ Lokasi")
     venue_name    = st.text_input("Nama Dewan / Tempat", placeholder="Dewan Seri Kenangan")
+    venue_fullname = st.text_input("Nama Penuh Venue (untuk footer/map)", placeholder="Dewan Seri Kenangan Kajang")
     venue_address = st.text_area("Alamat Penuh", placeholder="No 1, Jalan Bahagia, 43000 Kajang, Selangor", height=70)
     venue_city    = st.text_input("Bandar / Negeri (ringkas)", placeholder="Kajang, Selangor")
     c1, c2 = st.columns(2)
@@ -518,21 +566,70 @@ elif "🆕 Jana Kad Baru" in page:
         waze_custom = st.text_input("Link Waze (kosong = auto)")
     with c2:
         gmap_custom = st.text_input("Link Google Maps (kosong = auto)")
+    venue_waze_query = venue_name.replace(" ", "+") if venue_name else ""
+    venue_gmaps_query = venue_name.replace(" ", "+") if venue_name else ""
     waze_link = waze_custom or (get_waze_link(venue_name, venue_address) if venue_name else "")
     gmap_link = gmap_custom or (get_gmap_link(venue_name, venue_address) if venue_name else "")
 
     st.markdown("---")
-    st.markdown("## 6️⃣ Contact & Lagu")
+    st.markdown("## 7️⃣ Contact Person")
     c1, c2 = st.columns(2)
     with c1:
-        contact_name  = st.text_input("Nama Contact Person", placeholder="Abdullah bin Salleh")
-        contact_phone = st.text_input("No Telefon", placeholder="011-12345678")
-        wa_num = get_whatsapp_number(contact_phone) if contact_phone else ""
-        if contact_phone:
-            st.caption(f"📱 WhatsApp: {wa_num}")
+        st.markdown("**Contact 1**")
+        contact1_name  = st.text_input("Nama", placeholder="Ahmad bin Abdullah", key="c1n")
+        contact1_phone = st.text_input("No Telefon", placeholder="011-12345678", key="c1p")
+        contact1_wa    = get_whatsapp_number(contact1_phone) if contact1_phone else ""
+        if contact1_phone: st.caption(f"📱 WA: {contact1_wa}")
     with c2:
-        music_url   = st.text_input("Link MP3", placeholder="https://cdn.jsdelivr.net/gh/...")
-        music_label = st.text_input("Nama Lagu", placeholder="Beautiful In White")
+        st.markdown("**Contact 2**")
+        contact2_name  = st.text_input("Nama", placeholder="Siti binti Ibrahim", key="c2n")
+        contact2_phone = st.text_input("No Telefon", placeholder="019-8765432", key="c2p")
+        contact2_wa    = get_whatsapp_number(contact2_phone) if contact2_phone else ""
+        if contact2_phone: st.caption(f"📱 WA: {contact2_wa}")
+
+    st.markdown("---")
+    st.markdown("## 8️⃣ Lagu Latar")
+    c1, c2 = st.columns(2)
+    with c1:
+        music_url   = st.text_input("Link Direct MP3", placeholder="https://cdn.jsdelivr.net/gh/...")
+    with c2:
+        music_label = st.text_input("Nama Lagu", placeholder="Beautiful In White — Westlife")
+
+    st.markdown("---")
+    st.markdown("## 9️⃣ Kisah Cinta")
+    c1, c2 = st.columns(2)
+    with c1:
+        love_year_1  = st.text_input("Tahun 1", placeholder="2022", key="ly1")
+        love_story_1 = st.text_area("Kisah 1 — Pertemuan", height=80, key="ls1",
+            placeholder="Kami mula berkenalan melalui...")
+        love_year_2  = st.text_input("Tahun 2", placeholder="2023", key="ly2")
+        love_story_2 = st.text_area("Kisah 2 — Bercinta", height=80, key="ls2",
+            placeholder="Dengan restu keluarga...")
+    with c2:
+        love_year_3  = st.text_input("Tahun 3", placeholder="2025", key="ly3")
+        love_story_3 = st.text_area("Kisah 3 — Bertunang", height=80, key="ls3",
+            placeholder="Pada malam yang penuh bintang...")
+    
+    st.markdown("---")
+    st.markdown("## 🎨 Dress Code")
+    c1, c2 = st.columns(2)
+    with c1:
+        dresscode_theme    = st.text_input("Tema (BM)", placeholder="Dusty Blue & Gold")
+    with c2:
+        dresscode_theme_en = st.text_input("Tema (EN)", placeholder="Dusty Blue & Gold")
+
+    st.markdown("---")
+    st.markdown("## 💬 Contoh Ucapan Doa")
+    st.caption("Ini ucapan sample yang akan dipapar dalam wall doa. Boleh kosongkan.")
+    c1, c2 = st.columns(2)
+    with c1:
+        doa1_name = st.text_input("Nama Ucapan 1", placeholder="Kak Lina & Family", key="d1n")
+        doa1_msg  = st.text_area("Ucapan 1", height=70, key="d1m",
+            placeholder="Barakallahu lakuma...")
+    with c2:
+        doa2_name = st.text_input("Nama Ucapan 2", placeholder="Pak Long & Mak Long", key="d2n")
+        doa2_msg  = st.text_area("Ucapan 2", height=70, key="d2m",
+            placeholder="Tahniah! Semoga bahagia...")
 
     st.markdown("---")
     hero_url = photo1_url = photo2_url = photo3_url = opening_url = ""
@@ -580,14 +677,13 @@ elif "🆕 Jana Kad Baru" in page:
             g4 = st.text_input("Gallery 4"); g5 = st.text_input("Gallery 5")
         st.markdown("---")
 
-    st.markdown("## 8️⃣ Jana & Deploy")
+    st.markdown("---")
+    st.markdown("## 🚀 Jana & Deploy")
     required = {
         "Nama pengantin lelaki": groom_name,
         "Nama pengantin perempuan": bride_name,
-        "Nama bapa": groom_father,
         "Nama dewan": venue_name,
         "Alamat majlis": venue_address,
-        "No telefon": contact_phone,
     }
     missing = [k for k, v in required.items() if not v]
     if missing:
@@ -606,48 +702,90 @@ elif "🆕 Jana Kad Baru" in page:
         else:
             fmt = detect_format(template_html)
 
-            # Data dict — keys sama dengan PLACEHOLDER_MAP
             data = {
-                "groom_name":    groom_name,
-                "bride_name":    bride_name,
-                "father_name":   host_father,
-                "mother_name":   host_mother,
-                "groom_father":  groom_father,
-                "groom_mother":  groom_mother,
-                "bride_father":  bride_father,
-                "bride_mother":  bride_mother,
-                "date_display":  date_display,
-                "date_day":      day_name,
-                "date_hijri":    hijri_date,
-                "date_iso":      date_iso,
-                "date_dd":       str(event_date.day).zfill(2),
-                "date_mm":       str(event_date.month).zfill(2),
-                "date_yyyy":     str(event_date.year),
-                "time_display":  time_display,
-                "venue_name":    venue_name,
-                "venue_address": venue_address,
-                "venue_city":    venue_city or venue_name,
-                "venue_locasi":  venue_city or venue_name,
-                "waze_link":     waze_link,
-                "gmap_link":     gmap_link,
-                "contact_phone": contact_phone,
-                "contact_wa":    wa_num,
-                "music_url":     music_url,
-                "music_label":   music_label,
-                "hero_url":      hero_url,
-                "photo1_url":    photo1_url,
-                "photo2_url":    photo2_url,
-                "photo3_url":    photo3_url,
-                "opening_url":   opening_url,
-                "video_url":     video_url,
-                "gallery1_url":  g1,
-                "gallery2_url":  g2,
-                "gallery3_url":  g3,
-                "gallery4_url":  g4,
-                "gallery5_url":  g5,
+                # Pengantin
+                "groom_name":           groom_name,
+                "bride_name":           bride_name,
+                "groom_full":           groom_full,
+                "bride_full":           bride_full,
+                "groom_father":         groom_father,
+                "groom_mother":         groom_mother,
+                "bride_father":         bride_father,
+                "bride_mother":         bride_mother,
+                # Tuan Rumah
+                "host_family":          host_family_custom,
+                "host_family_full":     host_family_full,
+                "host_message_bm":      host_message_bm,
+                "host_message_en":      host_message_en,
+                # Tarikh
+                "date_display":         date_display,
+                "date_day":             day_name,
+                "date_hijri":           hijri_date,
+                "date_iso":             date_iso,
+                "date_dd":              str(event_date.day).zfill(2),
+                "date_mm":              str(event_date.month).zfill(2),
+                "date_yyyy":            str(event_date.year),
+                "date_yyyymmdd":        date_yyyymmdd,
+                # Masa
+                "time_start":           time_start,
+                "time_end":             time_end,
+                "time_start_hhmm":      time_start_hhmm,
+                "time_end_hhmm":        time_end_hhmm,
+                # Aturcara
+                "time_arrival":         time_arrival,
+                "time_akad":            time_akad,
+                "time_bersanding":      time_bersanding,
+                "time_makan":           time_makan,
+                "time_bersurai":        time_bersurai,
+                # Venue
+                "venue_name":           venue_name,
+                "venue_fullname":       venue_fullname,
+                "venue_address":        venue_address,
+                "venue_city":           venue_city,
+                "venue_waze_query":     venue_waze_query,
+                "venue_gmaps_query":    venue_gmaps_query,
+                "waze_link":            waze_link,
+                "gmap_link":            gmap_link,
+                # Contact
+                "contact1_name":        contact1_name,
+                "contact1_phone_display": contact1_phone,
+                "contact1_phone_wa":    contact1_wa,
+                "contact2_name":        contact2_name,
+                "contact2_phone_display": contact2_phone,
+                "contact2_phone_wa":    contact2_wa,
+                # Lagu
+                "music_url":            music_url,
+                "music_label":          music_label,
+                # Kisah
+                "love_year_1":          love_year_1,
+                "love_story_1":         love_story_1,
+                "love_year_2":          love_year_2,
+                "love_story_2":         love_story_2,
+                "love_year_3":          love_year_3,
+                "love_story_3":         love_story_3,
+                # Dress Code
+                "dresscode_theme":      dresscode_theme,
+                "dresscode_theme_en":   dresscode_theme_en,
+                # Doa sample
+                "doa_sample1_name":     doa1_name,
+                "doa_sample1_msg":      doa1_msg,
+                "doa_sample2_name":     doa2_name,
+                "doa_sample2_msg":      doa2_msg,
+                # Media
+                "hero_url":             hero_url,
+                "photo1_url":           photo1_url,
+                "photo2_url":           photo2_url,
+                "photo3_url":           photo3_url,
+                "opening_url":          opening_url,
+                "video_url":            video_url,
+                "gallery1_url":         g1,
+                "gallery2_url":         g2,
+                "gallery3_url":         g3,
+                "gallery4_url":         g4,
+                "gallery5_url":         g5,
             }
 
-            replacements = build_replacements(fmt, data)
+            replacements = build_replacements(data)
             final_html   = apply_replacements(template_html, replacements)
             html_bytes   = final_html.encode("utf-8")
             order_id     = generate_order_id()
