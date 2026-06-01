@@ -711,74 +711,95 @@ elif "🔧 Template Converter" in page:
             st.markdown(tags_html, unsafe_allow_html=True)
 
         st.markdown("---")
-        st.markdown("## 2️⃣ Map Nilai Hardcoded → Placeholder")
-        st.markdown(
-            "<div class='info-box'>"
-            "Taip nilai yang <b>ada dalam HTML</b> (eg: nama pengantin sebenar), "
-            "pastu pilih placeholder yang nak digantikan."
-            "<br>Kolum <b>Jumpa?</b> akan tunjuk berapa kali nilai tu ada dalam HTML."
-            "</div>",
-            unsafe_allow_html=True
+
+        # ── Toggle: template dah ada placeholder atau masih hardcoded? ──
+        mode = st.radio(
+            "Jenis template:",
+            ["✅ Dah ada placeholders — terus upload",
+             "🔧 Masih hardcoded — nak buat mapping dulu"],
+            horizontal=True,
+            key="conv_mode"
         )
+        ready_to_upload = False  # flag: boleh terus ke bahagian upload?
 
-        # Build dropdown options dari PLACEHOLDER_MAP ikut format
-        ph_key = "square" if fmt == "square" else "curly"
-        ph_options = {"-- Pilih --": ""}
-        for field, info in PLACEHOLDER_MAP.items():
-            ph = info.get(ph_key)
-            if ph:
-                ph_options[f"{ph}  —  {info['label']}"] = ph
+        if mode.startswith("✅"):
+            # ── FLOW A: Template dah siap, terus upload ──
+            if found_phs:
+                st.markdown(f"<div class='info-box'>✅ Dijumpai <b>{len(found_phs)} placeholder</b> dalam template — sedia untuk upload.</div>", unsafe_allow_html=True)
+            else:
+                st.warning("⚠️ Tiada placeholder dijumpai dalam template. Pastikan template ada `[Nama Pengantin Lelaki]` atau `{{GROOM_NAME}}`.")
+            valid = []          # tak perlu mapping
+            ready_to_upload = True
 
-        if "converter_rows" not in st.session_state:
-            st.session_state.converter_rows = [{"value": "", "placeholder": ""}]
-
-        c1, c2, _ = st.columns([1, 1, 4])
-        with c1:
-            if st.button("➕ Tambah"):
-                st.session_state.converter_rows.append({"value": "", "placeholder": ""})
-                st.rerun()
-        with c2:
-            if st.button("➖ Buang") and len(st.session_state.converter_rows) > 1:
-                st.session_state.converter_rows.pop()
-                st.rerun()
-
-        st.markdown("<br>", unsafe_allow_html=True)
-        ch1, ch2, ch3 = st.columns([2, 3, 1])
-        with ch1: st.markdown("**Nilai dalam HTML**")
-        with ch2: st.markdown("**Ganti dengan Placeholder**")
-        with ch3: st.markdown("**Jumpa?**")
-
-        for i, row in enumerate(st.session_state.converter_rows):
-            c1, c2, c3 = st.columns([2, 3, 1])
-            with c1:
-                val = st.text_input(f"val{i}", value=row["value"],
-                    placeholder="eg: Ahmad Nazmi", key=f"cv_{i}", label_visibility="collapsed")
-                st.session_state.converter_rows[i]["value"] = val
-            with c2:
-                sel_ph = st.selectbox(f"ph{i}", list(ph_options.keys()),
-                    key=f"cp_{i}", label_visibility="collapsed")
-                st.session_state.converter_rows[i]["placeholder"] = ph_options[sel_ph]
-            with c3:
-                if val:
-                    n = raw_html.count(val)
-                    if n > 0:
-                        st.markdown(f"<div style='color:#4CAF50;padding-top:8px'>✅ {n}x</div>", unsafe_allow_html=True)
-                    else:
-                        st.markdown("<div style='color:#ff6b6b;padding-top:8px'>❌</div>", unsafe_allow_html=True)
-                else:
-                    st.markdown("<div style='color:#666;padding-top:8px'>—</div>", unsafe_allow_html=True)
-
-        valid = [r for r in st.session_state.converter_rows if r["value"] and r["placeholder"] and r["value"] in raw_html]
-        not_found = [r for r in st.session_state.converter_rows if r["value"] and r["placeholder"] and r["value"] not in raw_html]
-
-        st.markdown("---")
-        st.markdown("## 3️⃣ Preview & Convert")
-        if valid:
-            st.markdown(f"<div class='info-box'>✅ <b>{len(valid)} replacement</b> akan dibuat{'<br>⚠️ ' + str(len(not_found)) + ' nilai tidak jumpa' if not_found else ''}</div>", unsafe_allow_html=True)
-            for m in valid:
-                st.markdown(f"- `{m['value']}` → `{m['placeholder']}` ({raw_html.count(m['value'])}x)")
         else:
-            st.warning("Belum ada mapping yang valid.")
+            # ── FLOW B: Template ada nama hardcoded, buat mapping ──
+            st.markdown("## 2️⃣ Map Nilai Hardcoded → Placeholder")
+            st.markdown(
+                "<div class='info-box'>"
+                "Taip nilai yang <b>ada dalam HTML</b> (eg: nama pengantin sebenar), "
+                "pastu pilih placeholder yang nak digantikan."
+                "</div>",
+                unsafe_allow_html=True
+            )
+
+            ph_key = "square" if fmt == "square" else "curly"
+            ph_options = {"-- Pilih --": ""}
+            for field, info in PLACEHOLDER_MAP.items():
+                ph = info.get(ph_key)
+                if ph:
+                    ph_options[f"{ph}  —  {info['label']}"] = ph
+
+            if "converter_rows" not in st.session_state:
+                st.session_state.converter_rows = [{"value": "", "placeholder": ""}]
+
+            c1, c2, _ = st.columns([1, 1, 4])
+            with c1:
+                if st.button("➕ Tambah"):
+                    st.session_state.converter_rows.append({"value": "", "placeholder": ""})
+                    st.rerun()
+            with c2:
+                if st.button("➖ Buang") and len(st.session_state.converter_rows) > 1:
+                    st.session_state.converter_rows.pop()
+                    st.rerun()
+
+            st.markdown("<br>", unsafe_allow_html=True)
+            ch1, ch2, ch3 = st.columns([2, 3, 1])
+            with ch1: st.markdown("**Nilai dalam HTML**")
+            with ch2: st.markdown("**Ganti dengan Placeholder**")
+            with ch3: st.markdown("**Jumpa?**")
+
+            for i, row in enumerate(st.session_state.converter_rows):
+                c1, c2, c3 = st.columns([2, 3, 1])
+                with c1:
+                    val = st.text_input(f"val{i}", value=row["value"],
+                        placeholder="eg: Ahmad Nazmi", key=f"cv_{i}", label_visibility="collapsed")
+                    st.session_state.converter_rows[i]["value"] = val
+                with c2:
+                    sel_ph = st.selectbox(f"ph{i}", list(ph_options.keys()),
+                        key=f"cp_{i}", label_visibility="collapsed")
+                    st.session_state.converter_rows[i]["placeholder"] = ph_options[sel_ph]
+                with c3:
+                    if val:
+                        n = raw_html.count(val)
+                        if n > 0:
+                            st.markdown(f"<div style='color:#4CAF50;padding-top:8px'>✅ {n}x</div>", unsafe_allow_html=True)
+                        else:
+                            st.markdown("<div style='color:#ff6b6b;padding-top:8px'>❌</div>", unsafe_allow_html=True)
+                    else:
+                        st.markdown("<div style='color:#666;padding-top:8px'>—</div>", unsafe_allow_html=True)
+
+            valid = [r for r in st.session_state.converter_rows if r["value"] and r["placeholder"] and r["value"] in raw_html]
+            not_found = [r for r in st.session_state.converter_rows if r["value"] and r["placeholder"] and r["value"] not in raw_html]
+
+            st.markdown("---")
+            st.markdown("## 3️⃣ Preview Mapping")
+            if valid:
+                st.markdown(f"<div class='info-box'>✅ <b>{len(valid)} replacement</b> akan dibuat{'<br>⚠️ ' + str(len(not_found)) + ' nilai tidak jumpa' if not_found else ''}</div>", unsafe_allow_html=True)
+                for m in valid:
+                    st.markdown(f"- `{m['value']}` → `{m['placeholder']}` ({raw_html.count(m['value'])}x)")
+                ready_to_upload = True
+            else:
+                st.warning("Belum ada mapping yang valid.")
 
         st.markdown("---")
         st.markdown("## 4️⃣ Info Template & Upload")
@@ -798,16 +819,16 @@ elif "🔧 Template Converter" in page:
 
         gh_token = st.session_state.get("gh_token","") or st.secrets.get("GH_TOKEN","")
         gh_repo  = st.session_state.get("gh_repo", "") or st.secrets.get("GH_REPO", "")
-        can = bool(valid and t_name and t_file and gh_token and gh_repo)
+        can = bool(ready_to_upload and t_name and t_file and gh_token and gh_repo)
         if not can:
             miss = []
-            if not valid: miss.append("mapping values")
+            if not ready_to_upload: miss.append("mapping values")
             if not t_name: miss.append("nama template")
             if not t_file: miss.append("nama fail")
             if not gh_token or not gh_repo: miss.append("GitHub settings")
             if miss: st.warning(f"⚠️ Lengkapkan: {', '.join(miss)}")
 
-        if st.button("🚀 Convert & Upload!", disabled=not can):
+        if st.button("🚀 Upload Template!", disabled=not can):
             converted = raw_html
             for m in sorted(valid, key=lambda x: len(x["value"]), reverse=True):
                 converted = converted.replace(m["value"], m["placeholder"])
