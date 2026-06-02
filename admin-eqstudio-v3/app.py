@@ -261,9 +261,72 @@ def build_replacements(data):
     r["{{DOA_SAMPLE2_NAME}}"]       = s("doa_sample2_name")
     r["{{DOA_SAMPLE2_MSG}}"]        = s("doa_sample2_msg")
 
+    # ── Calendar Widget ──────────────────────────────────
+    # Generate calendar HTML ikut tarikh sebenar
+    import calendar as _cal
+    yyyymmdd = s("date_yyyymmdd")
+    if yyyymmdd and len(yyyymmdd) == 8:
+        _yr  = int(yyyymmdd[:4])
+        _mo  = int(yyyymmdd[4:6])
+        _day = int(yyyymmdd[6:8])
+        _months_ms = ["","Januari","Februari","Mac","April","Mei","Jun",
+                      "Julai","Ogos","September","Oktober","November","Disember"]
+        _months_en = ["","January","February","March","April","May","June",
+                      "July","August","September","October","November","December"]
+
+        # Nama bulan & tahun untuk header calendar
+        r["{{CAL_MONTH_LABEL}}"] = f"{_months_ms[_mo]} {_yr}"
+        r["{{CAL_YEAR_LABEL}}"]  = f"{_months_en[_mo]} {_yr}"
+
+        # Kira offset (hari pertama bulan — 0=Isnin, 6=Ahad ikut Python)
+        # Template guna ['Ah','Is','Se','Ra','Kh','Ju','Sa'] = Ahad dulu
+        # Python weekday(): 0=Mon..6=Sun, kita convert ke Ahad=0
+        _first_weekday = _cal.weekday(_yr, _mo, 1)  # 0=Mon
+        _offset = (_first_weekday + 1) % 7  # convert: Ahad=0, Isnin=1, ..., Sabtu=6
+        _total_days = _cal.monthrange(_yr, _mo)[1]
+
+        # Build calendar grid cells
+        _cells = ""
+        for _ in range(_offset):
+            _cells += '<div class="cdd em"></div>'
+        for _d in range(1, _total_days + 1):
+            _hl = " hl" if _d == _day else ""
+            _cells += f'<div class="cdd{_hl}">{_d}</div>'
+
+        r["{{CAL_GRID_CELLS}}"] = _cells
+
+        # Clock — extract jam & minit dari time_start_hhmm
+        hhmm = s("time_start_hhmm")
+        if hhmm and len(hhmm) == 4:
+            _ch = int(hhmm[:2])
+            _cm = int(hhmm[2:])
+            import math as _math
+            _cx, _cy = 52.5, 52.5
+            _hA = ((_ch % 12) * 30 + _cm * 0.5 - 90) * _math.pi / 180
+            _mA = (_cm * 6 - 90) * _math.pi / 180
+            _hx2 = round(_cx + 20 * _math.cos(_hA), 2)
+            _hy2 = round(_cy + 20 * _math.sin(_hA), 2)
+            _mx2 = round(_cx + 30 * _math.cos(_mA), 2)
+            _my2 = round(_cy + 30 * _math.sin(_mA), 2)
+            # Replace koordinat jarum jam dalam SVG clock
+            r["{{CLOCK_HOUR_X2}}"] = str(_hx2)
+            r["{{CLOCK_HOUR_Y2}}"] = str(_hy2)
+            r["{{CLOCK_MIN_X2}}"]  = str(_mx2)
+            r["{{CLOCK_MIN_Y2}}"]  = str(_my2)
+
     # ── Countdown JS ─────────────────────────────────────
     # Template guna: new Date('{{DATE_YYYYMMDD}}T{{TIME_START_HHMM}}:00')
-    # dah covered oleh replacements atas
+    # Format betul: 2026-09-20T11:00:00
+    # Gantikan keseluruhan string countdown sekaligus
+    yyyymmdd = s("date_yyyymmdd")   # eg: 20260920
+    hhmm     = s("time_start_hhmm") # eg: 1100
+    if yyyymmdd and hhmm:
+        iso_date = f"{yyyymmdd[:4]}-{yyyymmdd[4:6]}-{yyyymmdd[6:8]}"
+        iso_time = f"{hhmm[:2]}:{hhmm[2:]}:00"
+        # Gantikan exact string dalam JS
+        r["'{{DATE_YYYYMMDD}}T{{TIME_START_HHMM}}:00'"] = f"'{iso_date}T{iso_time}'"
+        # Fallback kalau template guna format lain
+        r["{{DATE_YYYYMMDD}}T{{TIME_START_HHMM}}:00"]   = f"{iso_date}T{iso_time}"
 
     # ── QR Code ─────────────────────────────────────────
     r["{{QR_CODE_URL}}"]            = s("qr_code_url")
