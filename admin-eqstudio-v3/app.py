@@ -1001,7 +1001,22 @@ elif "🆕 Jana Kad Baru" in page:
                 _kad_url = ""
             if "{{KAD_URL}}" in final_html:
                 final_html = final_html.replace("{{KAD_URL}}", _kad_url)
-                html_bytes = final_html.encode("utf-8")
+
+            # Fix SVG Monogram Seal — replace initMonogram() JS function
+            # supaya guna nama sebenar, bukan string comparison yang fail
+            if "function initMonogram()" in final_html and groom_name and bride_name:
+                gi = groom_name.strip()[0].upper()
+                bi = bride_name.strip()[0].upper()
+                monogram_text = f"{gi}&{bi}"
+                # Replace the whole initMonogram function dengan versi hardcoded
+                import re as _re2
+                final_html = _re2.sub(
+                    r'function initMonogram\(\)\{[^}]*\}',
+                    f"function initMonogram(){{const el=document.getElementById('sealInitials');if(el)el.textContent='{monogram_text}';}}",
+                    final_html
+                )
+
+            html_bytes = final_html.encode("utf-8")
 
             if "Deploy" in deploy_mode and github_ready:
                 with st.spinner("🚀 Deploying..."):
