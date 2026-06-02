@@ -250,6 +250,7 @@ def build_replacements(data):
     r["{{LOVE_STORY_2}}"]           = s("love_story_2")
     r["{{LOVE_YEAR_3}}"]            = s("love_year_3")
     r["{{LOVE_STORY_3}}"]           = s("love_story_3")
+    r["{{LOVE_YEAR_4}}"]            = s("love_year_4")  # Tahun kahwin
 
     # ── Dress Code ───────────────────────────────────────
     r["{{DRESSCODE_THEME}}"]        = s("dresscode_theme")
@@ -706,6 +707,9 @@ elif "🆕 Jana Kad Baru" in page:
         love_year_3  = st.text_input("Tahun 3", placeholder="2025", key="ly3")
         love_story_3 = st.text_area("Kisah 3 — Bertunang", height=80, key="ls3",
             placeholder="Pada malam yang penuh bintang...")
+    # Tahun kahwin — auto dari tarikh majlis
+    love_year_4 = str(event_date.year)
+    st.caption(f"💍 Tahun kahwin auto-set: **{love_year_4}** (dari tarikh majlis)")
     
     st.markdown("---")
     st.markdown("## 🎨 Dress Code")
@@ -887,6 +891,7 @@ elif "🆕 Jana Kad Baru" in page:
                 "love_story_2":         love_story_2,
                 "love_year_3":          love_year_3,
                 "love_story_3":         love_story_3,
+                "love_year_4":          love_year_4,
                 # Dress Code
                 "dresscode_theme":      dresscode_theme,
                 "dresscode_theme_en":   dresscode_theme_en,
@@ -924,6 +929,17 @@ elif "🆕 Jana Kad Baru" in page:
 
             replacements = build_replacements(data)
             final_html   = apply_replacements(template_html, replacements)
+
+            # Inject KAD_URL untuk share button — guna link GitHub Pages
+            if "Deploy" in deploy_mode and github_ready:
+                _user, _repo_name = gh_repo.split("/")
+                _kad_url = f"https://{_user}.github.io/{_repo_name}/cards/{filename}"
+            else:
+                _kad_url = ""
+            # Replace shareKad() URL dalam JS — guna window.location.href jadi auto
+            # Tapi kalau ada {{KAD_URL}} dalam template, replace jugak
+            if "{{KAD_URL}}" in final_html:
+                final_html = final_html.replace("{{KAD_URL}}", _kad_url)
             html_bytes   = final_html.encode("utf-8")
             order_id     = generate_order_id()
             filename     = f"kad-{sanitize_filename(groom_name)}-{sanitize_filename(bride_name)}-{order_id.lower()}.html"
