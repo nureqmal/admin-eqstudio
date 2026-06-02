@@ -254,6 +254,18 @@ def build_replacements(data):
     # ── Dress Code ───────────────────────────────────────
     r["{{DRESSCODE_THEME}}"]        = s("dresscode_theme")
     r["{{DRESSCODE_THEME_EN}}"]     = s("dresscode_theme_en")
+    r["{{DRESSCODE_NOTE}}"]         = s("dresscode_note")
+    # Swatches — 5 warna
+    r["{{COLOR1_HEX}}"]             = s("color1_hex")
+    r["{{COLOR1_NAME}}"]            = s("color1_name")
+    r["{{COLOR2_HEX}}"]             = s("color2_hex")
+    r["{{COLOR2_NAME}}"]            = s("color2_name")
+    r["{{COLOR3_HEX}}"]             = s("color3_hex")
+    r["{{COLOR3_NAME}}"]            = s("color3_name")
+    r["{{COLOR4_HEX}}"]             = s("color4_hex")
+    r["{{COLOR4_NAME}}"]            = s("color4_name")
+    r["{{COLOR5_HEX}}"]             = s("color5_hex")
+    r["{{COLOR5_NAME}}"]            = s("color5_name")
 
     # ── Doa sample ───────────────────────────────────────
     r["{{DOA_SAMPLE1_NAME}}"]       = s("doa_sample1_name")
@@ -699,9 +711,36 @@ elif "🆕 Jana Kad Baru" in page:
     st.markdown("## 🎨 Dress Code")
     c1, c2 = st.columns(2)
     with c1:
-        dresscode_theme    = st.text_input("Tema (BM)", placeholder="Dusty Blue & Gold")
+        dresscode_theme    = st.text_input("Tema (BM)", placeholder="Sage Green & Warm Cream")
+        dresscode_theme_en = st.text_input("Tema (EN)", placeholder="Sage Green & Warm Cream")
+        dresscode_note     = st.text_input("Nota Dress Code",
+            value="Elakkan warna putih tulen — reserved untuk pengantin",
+            placeholder="Elakkan warna putih tulen...")
     with c2:
-        dresscode_theme_en = st.text_input("Tema (EN)", placeholder="Dusty Blue & Gold")
+        st.markdown("<small style='color:#888'>Warna Swatch (5 warna)</small>", unsafe_allow_html=True)
+
+    # Default swatches ikut tema biasa
+    SWATCH_DEFAULTS = [
+        ("#7d9b76", "Sage"),
+        ("#a8c5a0", "Mist"),
+        ("#f0ede6", "Ivory"),
+        ("#d4a574", "Champagne"),
+        ("#4a6741", "Forest"),
+    ]
+    swatch_cols = st.columns(5)
+    swatches = []
+    for i, col in enumerate(swatch_cols):
+        with col:
+            hex_val  = st.color_picker(f"Warna {i+1}", value=SWATCH_DEFAULTS[i][0], key=f"sw_hex_{i}")
+            name_val = st.text_input(f"Nama {i+1}", value=SWATCH_DEFAULTS[i][1], key=f"sw_name_{i}",
+                label_visibility="collapsed")
+            swatches.append((hex_val, name_val))
+
+    color1_hex, color1_name = swatches[0]
+    color2_hex, color2_name = swatches[1]
+    color3_hex, color3_name = swatches[2]
+    color4_hex, color4_name = swatches[3]
+    color5_hex, color5_name = swatches[4]
 
     st.markdown("---")
     st.markdown("## 💬 Contoh Ucapan Doa")
@@ -851,6 +890,17 @@ elif "🆕 Jana Kad Baru" in page:
                 # Dress Code
                 "dresscode_theme":      dresscode_theme,
                 "dresscode_theme_en":   dresscode_theme_en,
+                "dresscode_note":       dresscode_note,
+                "color1_hex":           color1_hex,
+                "color1_name":          color1_name,
+                "color2_hex":           color2_hex,
+                "color2_name":          color2_name,
+                "color3_hex":           color3_hex,
+                "color3_name":          color3_name,
+                "color4_hex":           color4_hex,
+                "color4_name":          color4_name,
+                "color5_hex":           color5_hex,
+                "color5_name":          color5_name,
                 # Doa sample
                 "doa_sample1_name":     doa1_name,
                 "doa_sample1_msg":      doa1_msg,
@@ -982,7 +1032,10 @@ elif "🔧 Template Converter" in page:
                 "{{MUSIC_URL}}","{{MUSIC_LABEL}}",
                 "{{LOVE_YEAR_1}}","{{LOVE_STORY_1}}","{{LOVE_YEAR_2}}","{{LOVE_STORY_2}}",
                 "{{LOVE_YEAR_3}}","{{LOVE_STORY_3}}",
-                "{{DRESSCODE_THEME}}","{{DRESSCODE_THEME_EN}}",
+                "{{DRESSCODE_THEME}}","{{DRESSCODE_THEME_EN}}","{{DRESSCODE_NOTE}}",
+                "{{COLOR1_HEX}}","{{COLOR1_NAME}}","{{COLOR2_HEX}}","{{COLOR2_NAME}}",
+                "{{COLOR3_HEX}}","{{COLOR3_NAME}}","{{COLOR4_HEX}}","{{COLOR4_NAME}}",
+                "{{COLOR5_HEX}}","{{COLOR5_NAME}}",
                 "{{DOA_SAMPLE1_NAME}}","{{DOA_SAMPLE1_MSG}}","{{DOA_SAMPLE2_NAME}}","{{DOA_SAMPLE2_MSG}}",
                 "{{HERO_PHOTO_URL}}","{{PHOTO1_URL}}","{{PHOTO2_URL}}","{{PHOTO3_URL}}",
                 "{{OPENING_PHOTO_URL}}","{{VIDEO_URL}}",
@@ -1202,6 +1255,17 @@ elif "📋 Cara Guna" in page:
         ("{{LOVE_STORY_3}}", "Cerita kisah 3 — bertunang"),
         ("{{DRESSCODE_THEME}}", "Tema dress code (BM)"),
         ("{{DRESSCODE_THEME_EN}}", "Tema dress code (EN)"),
+        ("{{DRESSCODE_NOTE}}", "Nota dress code"),
+        ("{{COLOR1_HEX}}", "Warna swatch 1 (hex, eg: #7d9b76)"),
+        ("{{COLOR1_NAME}}", "Nama warna 1"),
+        ("{{COLOR2_HEX}}", "Warna swatch 2"),
+        ("{{COLOR2_NAME}}", "Nama warna 2"),
+        ("{{COLOR3_HEX}}", "Warna swatch 3"),
+        ("{{COLOR3_NAME}}", "Nama warna 3"),
+        ("{{COLOR4_HEX}}", "Warna swatch 4"),
+        ("{{COLOR4_NAME}}", "Nama warna 4"),
+        ("{{COLOR5_HEX}}", "Warna swatch 5"),
+        ("{{COLOR5_NAME}}", "Nama warna 5"),
         ("{{DOA_SAMPLE1_NAME}}", "Nama contoh ucapan 1"),
         ("{{DOA_SAMPLE1_MSG}}", "Mesej contoh ucapan 1"),
         ("{{DOA_SAMPLE2_NAME}}", "Nama contoh ucapan 2"),
