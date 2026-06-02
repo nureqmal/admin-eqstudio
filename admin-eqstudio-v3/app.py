@@ -125,7 +125,66 @@ TEMPLATES_DEFAULT = {
     },
 }
 
-REGISTRY_PATH = "templates/registry.json"  # path dalam GitHub repo kau
+REGISTRY_PATH  = "templates/registry.json"
+HISTORY_PATH   = "cards/history.json"
+
+@st.cache_data(ttl=30)
+def load_history(token, repo):
+    """Load history.json dari GitHub."""
+    if not token or not repo:
+        return []
+    try:
+        url = f"https://api.github.com/repos/{repo}/contents/{HISTORY_PATH}"
+        r = requests.get(url,
+            headers={"Authorization": f"token {token}", "Accept": "application/vnd.github.v3+json"},
+            timeout=8)
+        if r.status_code == 200:
+            import json, base64 as b64
+            content = b64.b64decode(r.json()["content"]).decode("utf-8")
+            return json.loads(content)
+        return []
+    except Exception:
+        return []
+
+def save_history(token, repo, history):
+    """Simpan history.json ke GitHub."""
+    import json
+    content = json.dumps(history, indent=2, ensure_ascii=False)
+    result = github_upload_file(token, repo, HISTORY_PATH, content, "Update kad history")
+    return result["success"]
+
+def add_to_history(token, repo, entry):
+    """Tambah entry baru ke history. entry = dict dengan keys: order_id, groom, bride, date, filename, url, created_at"""
+    history = load_history(token, repo)
+    # Avoid duplicate order_id
+    history = [h for h in history if h.get("order_id") != entry["order_id"]]
+    history.insert(0, entry)  # latest first
+    # Keep max 100 entries
+    history = history[:100]
+    return save_history(token, repo, history)
+
+def delete_github_file(token, repo, filepath):
+    """Delete fail dari GitHub repo. Return True kalau berjaya."""
+    api_url = f"https://api.github.com/repos/{repo}/contents/{filepath}"
+    headers = {
+        "Authorization": f"token {token}",
+        "Accept": "application/vnd.github.v3+json",
+    }
+    # Kena dapat SHA dulu
+    r = requests.get(api_url, headers=headers, timeout=10)
+    if r.status_code != 200:
+        return False, f"Fail tidak jumpa ({r.status_code})"
+    sha = r.json().get("sha")
+    # Delete
+    payload = {"message": f"Delete kad: {filepath}", "sha": sha}
+    r = requests.delete(api_url, headers=headers, json=payload, timeout=15)
+    if r.status_code == 200:
+        return True, "OK"
+    try:
+        err = r.json().get("message", r.text)
+    except Exception:
+        err = r.text
+    return False, err
 
 @st.cache_data(ttl=60)  # cache 60 saat — refresh bila ada template baru
 def load_registry(token, repo):
@@ -470,7 +529,7 @@ with st.sidebar:
     st.markdown("---")
     page = st.radio(
         "Navigation",
-        ["🆕 Jana Kad Baru", "🔧 Template Converter", "⚙️ GitHub Settings", "📋 Cara Guna", "🗂️ Template Info"],
+        ["🆕 Jana Kad Baru", "🔧 Template Converter", "📜 History", "⚙️ GitHub Settings", "📋 Cara Guna", "🗂️ Template Info"],
         label_visibility="collapsed"
     )
     st.markdown("---")
@@ -949,6 +1008,21 @@ elif "🆕 Jana Kad Baru" in page:
                     result = github_upload_file(gh_token, gh_repo, f"cards/{filename}", final_html,
                         f"Add kad: {groom_name} & {bride_name} [{order_id}]")
                 if result["success"]:
+                    # Simpan ke history
+                    from datetime import datetime as _dt
+                    _entry = {
+                        "order_id":   order_id,
+                        "groom":      groom_name,
+                        "bride":      bride_name,
+                        "date":       date_display,
+                        "template":   sel["name"],
+                        "filename":   f"cards/{filename}",
+                        "url":        result["pages_url"],
+                        "created_at": _dt.now().strftime("%d/%m/%Y %H:%M"),
+                    }
+                    add_to_history(gh_token, gh_repo, _entry)
+                    st.cache_data.clear()
+
                     st.markdown(f"""
                     <div class='success-box'>
                         <h3 style='color:#4CAF50;margin:0 0 .5rem'>✅ Deployed!</h3>
@@ -966,6 +1040,93 @@ elif "🆕 Jana Kad Baru" in page:
 
             with st.expander("👁️ Preview"):
                 st.code(final_html[:3000] + "\n... [truncated]", language="html")
+
+# ─────────────────────────────────────────
+#  PAGE: HISTORY
+# ─────────────────────────────────────────
+elif "📜 History" in page:
+    st.markdown("# 📜 History Kad Deployed")
+
+    gh_token = st.session_state.get("gh_token", "") or st.secrets.get("GH_TOKEN", "")
+    gh_repo  = st.session_state.get("gh_repo",  "") or st.secrets.get("GH_REPO",  "")
+
+    if not gh_token or not gh_repo:
+        st.warning("⚠️ Setup GitHub dulu di ⚙️ GitHub Settings")
+    else:
+        c_ref, c_del = st.columns([3, 1])
+        with c_ref:
+            if st.button("🔄 Refresh"):
+                st.cache_data.clear()
+                st.rerun()
+        st.markdown("---")
+
+        history = load_history(gh_token, gh_repo)
+
+        if not history:
+            st.info("Belum ada kad yang di-deploy lagi. Jana kad pertama kau melalui 🆕 Jana Kad Baru!")
+        else:
+            st.markdown(f"<div class='info-box'>📊 Jumlah kad: <b>{len(history)}</b></div>", unsafe_allow_html=True)
+            st.markdown("")
+
+            for i, entry in enumerate(history):
+                with st.container():
+                    col_info, col_link, col_del = st.columns([3, 2, 1])
+
+                    with col_info:
+                        st.markdown(f"""
+                        <div class='template-card'>
+                            <span class='order-id'>{entry.get('order_id','—')}</span>
+                            <span style='font-size:0.65rem;color:#666;margin-left:0.5rem;'>{entry.get('created_at','')}</span><br>
+                            <b style='color:#f0e8d8;font-size:1rem;'>{entry.get('groom','?')} & {entry.get('bride','?')}</b><br>
+                            <small style='color:#888;'>📅 {entry.get('date','')} &nbsp;·&nbsp; 🎨 {entry.get('template','')}</small>
+                        </div>""", unsafe_allow_html=True)
+
+                    with col_link:
+                        url = entry.get("url", "")
+                        if url:
+                            st.markdown(f"""
+                            <div style='padding-top:1.1rem'>
+                                <a href='{url}' target='_blank'
+                                   style='font-size:0.68rem;color:#4ade80;word-break:break-all;'>
+                                    🔗 Buka Kad
+                                </a><br>
+                                <small style='font-size:0.58rem;color:#555;'>{url.split('/')[-1]}</small>
+                            </div>""", unsafe_allow_html=True)
+
+                    with col_del:
+                        st.markdown("<div style='padding-top:1.1rem'>", unsafe_allow_html=True)
+                        if st.button("🗑️", key=f"hdel_{i}", help="Padam kad ini"):
+                            st.session_state[f"confirm_hdel_{i}"] = True
+                        st.markdown("</div>", unsafe_allow_html=True)
+
+                # Confirm delete
+                if st.session_state.get(f"confirm_hdel_{i}"):
+                    fname = entry.get("filename", "")
+                    groom = entry.get("groom","?")
+                    bride = entry.get("bride","?")
+                    st.warning(f"⚠️ Confirm padam kad **{groom} & {bride}**? Link akan terus tidak aktif.")
+                    cc1, cc2, _ = st.columns([1, 1, 4])
+                    with cc1:
+                        if st.button("✅ Ya, padam", key=f"hyes_{i}"):
+                            with st.spinner("🗑️ Memadamkan..."):
+                                # Delete HTML file dari GitHub
+                                ok, err = delete_github_file(gh_token, gh_repo, fname)
+                                if ok:
+                                    # Remove dari history
+                                    new_hist = [h for h in history if h.get("order_id") != entry.get("order_id")]
+                                    save_history(gh_token, gh_repo, new_hist)
+                                    st.cache_data.clear()
+                                    del st.session_state[f"confirm_hdel_{i}"]
+                                    st.success(f"✅ Kad {groom} & {bride} berjaya dipadam.")
+                                    st.rerun()
+                                else:
+                                    st.error(f"❌ Gagal padam: {err}")
+                    with cc2:
+                        if st.button("❌ Batal", key=f"hno_{i}"):
+                            del st.session_state[f"confirm_hdel_{i}"]
+                            st.rerun()
+
+                st.markdown("")
 
 # ─────────────────────────────────────────
 #  PAGE: TEMPLATE CONVERTER
