@@ -989,19 +989,19 @@ elif "🆕 Jana Kad Baru" in page:
             replacements = build_replacements(data)
             final_html   = apply_replacements(template_html, replacements)
 
-            # Inject KAD_URL untuk share button — guna link GitHub Pages
+            html_bytes   = final_html.encode("utf-8")
+            order_id     = generate_order_id()
+            filename     = f"kad-{sanitize_filename(groom_name)}-{sanitize_filename(bride_name)}-{order_id.lower()}.html"
+
+            # Inject KAD_URL — filename dah defined
             if "Deploy" in deploy_mode and github_ready:
                 _user, _repo_name = gh_repo.split("/")
                 _kad_url = f"https://{_user}.github.io/{_repo_name}/cards/{filename}"
             else:
                 _kad_url = ""
-            # Replace shareKad() URL dalam JS — guna window.location.href jadi auto
-            # Tapi kalau ada {{KAD_URL}} dalam template, replace jugak
             if "{{KAD_URL}}" in final_html:
                 final_html = final_html.replace("{{KAD_URL}}", _kad_url)
-            html_bytes   = final_html.encode("utf-8")
-            order_id     = generate_order_id()
-            filename     = f"kad-{sanitize_filename(groom_name)}-{sanitize_filename(bride_name)}-{order_id.lower()}.html"
+                html_bytes = final_html.encode("utf-8")
 
             if "Deploy" in deploy_mode and github_ready:
                 with st.spinner("🚀 Deploying..."):
