@@ -265,6 +265,9 @@ def build_replacements(data):
     # Template guna: new Date('{{DATE_YYYYMMDD}}T{{TIME_START_HHMM}}:00')
     # dah covered oleh replacements atas
 
+    # ── QR Code ─────────────────────────────────────────
+    r["{{QR_CODE_URL}}"]            = s("qr_code_url")
+
     # ── Gambar & Video ───────────────────────────────────
     r["{{HERO_PHOTO_URL}}"]         = s("hero_url")
     r["{{PHOTO1_URL}}"]             = s("photo1_url")
@@ -602,7 +605,20 @@ elif "🆕 Jana Kad Baru" in page:
         music_label = st.text_input("Nama Lagu", placeholder="Beautiful In White — Westlife")
 
     st.markdown("---")
-    st.markdown("## 9️⃣ Kisah Cinta")
+    st.markdown("## 9️⃣ QR Code Salam Kaut")
+    st.caption("Gambar QR code untuk section Salam Kaut dalam kad.")
+    qr_method = st.radio("Cara QR Code", ["📎 Upload Gambar", "🔗 URL"], horizontal=True, key="qr_method")
+    qr_code_url = ""
+    if qr_method == "📎 Upload Gambar":
+        qr_file = st.file_uploader("Upload QR Code (PNG/JPG)", type=["png","jpg","jpeg","webp"], key="qr")
+        if qr_file:
+            qr_code_url = file_to_data_url(qr_file)
+            st.image(qr_file, width=160, caption="Preview QR Code")
+    else:
+        qr_code_url = st.text_input("URL Gambar QR Code", placeholder="https://...")
+
+    st.markdown("---")
+    st.markdown("## 🔟 Kisah Cinta")
     c1, c2 = st.columns(2)
     with c1:
         love_year_1  = st.text_input("Tahun 1", placeholder="2022", key="ly1")
@@ -777,6 +793,8 @@ elif "🆕 Jana Kad Baru" in page:
                 "doa_sample1_msg":      doa1_msg,
                 "doa_sample2_name":     doa2_name,
                 "doa_sample2_msg":      doa2_msg,
+                # QR Code
+                "qr_code_url":          qr_code_url,
                 # Media
                 "hero_url":             hero_url,
                 "photo1_url":           photo1_url,
@@ -905,6 +923,7 @@ elif "🔧 Template Converter" in page:
                 "{{DOA_SAMPLE1_NAME}}","{{DOA_SAMPLE1_MSG}}","{{DOA_SAMPLE2_NAME}}","{{DOA_SAMPLE2_MSG}}",
                 "{{HERO_PHOTO_URL}}","{{PHOTO1_URL}}","{{PHOTO2_URL}}","{{PHOTO3_URL}}",
                 "{{OPENING_PHOTO_URL}}","{{VIDEO_URL}}",
+                "{{QR_CODE_URL}}",
             ]
             ph_options = {"-- Pilih --": ""}
             for ph in all_phs:
