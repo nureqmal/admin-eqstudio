@@ -91,6 +91,16 @@ st.markdown("""
 #  GitHub belum setup atau JSON belum ada.
 # ─────────────────────────────────────────
 TEMPLATES_DEFAULT = {
+    "Portrait": {
+        "dusty_blue_portrait": {
+            "name": "Dusty Blue Portrait",
+            "file": "portrait_dusty_blue.html",
+            "has_photo": False,
+            "has_portrait_photo": True,
+            "preview_emoji": "📸",
+            "desc": "Layout split hero + cinematic banner. 2 slot gambar.",
+        },
+    },
     "Essential": {
         "v2_celestial": {
             "name": "Celestial — Bintang & Bulan",
@@ -405,6 +415,7 @@ def build_replacements(data):
 
     # ── Gambar & Video ───────────────────────────────────
     r["{{HERO_PHOTO_URL}}"]         = s("hero_url")
+    r["{{CINEMATIC_PHOTO_URL}}"]    = s("cinematic_url")
     r["{{PHOTO1_URL}}"]             = s("photo1_url")
     r["{{PHOTO2_URL}}"]             = s("photo2_url")
     r["{{PHOTO3_URL}}"]             = s("photo3_url")
@@ -820,7 +831,42 @@ elif "🆕 Jana Kad Baru" in page:
 
     st.markdown("---")
     hero_url = photo1_url = photo2_url = photo3_url = opening_url = ""
-    if sel.get("has_photo"):
+    # ── Portrait photos (HERO_PHOTO_URL + CINEMATIC_PHOTO_URL) ──
+    cinematic_url = ""
+    is_portrait = sel.get("has_portrait_photo", False)
+    if is_portrait:
+        st.markdown("## 7️⃣ Gambar Portrait")
+        st.info("""
+**📸 2 Slot Gambar untuk Portrait:**
+- **Hero (Kiri)** — Gambar potret pengantin di sebelah kiri. Saiz ideal: **600×900px** (ratio 2:3). Format JPG/WebP, <500KB.
+- **Cinematic (Banner)** — Gambar landscape di section Pengantin. Saiz ideal: **900×400px**. Format JPG/WebP, <400KB.
+        """)
+        pm = st.radio("Cara gambar", ["📎 Upload", "🔗 URL"], horizontal=True, key="portrait_pm")
+        if pm == "📎 Upload":
+            c1, c2 = st.columns(2)
+            with c1:
+                st.caption("🖼️ Hero (kiri) — potret")
+                hf = st.file_uploader("Hero Portrait (600×900px)", type=["jpg","jpeg","png","webp"], key="hero")
+                if hf:
+                    hero_url = file_to_data_url(hf)
+                    st.image(hf, width=150)
+            with c2:
+                st.caption("🎬 Cinematic (banner) — landscape")
+                cf = st.file_uploader("Cinematic Banner (900×400px)", type=["jpg","jpeg","png","webp"], key="cine")
+                if cf:
+                    cinematic_url = file_to_data_url(cf)
+                    st.image(cf, width=150)
+        else:
+            c1, c2 = st.columns(2)
+            with c1:
+                st.caption("🖼️ Hero — potret (600×900px)")
+                hero_url = st.text_input("Hero URL", placeholder="https://...")
+            with c2:
+                st.caption("🎬 Cinematic — landscape (900×400px)")
+                cinematic_url = st.text_input("Cinematic URL", placeholder="https://...")
+        st.markdown("---")
+
+    if sel.get("has_photo") and not is_portrait:
         st.markdown("## 7️⃣ Gambar")
         pm = st.radio("Cara gambar", ["📎 Upload", "🔗 URL"], horizontal=True)
         if pm == "📎 Upload":
@@ -974,6 +1020,7 @@ elif "🆕 Jana Kad Baru" in page:
                 "qr_code_url":          qr_code_url,
                 # Media
                 "hero_url":             hero_url,
+                "cinematic_url":        cinematic_url,
                 "photo1_url":           photo1_url,
                 "photo2_url":           photo2_url,
                 "photo3_url":           photo3_url,
@@ -1330,10 +1377,16 @@ elif "🔧 Template Converter" in page:
 
             if res["success"]:
                 # Step 2: Update registry.json
+                # Auto-detect portrait photo slots
+                _has_portrait = (
+                    "{{HERO_PHOTO_URL}}" in template_html and
+                    "{{CINEMATIC_PHOTO_URL}}" in template_html
+                )
                 new_entry = {
                     "name": t_name,
                     "file": final_fn,
-                    "has_photo": t_cat in ["Portrait", "Cinematic", "Prestige"],
+                    "has_photo": t_cat in ["Portrait", "Cinematic", "Prestige"] and not _has_portrait,
+                    "has_portrait_photo": _has_portrait,
                     "has_video": t_cat in ["Cinematic", "Prestige"],
                     "has_gallery": t_cat == "Prestige",
                     "preview_emoji": t_emoji or "✨",
