@@ -293,6 +293,7 @@ def build_replacements(data):
     r["{{DRESSCODE_THEME}}"]        = s("dresscode_theme")
     r["{{DRESSCODE_THEME_EN}}"]     = s("dresscode_theme_en")
     r["{{DRESSCODE_NOTE}}"]         = s("dresscode_note")
+    r["{{DRESSCODE_NOTE_EN}}"]      = s("dresscode_note_en")
     r["{{COLOR1_HEX}}"]             = s("color1_hex")
     r["{{COLOR1_NAME}}"]            = s("color1_name")
     r["{{COLOR2_HEX}}"]             = s("color2_hex")
@@ -720,6 +721,9 @@ elif "🆕 Jana Kad Baru" in page:
         dresscode_note     = st.text_input("Nota Dress Code",
             value="Elakkan warna putih tulen — reserved untuk pengantin",
             placeholder="Elakkan warna putih tulen...")
+        dresscode_note_en  = st.text_input("Dresscode Note (EN)",
+            value="Avoid pure white — reserved for the bride",
+            placeholder="Avoid pure white...", key="dc_note_en")
     with c2:
         st.markdown("<small style='color:#888'>Warna Swatch (5 warna)</small>", unsafe_allow_html=True)
     SWATCH_DEFAULTS = [
@@ -914,6 +918,7 @@ elif "🆕 Jana Kad Baru" in page:
                 "dresscode_theme":      dresscode_theme,
                 "dresscode_theme_en":   dresscode_theme_en,
                 "dresscode_note":       dresscode_note,
+                "dresscode_note_en":    dresscode_note_en,
                 "color1_hex":           color1_hex,
                 "color1_name":          color1_name,
                 "color2_hex":           color2_hex,
