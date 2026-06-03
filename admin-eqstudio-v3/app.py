@@ -293,7 +293,6 @@ def build_replacements(data):
     r["{{DRESSCODE_THEME}}"]        = s("dresscode_theme")
     r["{{DRESSCODE_THEME_EN}}"]     = s("dresscode_theme_en")
     r["{{DRESSCODE_NOTE}}"]         = s("dresscode_note")
-    r["{{DRESSCODE_NOTE_EN}}"]      = s("dresscode_note_en")
     r["{{COLOR1_HEX}}"]             = s("color1_hex")
     r["{{COLOR1_NAME}}"]            = s("color1_name")
     r["{{COLOR2_HEX}}"]             = s("color2_hex")
@@ -721,9 +720,6 @@ elif "🆕 Jana Kad Baru" in page:
         dresscode_note     = st.text_input("Nota Dress Code",
             value="Elakkan warna putih tulen — reserved untuk pengantin",
             placeholder="Elakkan warna putih tulen...")
-        dresscode_note_en  = st.text_input("Dresscode Note (EN)",
-            value="Avoid pure white — reserved for the bride",
-            placeholder="Avoid pure white...", key="dc_note_en")
     with c2:
         st.markdown("<small style='color:#888'>Warna Swatch (5 warna)</small>", unsafe_allow_html=True)
     SWATCH_DEFAULTS = [
@@ -763,7 +759,11 @@ elif "🆕 Jana Kad Baru" in page:
     hero_url = photo1_url = photo2_url = photo3_url = opening_url = cinematic_url = ""
 
     # Portrait photos
+    # Auto-detect portrait — dari registry ATAU dari template HTML
     is_portrait = sel.get("has_portrait_photo", False)
+    if not is_portrait and tmpl_html_check:
+        is_portrait = ("{{HERO_PHOTO_URL}}" in tmpl_html_check and
+                       "{{CINEMATIC_PHOTO_URL}}" in tmpl_html_check)
     if is_portrait:
         st.markdown("## 📸 Gambar Portrait")
         st.info("""
@@ -775,17 +775,17 @@ elif "🆕 Jana Kad Baru" in page:
         if pm == "📎 Upload":
             c1, c2 = st.columns(2)
             with c1:
-                st.caption("🖼️ Hero (kiri) — potret")
-                hf = st.file_uploader("Hero Portrait (600×900px)", type=["jpg","jpeg","png","webp"], key="hero")
-                if hf:
-                    hero_url = file_to_data_url(hf)
-                    st.image(hf, width=150)
+                st.caption("🖼️ Hero (kiri) — potret · 600×900px")
+                ph = st.file_uploader("Hero Portrait", type=["jpg","jpeg","png","webp"], key="portrait_hero")
+                if ph:
+                    hero_url = file_to_data_url(ph)
+                    st.image(ph, caption="Hero ✅", width=150)
             with c2:
-                st.caption("🎬 Cinematic (banner) — landscape")
-                cf = st.file_uploader("Cinematic Banner (900×400px)", type=["jpg","jpeg","png","webp"], key="cine")
-                if cf:
-                    cinematic_url = file_to_data_url(cf)
-                    st.image(cf, width=150)
+                st.caption("🎬 Cinematic (banner) — landscape · 900×400px")
+                pc = st.file_uploader("Cinematic Banner", type=["jpg","jpeg","png","webp"], key="portrait_cine")
+                if pc:
+                    cinematic_url = file_to_data_url(pc)
+                    st.image(pc, caption="Cinematic ✅", width=150)
         else:
             c1, c2 = st.columns(2)
             with c1:
@@ -796,7 +796,7 @@ elif "🆕 Jana Kad Baru" in page:
                 cinematic_url = st.text_input("Cinematic URL", placeholder="https://...")
         st.markdown("---")
 
-    if sel.get("has_photo") and not is_portrait:
+    if sel.get("has_photo") and not is_portrait:  # Skip for Portrait (2-photo layout)
         st.markdown("## 🖼️ Gambar")
         pm = st.radio("Cara gambar", ["📎 Upload", "🔗 URL"], horizontal=True)
         if pm == "📎 Upload":
@@ -918,7 +918,6 @@ elif "🆕 Jana Kad Baru" in page:
                 "dresscode_theme":      dresscode_theme,
                 "dresscode_theme_en":   dresscode_theme_en,
                 "dresscode_note":       dresscode_note,
-                "dresscode_note_en":    dresscode_note_en,
                 "color1_hex":           color1_hex,
                 "color1_name":          color1_name,
                 "color2_hex":           color2_hex,
