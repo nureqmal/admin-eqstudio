@@ -516,15 +516,19 @@ with st.sidebar:
         label_visibility="collapsed"
     )
     st.markdown("---")
-    gh_token = st.session_state.get("gh_token", "") or st.secrets.get("GH_TOKEN", "")
-    gh_repo  = st.session_state.get("gh_repo",  "") or st.secrets.get("GH_REPO",  "")
+    gh_token      = st.session_state.get("gh_token",      "") or st.secrets.get("GH_TOKEN",      "")
+    gh_repo       = st.session_state.get("gh_repo",       "") or st.secrets.get("GH_REPO",       "")
+    gh_cards_repo = st.session_state.get("gh_cards_repo", "") or st.secrets.get("GH_CARDS_REPO", "nureqmal/eqstudio-cards")
     if gh_token and gh_repo:
-        st.markdown(f"<div style='font-size:0.75rem;color:#4CAF50'>✅ <b style='color:#C9A96E'>GitHub</b> Connected</div>", unsafe_allow_html=True)
+        st.markdown(f"<div style='font-size:0.75rem;color:#4CAF50'>✅ <b style='color:#C9A96E'>Admin Repo</b></div>", unsafe_allow_html=True)
         st.markdown(f"<div style='font-size:0.7rem;color:#666;margin-top:2px'>📁 {gh_repo}</div>", unsafe_allow_html=True)
     else:
         st.markdown("<div style='font-size:0.75rem;color:#888'>⚠️ GitHub belum setup</div>", unsafe_allow_html=True)
+    if gh_cards_repo:
+        st.markdown(f"<div style='font-size:0.75rem;color:#4CAF50;margin-top:4px'>✅ <b style='color:#C9A96E'>Cards Repo</b></div>", unsafe_allow_html=True)
+        st.markdown(f"<div style='font-size:0.7rem;color:#666;margin-top:2px'>📁 {gh_cards_repo}</div>", unsafe_allow_html=True)
     st.markdown("---")
-    st.markdown("<div style='font-size:0.75rem;color:#666'><b style='color:#C9A96E'>EQStudio</b><br>Admin v4.0</div>", unsafe_allow_html=True)
+    st.markdown("<div style='font-size:0.75rem;color:#666'><b style='color:#C9A96E'>EQStudio</b><br>Admin v4.1</div>", unsafe_allow_html=True)
 
 # ─────────────────────────────────────────
 #  PAGE: GITHUB SETTINGS
@@ -541,25 +545,40 @@ if "⚙️ GitHub Settings" in page:
     with col1:
         input_token = st.text_input("GitHub Token", type="password", value=st.session_state.get("gh_token", ""), placeholder="ghp_xxxxxxxxxxxx")
     with col2:
-        input_repo = st.text_input("Repo (username/repo)", value=st.session_state.get("gh_repo", ""), placeholder="nureqmal/eqstudio-cards")
+        input_repo = st.text_input("Admin Repo (username/repo)", value=st.session_state.get("gh_repo", ""), placeholder="nureqmal/admin-eqstudio")
+
+    st.markdown("#### 🗂️ Cards Repo — template, registry & preview")
+    st.markdown("<small style='color:#888'>Repo yang simpan templates/, registry.json dan previews/. Mesti aktif GitHub Pages.</small>", unsafe_allow_html=True)
+    input_cards_repo = st.text_input(
+        "Cards Repo (username/repo)",
+        value=st.session_state.get("gh_cards_repo","") or st.secrets.get("GH_CARDS_REPO","nureqmal/eqstudio-cards"),
+        placeholder="nureqmal/eqstudio-cards"
+    )
+
     c1, c2 = st.columns([1, 3])
     with c1:
         if st.button("🔍 Test"):
-            if input_token and input_repo:
-                with st.spinner("Checking..."):
-                    valid, msg = validate_github_token(input_token, input_repo)
+            if input_token and input_cards_repo:
+                with st.spinner("Checking cards repo..."):
+                    valid, msg = validate_github_token(input_token, input_cards_repo)
                 if valid:
-                    st.session_state["gh_token"] = input_token
-                    st.session_state["gh_repo"] = input_repo
-                    st.success("✅ Connected!" if msg == "ok" else "✅ Token OK — aktifkan Pages dulu")
+                    st.session_state["gh_token"]     = input_token
+                    st.session_state["gh_repo"]       = input_repo
+                    st.session_state["gh_cards_repo"] = input_cards_repo
+                    st.success("✅ Cards repo OK!" if msg == "ok" else "✅ Token OK — aktifkan Pages untuk cards repo")
                 else:
                     st.error(f"❌ {msg}")
     with c2:
         if st.button("💾 Simpan"):
-            if input_token and input_repo:
-                st.session_state["gh_token"] = input_token
-                st.session_state["gh_repo"] = input_repo
+            if input_token:
+                st.session_state["gh_token"]     = input_token
+                st.session_state["gh_repo"]       = input_repo
+                st.session_state["gh_cards_repo"] = input_cards_repo
                 st.success("✅ Disimpan.")
+
+    st.markdown("---")
+    st.markdown("#### 📋 secrets.toml")
+    st.code('GH_TOKEN = "ghp_xxxxxxxxxxxxx"\nGH_REPO  = "nureqmal/admin-eqstudio"\nGH_CARDS_REPO = "nureqmal/eqstudio-cards"', language="toml")
 
 # ─────────────────────────────────────────
 #  PAGE: RSVP & DOA DASHBOARD
@@ -1146,9 +1165,9 @@ elif "🔧 Template Converter" in page:
     col_prev1, col_prev2 = st.columns(2)
     with col_prev1:
         # Pilih template dari registry untuk update preview
-        gh_token3 = st.session_state.get("gh_token","") or st.secrets.get("GH_TOKEN","")
-        gh_repo3  = st.session_state.get("gh_repo", "") or st.secrets.get("GH_REPO", "")
-        registry_for_prev = load_registry(gh_token3, gh_repo3)
+        gh_token3      = st.session_state.get("gh_token","")      or st.secrets.get("GH_TOKEN","")
+        gh_cards_repo3 = st.session_state.get("gh_cards_repo","") or st.secrets.get("GH_CARDS_REPO","nureqmal/eqstudio-cards")
+        registry_for_prev = load_registry(gh_token3, gh_cards_repo3)
         
         # Flatten registry jadi senarai pilihan
         tmpl_choices = {}
@@ -1176,7 +1195,7 @@ elif "🔧 Template Converter" in page:
         if prev_file:
             st.image(prev_file, caption="Preview", use_column_width=True)
 
-    if prev_file and selected_prev_label and tmpl_choices and gh_token3 and gh_repo3:
+    if prev_file and selected_prev_label and tmpl_choices and gh_token3 and gh_cards_repo3:
         # Auto-generate nama fail berdasarkan template key
         _cat_sel, _key_sel, _info_sel = tmpl_choices[selected_prev_label]
         base_name = re.sub(r'[^a-z0-9_]', '_', _key_sel.lower().strip())
@@ -1189,7 +1208,7 @@ elif "🔧 Template Converter" in page:
         if st.button("📤 Upload Preview Image", key="btn_upload_preview"):
             prev_bytes = prev_file.getvalue()
             prev_b64   = base64.b64encode(prev_bytes).decode()
-            api_url    = f"https://api.github.com/repos/{gh_repo3}/contents/{preview_filename}"
+            api_url    = f"https://api.github.com/repos/{gh_cards_repo3}/contents/{preview_filename}"
             headers    = {"Authorization": f"token {gh_token3}", "Accept": "application/vnd.github.v3+json"}
             
             with st.spinner("Uploading..."):
@@ -1204,10 +1223,10 @@ elif "🔧 Template Converter" in page:
             
             if r_up.status_code in (200, 201):
                 # Update registry dengan preview_img field
-                registry_upd = load_registry(gh_token3, gh_repo3)
+                registry_upd = load_registry(gh_token3, gh_cards_repo3)
                 if _cat_sel in registry_upd and _key_sel in registry_upd[_cat_sel]:
                     registry_upd[_cat_sel][_key_sel]["preview_img"] = preview_filename
-                    if save_registry(gh_token3, gh_repo3, registry_upd):
+                    if save_registry(gh_token3, gh_cards_repo3, registry_upd):
                         st.cache_data.clear()
                         st.success(f"✅ Preview uploaded & registry dikemaskini! → `{preview_filename}`")
                         st.markdown(f"<div class='info-box'>🌐 Preview URL: <code>https://nureqmal.github.io/eqstudio-cards/{preview_filename}</code><br><small style='color:#666'>⚠️ GitHub Pages ambik 1-2 minit untuk update</small></div>", unsafe_allow_html=True)
