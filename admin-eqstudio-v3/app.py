@@ -1138,6 +1138,88 @@ elif "🔧 Template Converter" in page:
             else:
                 st.error(f"❌ {res['error']}")
 
+    # ── PREVIEW IMAGE UPLOAD (standalone — boleh guna lepas template dah upload) ──
+    st.markdown("---")
+    st.markdown("### 🖼️ Upload / Kemaskini Preview Image")
+    st.markdown("<div class='info-box'>Upload screenshot template sebagai gambar preview dalam katalog website utama. Pastikan nama fail sama dengan nama template yang dah upload.</div>", unsafe_allow_html=True)
+
+    col_prev1, col_prev2 = st.columns(2)
+    with col_prev1:
+        # Pilih template dari registry untuk update preview
+        gh_token3 = st.session_state.get("gh_token","") or st.secrets.get("GH_TOKEN","")
+        gh_repo3  = st.session_state.get("gh_repo", "") or st.secrets.get("GH_REPO", "")
+        registry_for_prev = load_registry(gh_token3, gh_repo3)
+        
+        # Flatten registry jadi senarai pilihan
+        tmpl_choices = {}
+        for _cat, _tmpls in registry_for_prev.items():
+            for _key, _info in _tmpls.items():
+                label = f"{_info.get('preview_emoji','✨')} [{_cat}] {_info['name']}"
+                tmpl_choices[label] = (_cat, _key, _info)
+        
+        if tmpl_choices:
+            selected_prev_label = st.selectbox("Pilih Template", list(tmpl_choices.keys()), key="prev_tmpl_sel")
+            sel_cat, sel_key, sel_info = tmpl_choices[selected_prev_label]
+            
+            # Tunjuk status preview sekarang
+            curr_prev = sel_info.get('preview_img', '')
+            if curr_prev:
+                st.markdown(f"<div class='info-box'>✅ Preview sedia ada: <code>{curr_prev}</code></div>", unsafe_allow_html=True)
+            else:
+                st.markdown("<div class='warning-box'>⚠️ Belum ada preview image untuk template ini.</div>", unsafe_allow_html=True)
+        else:
+            st.info("Tiada template dalam registry.")
+            selected_prev_label = None
+
+    with col_prev2:
+        prev_file = st.file_uploader("Upload Screenshot (JPG/PNG, nisbah 3:4 portrait)", type=["jpg","jpeg","png","webp"], key="preview_uploader")
+        if prev_file:
+            st.image(prev_file, caption="Preview", use_column_width=True)
+
+    if prev_file and selected_prev_label and tmpl_choices and gh_token3 and gh_repo3:
+        # Auto-generate nama fail berdasarkan template key
+        _cat_sel, _key_sel, _info_sel = tmpl_choices[selected_prev_label]
+        base_name = re.sub(r'[^a-z0-9_]', '_', _key_sel.lower().strip())
+        ext = prev_file.name.rsplit('.', 1)[-1].lower()
+        if ext == 'jpeg': ext = 'jpg'
+        preview_filename = f"previews/{base_name}.{ext}"
+        
+        st.markdown(f"<div class='info-box'>📁 Akan disimpan sebagai: <code>{preview_filename}</code></div>", unsafe_allow_html=True)
+        
+        if st.button("📤 Upload Preview Image", key="btn_upload_preview"):
+            prev_bytes = prev_file.getvalue()
+            prev_b64   = base64.b64encode(prev_bytes).decode()
+            api_url    = f"https://api.github.com/repos/{gh_repo3}/contents/{preview_filename}"
+            headers    = {"Authorization": f"token {gh_token3}", "Accept": "application/vnd.github.v3+json"}
+            
+            with st.spinner("Uploading..."):
+                # Check SHA kalau dah ada
+                r_check = requests.get(api_url, headers=headers, timeout=10)
+                payload = {"message": f"Add preview: {_info_sel['name']}", "content": prev_b64}
+                if r_check.status_code == 200:
+                    payload["sha"] = r_check.json().get("sha")
+                    payload["message"] = f"Update preview: {_info_sel['name']}"
+                
+                r_up = requests.put(api_url, headers=headers, json=payload, timeout=30)
+            
+            if r_up.status_code in (200, 201):
+                # Update registry dengan preview_img field
+                registry_upd = load_registry(gh_token3, gh_repo3)
+                if _cat_sel in registry_upd and _key_sel in registry_upd[_cat_sel]:
+                    registry_upd[_cat_sel][_key_sel]["preview_img"] = preview_filename
+                    if save_registry(gh_token3, gh_repo3, registry_upd):
+                        st.cache_data.clear()
+                        st.success(f"✅ Preview uploaded & registry dikemaskini! → `{preview_filename}`")
+                        st.markdown(f"<div class='info-box'>🌐 Preview URL: <code>https://nureqmal.github.io/eqstudio-cards/{preview_filename}</code><br><small style='color:#666'>⚠️ GitHub Pages ambik 1-2 minit untuk update</small></div>", unsafe_allow_html=True)
+                    else:
+                        st.warning("⚠️ Gambar uploaded tapi registry gagal dikemaskini.")
+                else:
+                    st.warning("⚠️ Template tidak jumpa dalam registry.")
+            else:
+                try: err_msg = r_up.json().get("message", r_up.text)
+                except: err_msg = r_up.text
+                st.error(f"❌ Upload gagal: {err_msg}")
+
 # ─────────────────────────────────────────
 #  PAGE: CARA GUNA
 # ─────────────────────────────────────────
