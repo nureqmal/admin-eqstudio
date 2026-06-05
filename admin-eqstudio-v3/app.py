@@ -1270,31 +1270,70 @@ elif "📋 Cara Guna" in page:
 # ─────────────────────────────────────────
 elif "🗂️ Template Info" in page:
     st.markdown("# 🗂️ Senarai Template")
-    gh_token = st.session_state.get("gh_token", "") or st.secrets.get("GH_TOKEN", "")
-    gh_repo  = st.session_state.get("gh_repo",  "") or st.secrets.get("GH_REPO",  "")
-    TEMPLATES = load_registry(gh_token, gh_repo)
-    if st.button("🔄 Refresh"): st.cache_data.clear(); st.rerun()
+    gh_token      = st.session_state.get("gh_token",      "") or st.secrets.get("GH_TOKEN",      "")
+    gh_repo       = st.session_state.get("gh_repo",       "") or st.secrets.get("GH_REPO",       "")
+    gh_cards_repo = st.session_state.get("gh_cards_repo", "") or st.secrets.get("GH_CARDS_REPO", "nureqmal/eqstudio-cards")
+    TEMPLATES = load_registry(gh_token, gh_cards_repo)
+
+    col_ref, col_info = st.columns([1,5])
+    with col_ref:
+        if st.button("🔄 Refresh"): st.cache_data.clear(); st.rerun()
+    with col_info:
+        total = sum(len(v) for v in TEMPLATES.values())
+        popular_count = sum(1 for cat in TEMPLATES.values() for info in cat.values() if info.get("popular"))
+        st.markdown(f"<div class='info-box'>📦 <b>{total}</b> template &nbsp;·&nbsp; ⭐ <b>{popular_count}</b> ditag popular</div>", unsafe_allow_html=True)
+
     st.markdown("---")
+
     for category, templates in TEMPLATES.items():
-        emoji = "⭐" if category=="Essential" else "📸" if category=="Portrait" else "☀️" if category=="Light" else "🎬" if category=="Cinematic" else "💎"
-        st.markdown(f"## {emoji} {category}")
+        cat_emoji = "⭐" if category=="Essential" else "📸" if category=="Portrait" else "☀️" if category=="Light" else "🎬" if category=="Cinematic" else "💎"
+        st.markdown(f"## {cat_emoji} {category}")
+
         for key, info in templates.items():
-            tmpl_html = load_template(info["file"], gh_token, gh_repo)
-            status = "✅ Ada" if tmpl_html else "❌ Fail tidak jumpa"
-            col_info, col_del = st.columns([5,1])
-            with col_info:
-                st.markdown(f"<div class='template-card'><b>{info.get('preview_emoji','✨')} {info['name']}</b><br><small style='color:#888'>{info.get('desc','')}</small><br><small>📁 <code>{info['file']}</code> — {status}</small></div>", unsafe_allow_html=True)
+            is_popular = info.get("popular", False)
+            tmpl_html  = load_template(info["file"], gh_token, gh_cards_repo)
+            status     = "✅ Ada" if tmpl_html else "❌ Fail tidak jumpa"
+            pop_badge  = " &nbsp;<span style='background:#c9a44a22;border:1px solid #c9a44a55;border-radius:20px;padding:2px 10px;font-size:0.7rem;color:#c9a44a'>⭐ Popular</span>" if is_popular else ""
+
+            col_info_c, col_pop, col_del = st.columns([5, 1, 1])
+
+            with col_info_c:
+                st.markdown(
+                    f"<div class='template-card'>"
+                    f"<b>{info.get('preview_emoji','✨')} {info['name']}</b>{pop_badge}<br>"
+                    f"<small style='color:#888'>{info.get('desc','')}</small><br>"
+                    f"<small>📁 <code>{info['file']}</code> — {status}</small>"
+                    f"</div>",
+                    unsafe_allow_html=True
+                )
+
+            with col_pop:
+                pop_label = "⭐ Popular" if is_popular else "☆ Popular"
+                pop_help  = "Klik untuk buang tag popular" if is_popular else "Klik untuk tag sebagai popular"
+                if st.button(pop_label, key=f"pop_{key}", help=pop_help):
+                    reg = load_registry(gh_token, gh_cards_repo)
+                    if category in reg and key in reg[category]:
+                        reg[category][key]["popular"] = not is_popular
+                        if save_registry(gh_token, gh_cards_repo, reg):
+                            st.cache_data.clear()
+                            action = "ditag" if not is_popular else "dibuang dari"
+                            st.success(f"✅ {info['name']} {action} popular!")
+                            st.rerun()
+                        else:
+                            st.error("❌ Gagal simpan registry.")
+
             with col_del:
                 if st.button("🗑️", key=f"del_{key}"):
                     st.session_state[f"confirm_del_{key}"] = True
+
             if st.session_state.get(f"confirm_del_{key}"):
-                c1,c2,_ = st.columns([1,1,4])
+                c1, c2, _ = st.columns([1, 1, 4])
                 with c1:
                     if st.button("✅ Ya", key=f"yes_{key}"):
-                        registry = load_registry(gh_token, gh_repo)
+                        registry = load_registry(gh_token, gh_cards_repo)
                         if category in registry and key in registry[category]:
                             del registry[category][key]
-                            save_registry(gh_token, gh_repo, registry)
+                            save_registry(gh_token, gh_cards_repo, registry)
                             st.cache_data.clear()
                             del st.session_state[f"confirm_del_{key}"]
                             st.success("✅ Dipadam."); st.rerun()
