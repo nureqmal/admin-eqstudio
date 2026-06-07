@@ -1295,7 +1295,7 @@ elif "🗂️ Template Info" in page:
             status     = "✅ Ada" if tmpl_html else "❌ Fail tidak jumpa"
             pop_badge  = " &nbsp;<span style='background:#c9a44a22;border:1px solid #c9a44a55;border-radius:20px;padding:2px 10px;font-size:0.7rem;color:#c9a44a'>⭐ Popular</span>" if is_popular else ""
 
-            col_info_c, col_pop, col_del = st.columns([5, 1, 1])
+            col_info_c, col_pop, col_rep, col_del = st.columns([5, 1, 1, 1])
 
             with col_info_c:
                 st.markdown(
@@ -1322,9 +1322,50 @@ elif "🗂️ Template Info" in page:
                         else:
                             st.error("❌ Gagal simpan registry.")
 
+            with col_rep:
+                if st.button("📤 Replace", key=f"rep_{key}", help="Ganti fail HTML template — registry & preview tak berubah"):
+                    st.session_state[f"show_replace_{key}"] = not st.session_state.get(f"show_replace_{key}", False)
+
             with col_del:
                 if st.button("🗑️", key=f"del_{key}"):
                     st.session_state[f"confirm_del_{key}"] = True
+
+            # ── REPLACE UPLOADER ──
+            if st.session_state.get(f"show_replace_{key}"):
+                with st.container():
+                    st.markdown(
+                        f"<div class='warning-box'>📤 <b>Replace template:</b> <code>{info['file']}</code><br>"
+                        f"<small>Registry, nama, popular tag & preview image <b>tidak berubah</b>. Hanya fail HTML diganti.</small></div>",
+                        unsafe_allow_html=True
+                    )
+                    rep_file = st.file_uploader(
+                        f"Upload HTML baru untuk {info['name']}",
+                        type=["html", "htm"],
+                        key=f"rep_upload_{key}"
+                    )
+                    if rep_file:
+                        rep_html = rep_file.read().decode("utf-8")
+                        rc1, rc2, rc3 = st.columns([1, 1, 4])
+                        with rc1:
+                            if st.button("✅ Confirm Replace", key=f"rep_confirm_{key}"):
+                                filepath = f"templates/{info['file']}"
+                                with st.spinner(f"Uploading {info['file']}..."):
+                                    res = github_upload_file(
+                                        gh_token, gh_cards_repo,
+                                        filepath, rep_html,
+                                        f"Replace template: {info['name']}"
+                                    )
+                                if res["success"]:
+                                    st.cache_data.clear()
+                                    del st.session_state[f"show_replace_{key}"]
+                                    st.success(f"✅ Template **{info['name']}** berjaya diganti! Registry & preview kekal.")
+                                    st.rerun()
+                                else:
+                                    st.error(f"❌ {res['error']}")
+                        with rc2:
+                            if st.button("❌ Batal", key=f"rep_cancel_{key}"):
+                                del st.session_state[f"show_replace_{key}"]
+                                st.rerun()
 
             if st.session_state.get(f"confirm_del_{key}"):
                 c1, c2, _ = st.columns([1, 1, 4])
