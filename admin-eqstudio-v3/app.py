@@ -111,6 +111,20 @@ def firebase_delete(path):
 # ─────────────────────────────────────────
 #  TEMPLATE REGISTRY
 # ─────────────────────────────────────────
+# ─────────────────────────────────────────
+#  STYLE CATEGORIES (subcategory dalam setiap package)
+# ─────────────────────────────────────────
+STYLE_CATEGORIES = [
+    "Bright Mood",
+    "Dark Luxury",
+    "Korean Style",
+    "Modern GenZ",
+    "Classic Elegant",
+    "Floral Romance",
+    "Minimalist",
+    "Tropical",
+]
+
 TEMPLATES_DEFAULT = {
     "Essential": {
         "es_rosegold": {
@@ -120,6 +134,7 @@ TEMPLATES_DEFAULT = {
             "has_portrait_photo": False,
             "preview_emoji": "🌹",
             "desc": "Tema rose gold & blush, warm parchment envelope",
+            "style": "Floral Romance",
         },
         "es_sage": {
             "name": "Sage Green",
@@ -128,6 +143,7 @@ TEMPLATES_DEFAULT = {
             "has_portrait_photo": False,
             "preview_emoji": "🌿",
             "desc": "Tema sage green & warm cream",
+            "style": "Bright Mood",
         },
         "es_champagne": {
             "name": "Champagne Gold",
@@ -136,6 +152,7 @@ TEMPLATES_DEFAULT = {
             "has_portrait_photo": False,
             "preview_emoji": "🥂",
             "desc": "Tema champagne gold & ivory",
+            "style": "Classic Elegant",
         },
         "es_darkolive": {
             "name": "Dark Olive",
@@ -144,6 +161,7 @@ TEMPLATES_DEFAULT = {
             "has_portrait_photo": False,
             "preview_emoji": "🫒",
             "desc": "Tema dark olive & warm cream",
+            "style": "Dark Luxury",
         },
         "es_dustyblue": {
             "name": "Dusty Blue",
@@ -152,6 +170,7 @@ TEMPLATES_DEFAULT = {
             "has_portrait_photo": False,
             "preview_emoji": "🔵",
             "desc": "Tema dusty blue & warm sand",
+            "style": "Korean Style",
         },
         "es_emerald": {
             "name": "Emerald Green",
@@ -160,6 +179,7 @@ TEMPLATES_DEFAULT = {
             "has_portrait_photo": False,
             "preview_emoji": "💎",
             "desc": "Tema emerald green & gold",
+            "style": "Dark Luxury",
         },
         "es_navy": {
             "name": "Navy",
@@ -168,6 +188,7 @@ TEMPLATES_DEFAULT = {
             "has_portrait_photo": False,
             "preview_emoji": "🫐",
             "desc": "Tema navy & silver",
+            "style": "Classic Elegant",
         },
         "es_terracotta": {
             "name": "Terracotta",
@@ -176,6 +197,7 @@ TEMPLATES_DEFAULT = {
             "has_portrait_photo": False,
             "preview_emoji": "🏺",
             "desc": "Tema terracotta & warm linen",
+            "style": "Tropical",
         },
         "es_blush": {
             "name": "Blush Pink",
@@ -184,6 +206,7 @@ TEMPLATES_DEFAULT = {
             "has_portrait_photo": False,
             "preview_emoji": "🌸",
             "desc": "Tema blush pink & ivory",
+            "style": "Floral Romance",
         },
         "es_mauve": {
             "name": "Mauve",
@@ -192,6 +215,7 @@ TEMPLATES_DEFAULT = {
             "has_portrait_photo": False,
             "preview_emoji": "💜",
             "desc": "Tema mauve & soft lilac",
+            "style": "Korean Style",
         },
         "es_charcoal": {
             "name": "Charcoal",
@@ -200,6 +224,7 @@ TEMPLATES_DEFAULT = {
             "has_portrait_photo": False,
             "preview_emoji": "⚫",
             "desc": "Tema charcoal & gold",
+            "style": "Dark Luxury",
         },
         "es_darkbrown": {
             "name": "Dark Brown",
@@ -208,6 +233,7 @@ TEMPLATES_DEFAULT = {
             "has_portrait_photo": False,
             "preview_emoji": "🤎",
             "desc": "Tema dark brown & warm cream",
+            "style": "Dark Luxury",
         },
         "es_chocolate": {
             "name": "Chocolate Brown",
@@ -216,6 +242,7 @@ TEMPLATES_DEFAULT = {
             "has_portrait_photo": False,
             "preview_emoji": "🍫",
             "desc": "Tema chocolate brown & caramel",
+            "style": "Dark Luxury",
         },
     },
     "Portrait": {
@@ -226,6 +253,7 @@ TEMPLATES_DEFAULT = {
             "has_portrait_photo": True,
             "preview_emoji": "📸",
             "desc": "Split hero + cinematic banner. 2 slot gambar.",
+            "style": "Korean Style",
         },
     },
     "Light": {
@@ -236,6 +264,7 @@ TEMPLATES_DEFAULT = {
             "has_portrait_photo": False,
             "preview_emoji": "☀️",
             "desc": "Versi cerah warm parchment + soft glow",
+            "style": "Bright Mood",
         },
     },
 }
@@ -1134,8 +1163,16 @@ elif "🔧 Template Converter" in page:
             if valid: ready=True; st.success(f"✅ {len(valid)} replacement")
         st.markdown("---")
         c1,c2 = st.columns(2)
-        with c1: t_cat=st.selectbox("Category",["Essential","Portrait","Light","Cinematic","Prestige"]); t_name=st.text_input("Nama Template"); t_emoji=st.text_input("Emoji",max_chars=2)
-        with c2: t_desc=st.text_input("Penerangan"); t_file=st.text_input("Nama Fail (tanpa .html)")
+        with c1:
+            t_cat   = st.selectbox("Package / Category", ["Essential","Portrait","Light","Cinematic","Prestige"])
+            t_name  = st.text_input("Nama Template")
+            t_emoji = st.text_input("Emoji", max_chars=2)
+        with c2:
+            t_style = st.selectbox("Style Category", ["— Tiada —"] + STYLE_CATEGORIES,
+                                   help="Subcategory untuk filter di website — contoh: Dark Luxury, Korean Style")
+            t_desc  = st.text_input("Penerangan ringkas")
+            t_file  = st.text_input("Nama Fail (tanpa .html)")
+
         gh_token2 = st.session_state.get("gh_token","") or st.secrets.get("GH_TOKEN","")
         gh_repo2  = st.session_state.get("gh_repo", "") or st.secrets.get("GH_REPO", "")
         can = bool(ready and t_name and t_file and gh_token2 and gh_repo2)
@@ -1146,13 +1183,21 @@ elif "🔧 Template Converter" in page:
             final_fn = f"{re.sub(r'[^a-z0-9_]','_',t_file.lower().strip())}.html"
             res = github_upload_file(gh_token2, gh_repo2, f"templates/{final_fn}", converted, f"Add template: {t_name}")
             if res["success"]:
-                new_entry = {"name":t_name,"file":final_fn,"has_photo":t_cat in ["Portrait","Cinematic","Prestige"],"has_portrait_photo":"{{PHOTO1_URL}}" in converted and "{{PHOTO2_URL}}" in converted,"preview_emoji":t_emoji or "✨","desc":t_desc}
+                new_entry = {
+                    "name": t_name,
+                    "file": final_fn,
+                    "has_photo": t_cat in ["Portrait","Cinematic","Prestige"],
+                    "has_portrait_photo": "{{PHOTO1_URL}}" in converted and "{{PHOTO2_URL}}" in converted,
+                    "preview_emoji": t_emoji or "✨",
+                    "desc": t_desc,
+                    "style": t_style if t_style != "— Tiada —" else "",
+                }
                 registry = load_registry(gh_token2, gh_repo2)
                 if t_cat not in registry: registry[t_cat]={}
                 registry[t_cat][t_file] = new_entry
                 save_registry(gh_token2, gh_repo2, registry)
                 st.cache_data.clear()
-                st.success(f"✅ Template `{t_name}` berjaya ditambah!")
+                st.success(f"✅ Template `{t_name}` berjaya ditambah! Style: **{t_style}**")
                 st.session_state.converter_rows = [{"value":"","placeholder":""}]
             else:
                 st.error(f"❌ {res['error']}")
@@ -1295,23 +1340,40 @@ elif "🗂️ Template Info" in page:
             is_popular   = info.get("popular",   False)
             is_new       = info.get("new",        False)
             is_mark_new  = info.get("mark_new",   False)
+            tmpl_style   = info.get("style",      "")
             tmpl_html    = load_template(info["file"], gh_token, gh_cards_repo)
             status       = "✅ Ada" if tmpl_html else "❌ Fail tidak jumpa"
             pop_badge    = " &nbsp;<span style='background:#c9a44a22;border:1px solid #c9a44a55;border-radius:20px;padding:2px 10px;font-size:0.7rem;color:#c9a44a'>⭐ Popular</span>" if is_popular else ""
             new_badge    = " &nbsp;<span style='background:#0d6b5222;border:1px solid #0d6b5288;border-radius:20px;padding:2px 10px;font-size:0.7rem;color:#4ade80'>🆕 New Popout</span>" if is_new else ""
             mark_badge   = " &nbsp;<span style='background:#4ade8018;border:1px solid #4ade8055;border-radius:3px;padding:2px 8px;font-size:0.7rem;color:#4ade80'>🏷️ Marked New</span>" if is_mark_new else ""
+            style_badge  = f" &nbsp;<span style='background:#8b5cf622;border:1px solid #8b5cf655;border-radius:20px;padding:2px 10px;font-size:0.7rem;color:#c4b5fd'>🎨 {tmpl_style}</span>" if tmpl_style else ""
 
-            col_info_c, col_pop, col_new, col_mark, col_rep, col_del = st.columns([5, 1, 1, 1, 1, 1])
+            col_info_c, col_style, col_pop, col_new, col_mark, col_rep, col_del = st.columns([4, 1.5, 1, 1, 1, 1, 1])
 
             with col_info_c:
                 st.markdown(
                     f"<div class='template-card'>"
-                    f"<b>{info.get('preview_emoji','✨')} {info['name']}</b>{pop_badge}{new_badge}{mark_badge}<br>"
+                    f"<b>{info.get('preview_emoji','✨')} {info['name']}</b>{pop_badge}{new_badge}{mark_badge}{style_badge}<br>"
                     f"<small style='color:#888'>{info.get('desc','')}</small><br>"
                     f"<small>📁 <code>{info['file']}</code> — {status}</small>"
                     f"</div>",
                     unsafe_allow_html=True
                 )
+
+            with col_style:
+                style_opts = ["— Tiada —"] + STYLE_CATEGORIES
+                curr_idx   = style_opts.index(tmpl_style) if tmpl_style in style_opts else 0
+                new_style  = st.selectbox("Style", style_opts, index=curr_idx, key=f"style_{key}", label_visibility="collapsed")
+                if new_style != (tmpl_style or "— Tiada —"):
+                    reg = load_registry(gh_token, gh_cards_repo)
+                    if category in reg and key in reg[category]:
+                        reg[category][key]["style"] = new_style if new_style != "— Tiada —" else ""
+                        if save_registry(gh_token, gh_cards_repo, reg):
+                            st.cache_data.clear()
+                            st.success(f"✅ Style dikemaskini → {new_style}")
+                            st.rerun()
+                        else:
+                            st.error("❌ Gagal simpan.")
 
             with col_pop:
                 pop_label = "⭐ Popular" if is_popular else "☆ Popular"
