@@ -1687,8 +1687,8 @@ elif "🎨 Style Manager" in page:
 
     # ── SECTION 3: REORDER ──
     st.markdown("---")
-    st.markdown("## 🔀 Susun Semula Urutan")
-    st.markdown("<small style='color:#666'>Urutan ni akan follow susunan filter chips di website kau.</small>", unsafe_allow_html=True)
+    st.markdown("## 🔀 Susun Semula / Buang Style")
+    st.markdown("<small style='color:#888'>Ubah urutan atau <b>padam baris</b> untuk delete style tu. Nama baru tak boleh ditaip di sini — guna bahagian Tambah di atas.</small>", unsafe_allow_html=True)
 
     reorder_input = st.text_area(
         "Satu style satu baris — ubah urutan, kemudian klik Simpan Urutan",
@@ -1698,22 +1698,31 @@ elif "🎨 Style Manager" in page:
     )
     if st.button("💾 Simpan Urutan"):
         reordered = [s.strip() for s in reorder_input.strip().splitlines() if s.strip()]
-        # Validate — mesti sama set
-        if set(reordered) != set(style_cats):
-            missing = set(style_cats) - set(reordered)
-            extra   = set(reordered) - set(style_cats)
-            errs = []
-            if missing: errs.append(f"Hilang: {', '.join(missing)}")
-            if extra:   errs.append(f"Tidak dikenali: {', '.join(extra)}")
-            st.error("❌ " + " · ".join(errs) + " — pastikan semua nama betul, tiada tambah atau buang.")
+        # Reject nama yang tak dikenali (typo etc)
+        extra = set(reordered) - set(style_cats)
+        if extra:
+            st.error(f"❌ Nama tidak dikenali: **{', '.join(extra)}** — jangan taip nama baru di sini. Guna bahagian 'Tambah Style Baru' di atas.")
         elif len(reordered) != len(set(reordered)):
             st.error("❌ Ada nama yang berulang — semak semula.")
+        elif not reordered:
+            st.error("❌ Senarai tak boleh kosong.")
         else:
+            # Baris yang dihilangkan = delete — kosongkan style pada template yang guna
+            deleted = set(style_cats) - set(reordered)
             reg = load_registry(gh_token, gh_cards_repo)
+            if deleted:
+                for cat_key, cat_data in reg.items():
+                    if not isinstance(cat_data, dict): continue
+                    for tmpl_key, info in cat_data.items():
+                        if isinstance(info, dict) and info.get("style") in deleted:
+                            reg[cat_key][tmpl_key]["style"] = ""
             set_style_categories(reg, reordered)
             if save_registry(gh_token, gh_cards_repo, reg):
                 st.cache_data.clear()
-                st.success("✅ Urutan disimpan!")
+                msg = f"✅ Urutan disimpan!"
+                if deleted:
+                    msg += f" Style dibuang: {', '.join(deleted)}."
+                st.success(msg)
                 st.rerun()
             else:
                 st.error("❌ Gagal simpan ke GitHub.")
