@@ -1,0 +1,136 @@
+{
+  "Essential": {
+    "es_rosegold": {
+      "name": "Rose Gold",
+      "file": "Es Rose Gold.html",
+      "has_photo": false,
+      "has_portrait_photo": false,
+      "preview_emoji": "🌹",
+      "desc": "Tema rose gold & blush, warm parchment envelope"
+    },
+    "es_sage": {
+      "name": "Sage Green",
+      "file": "Es Sage Green.html",
+      "has_photo": false,
+      "has_portrait_photo": false,
+      "preview_emoji": "🌿",
+      "desc": "Tema sage green & warm cream"
+    },
+    "es_champagne": {
+      "name": "Champagne Gold",
+      "file": "Es Champagne Gold.html",
+      "has_photo": false,
+      "has_portrait_photo": false,
+      "preview_emoji": "🥂",
+      "desc": "Tema champagne gold & ivory"
+    },
+    "es_darkolive": {
+      "name": "Dark Olive",
+      "file": "Es Dark Olive.html",
+      "has_photo": false,
+      "has_portrait_photo": false,
+      "preview_emoji": "🫒",
+      "desc": "Tema dark olive & warm cream"
+    },
+    "es_dustyblue": {
+      "name": "Dusty Blue",
+      "file": "Es Dusty Blue.html",
+      "has_photo": false,
+      "has_portrait_photo": false,
+      "preview_emoji": "🔵",
+      "desc": "Tema dusty blue & warm sand"
+    },
+    "es_emerald": {
+      "name": "Emerald Green",
+      "file": "Es Emerald Green.html",
+      "has_photo": false,
+      "has_portrait_photo": false,
+      "preview_emoji": "💎",
+      "desc": "Tema emerald green & gold"
+    },
+    "es_navy": {
+      "name": "Navy",
+      "file": "Es Navy.html",
+      "has_photo": false,
+      "has_portrait_photo": false,
+      "preview_emoji": "🫐",
+      "desc": "Tema navy & silver"
+    },
+    "es_terracotta": {
+      "name": "Terracotta",
+      "file": "Es Terracotta.html",
+      "has_photo": false,
+      "has_portrait_photo": false,
+      "preview_emoji": "🏺",
+      "desc": "Tema terracotta & warm linen"
+    },
+    "es_blush": {
+      "name": "Blush Pink",
+      "file": "Es Blush Pink.html",
+      "has_photo": false,
+      "has_portrait_photo": false,
+      "preview_emoji": "🌸",
+      "desc": "Tema blush pink & ivory"
+    },
+    "es_mauve": {
+      "name": "Mauve",
+      "file": "Es Mauve.html",
+      "has_photo": false,
+      "has_portrait_photo": false,
+      "preview_emoji": "💜",
+      "desc": "Tema mauve & soft lilac"
+    },
+    "es_charcoal": {
+      "name": "Charcoal",
+      "file": "Es Charcoal.html",
+      "has_photo": false,
+      "has_portrait_photo": false,
+      "preview_emoji": "⚫",
+      "desc": "Tema charcoal & gold"
+    },
+    "es_darkbrown": {
+      "name": "Dark Brown",
+      "file": "Es Dark Brown.html",
+      "has_photo": false,
+      "has_portrait_photo": false,
+      "preview_emoji": "🤎",
+      "desc": "Tema dark brown & warm cream"
+    },
+    "es_chocolate": {
+      "name": "Chocolate Brown",
+      "file": "Es Chocolate Brown.html",
+      "has_photo": false,
+      "has_portrait_photo": false,
+      "preview_emoji": "🍫",
+      "desc": "Tema chocolate brown & caramel"
+    },
+    "Dark Violet": {
+      "name": "Dark Violet- Modern",
+      "file": "dark_violet.html",
+      "has_photo": false,
+      "has_portrait_photo": false,
+      "preview_emoji": "✨",
+      "desc": "#301934"
+    }
+  },
+  "Portrait": {
+    "pt_dustyblue": {
+      "name": "Dusty Blue Portrait",
+      "file": "Es Portrait Dusty Blue.html",
+      "has_photo": false,
+      "has_portrait_photo": true,
+      "preview_emoji": "📸",
+      "desc": "Split hero + cinematic banner. 2 slot gambar."
+    }
+  },
+  "Light": {
+    "lt_rosegold": {
+      "name": "Rose Gold Light",
+      "file": "Es Light Rose Gold.html",
+      "has_photo": false,
+      "has_portrait_photo": false,
+      "preview_emoji": "☀️",
+      "desc": "Versi cerah warm parchment + soft glow"
+    }
+  }
+}
