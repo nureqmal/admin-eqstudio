@@ -1282,7 +1282,8 @@ elif "🗂️ Template Info" in page:
         total = sum(len(v) for v in TEMPLATES.values())
         popular_count = sum(1 for cat in TEMPLATES.values() for info in cat.values() if info.get("popular"))
         new_count = sum(1 for cat in TEMPLATES.values() for info in cat.values() if info.get("new"))
-        st.markdown(f"<div class='info-box'>📦 <b>{total}</b> template &nbsp;·&nbsp; ⭐ <b>{popular_count}</b> ditag popular &nbsp;·&nbsp; 🆕 <b>{new_count}</b> ditag new</div>", unsafe_allow_html=True)
+        mark_new_count = sum(1 for cat in TEMPLATES.values() for info in cat.values() if info.get("mark_new"))
+        st.markdown(f"<div class='info-box'>📦 <b>{total}</b> template &nbsp;·&nbsp; ⭐ <b>{popular_count}</b> popular &nbsp;·&nbsp; 🆕 <b>{new_count}</b> new popout &nbsp;·&nbsp; 🏷️ <b>{mark_new_count}</b> marked new</div>", unsafe_allow_html=True)
 
     st.markdown("---")
 
@@ -1291,19 +1292,21 @@ elif "🗂️ Template Info" in page:
         st.markdown(f"## {cat_emoji} {category}")
 
         for key, info in templates.items():
-            is_popular = info.get("popular", False)
-            is_new     = info.get("new", False)
-            tmpl_html  = load_template(info["file"], gh_token, gh_cards_repo)
-            status     = "✅ Ada" if tmpl_html else "❌ Fail tidak jumpa"
-            pop_badge  = " &nbsp;<span style='background:#c9a44a22;border:1px solid #c9a44a55;border-radius:20px;padding:2px 10px;font-size:0.7rem;color:#c9a44a'>⭐ Popular</span>" if is_popular else ""
-            new_badge  = " &nbsp;<span style='background:#0d6b5222;border:1px solid #0d6b5288;border-radius:20px;padding:2px 10px;font-size:0.7rem;color:#4ade80'>🆕 New</span>" if is_new else ""
+            is_popular   = info.get("popular",   False)
+            is_new       = info.get("new",        False)
+            is_mark_new  = info.get("mark_new",   False)
+            tmpl_html    = load_template(info["file"], gh_token, gh_cards_repo)
+            status       = "✅ Ada" if tmpl_html else "❌ Fail tidak jumpa"
+            pop_badge    = " &nbsp;<span style='background:#c9a44a22;border:1px solid #c9a44a55;border-radius:20px;padding:2px 10px;font-size:0.7rem;color:#c9a44a'>⭐ Popular</span>" if is_popular else ""
+            new_badge    = " &nbsp;<span style='background:#0d6b5222;border:1px solid #0d6b5288;border-radius:20px;padding:2px 10px;font-size:0.7rem;color:#4ade80'>🆕 New Popout</span>" if is_new else ""
+            mark_badge   = " &nbsp;<span style='background:#4ade8018;border:1px solid #4ade8055;border-radius:3px;padding:2px 8px;font-size:0.7rem;color:#4ade80'>🏷️ Marked New</span>" if is_mark_new else ""
 
-            col_info_c, col_pop, col_new, col_rep, col_del = st.columns([5, 1, 1, 1, 1])
+            col_info_c, col_pop, col_new, col_mark, col_rep, col_del = st.columns([5, 1, 1, 1, 1, 1])
 
             with col_info_c:
                 st.markdown(
                     f"<div class='template-card'>"
-                    f"<b>{info.get('preview_emoji','✨')} {info['name']}</b>{pop_badge}{new_badge}<br>"
+                    f"<b>{info.get('preview_emoji','✨')} {info['name']}</b>{pop_badge}{new_badge}{mark_badge}<br>"
                     f"<small style='color:#888'>{info.get('desc','')}</small><br>"
                     f"<small>📁 <code>{info['file']}</code> — {status}</small>"
                     f"</div>",
@@ -1335,6 +1338,21 @@ elif "🗂️ Template Info" in page:
                         if save_registry(gh_token, gh_cards_repo, reg):
                             st.cache_data.clear()
                             action = "ditag sebagai New — akan muncul di popout website!" if not is_new else "dibuang dari New tag."
+                            st.success(f"✅ {info['name']} {action}")
+                            st.rerun()
+                        else:
+                            st.error("❌ Gagal simpan registry.")
+
+            with col_mark:
+                mark_label = "🏷️ New ✓" if is_mark_new else "🏷️ Mark"
+                mark_help  = "Klik untuk buang badge New pada kad" if is_mark_new else "Klik untuk paparkan ribbon 'NEW' di penjuru kad template"
+                if st.button(mark_label, key=f"mark_{key}", help=mark_help):
+                    reg = load_registry(gh_token, gh_cards_repo)
+                    if category in reg and key in reg[category]:
+                        reg[category][key]["mark_new"] = not is_mark_new
+                        if save_registry(gh_token, gh_cards_repo, reg):
+                            st.cache_data.clear()
+                            action = "ditandakan New — ribbon akan muncul pada kad!" if not is_mark_new else "ribbon New dibuang dari kad."
                             st.success(f"✅ {info['name']} {action}")
                             st.rerun()
                         else:
