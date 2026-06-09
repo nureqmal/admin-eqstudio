@@ -1371,7 +1371,7 @@ elif "🗂️ Template Info" in page:
             mark_badge   = " &nbsp;<span style='background:#4ade8018;border:1px solid #4ade8055;border-radius:3px;padding:2px 8px;font-size:0.7rem;color:#4ade80'>🏷️ Marked New</span>" if is_mark_new else ""
             style_badge  = f" &nbsp;<span style='background:#8b5cf622;border:1px solid #8b5cf655;border-radius:20px;padding:2px 10px;font-size:0.7rem;color:#c4b5fd'>🎨 {tmpl_style}</span>" if tmpl_style else ""
 
-            col_info_c, col_style, col_pop, col_new, col_mark, col_rep, col_del = st.columns([4, 1.5, 1, 1, 1, 1, 1])
+            col_info_c, col_style, col_pop, col_new, col_mark, col_ren, col_rep, col_del = st.columns([4, 1.5, 1, 1, 1, 1, 1, 1])
 
             with col_info_c:
                 st.markdown(
@@ -1443,6 +1443,11 @@ elif "🗂️ Template Info" in page:
                         else:
                             st.error("❌ Gagal simpan registry.")
 
+            with col_ren:
+                ren_label = "✏️ Rename"
+                if st.button(ren_label, key=f"ren_{key}", help="Tukar nama template ini dalam registry"):
+                    st.session_state[f"show_rename_{key}"] = not st.session_state.get(f"show_rename_{key}", False)
+
             with col_rep:
                 if st.button("📤 Replace", key=f"rep_{key}", help="Ganti fail HTML template — registry & preview tak berubah"):
                     st.session_state[f"show_replace_{key}"] = not st.session_state.get(f"show_replace_{key}", False)
@@ -1487,6 +1492,43 @@ elif "🗂️ Template Info" in page:
                             if st.button("❌ Batal", key=f"rep_cancel_{key}"):
                                 del st.session_state[f"show_replace_{key}"]
                                 st.rerun()
+
+            # ── RENAME INLINE ──
+            if st.session_state.get(f"show_rename_{key}"):
+                with st.container():
+                    st.markdown(
+                        f"<div class='warning-box'>✏️ <b>Rename template:</b> <code>{info['name']}</code></div>",
+                        unsafe_allow_html=True
+                    )
+                    new_tmpl_name = st.text_input(
+                        "Nama baru",
+                        value=info['name'],
+                        key=f"rename_tmpl_input_{key}"
+                    )
+                    rn1, rn2, _ = st.columns([1, 1, 4])
+                    with rn1:
+                        if st.button("✅ Simpan", key=f"rename_tmpl_save_{key}"):
+                            new_tmpl_name = new_tmpl_name.strip()
+                            if not new_tmpl_name:
+                                st.error("Nama tak boleh kosong.")
+                            else:
+                                reg = load_registry(gh_token, gh_cards_repo)
+                                if category in reg and key in reg[category]:
+                                    old_name = reg[category][key]["name"]
+                                    reg[category][key]["name"] = new_tmpl_name
+                                    if save_registry(gh_token, gh_cards_repo, reg):
+                                        st.cache_data.clear()
+                                        del st.session_state[f"show_rename_{key}"]
+                                        st.success(f"✅ '{old_name}' → '{new_tmpl_name}' berjaya!")
+                                        st.rerun()
+                                    else:
+                                        st.error("❌ Gagal simpan registry.")
+                                else:
+                                    st.error("❌ Template tidak jumpa dalam registry.")
+                    with rn2:
+                        if st.button("❌ Batal", key=f"rename_tmpl_cancel_{key}"):
+                            del st.session_state[f"show_rename_{key}"]
+                            st.rerun()
 
             if st.session_state.get(f"confirm_del_{key}"):
                 c1, c2, _ = st.columns([1, 1, 4])
