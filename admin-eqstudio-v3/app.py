@@ -111,10 +111,12 @@ def firebase_delete(path):
 # ─────────────────────────────────────────
 #  TEMPLATE REGISTRY
 # ─────────────────────────────────────────
+
 # ─────────────────────────────────────────
-#  STYLE CATEGORIES (subcategory dalam setiap package)
+#  STYLE CATEGORIES — default fallback
+#  (sebenarnya diload dari registry.json["_style_categories"])
 # ─────────────────────────────────────────
-STYLE_CATEGORIES = [
+STYLE_CATEGORIES_DEFAULT = [
     "Bright Mood",
     "Dark Luxury",
     "Korean Style",
@@ -124,6 +126,21 @@ STYLE_CATEGORIES = [
     "Minimalist",
     "Tropical",
 ]
+
+def get_style_categories(registry):
+    """Ambil senarai style categories dari registry. Fallback ke default."""
+    cats = registry.get("_style_categories", None)
+    if isinstance(cats, list) and cats:
+        return cats
+    return list(STYLE_CATEGORIES_DEFAULT)
+
+def set_style_categories(registry, categories):
+    """Simpan style categories ke dalam registry dict (in-place)."""
+    registry["_style_categories"] = categories
+    return registry
+
+# Shortcut untuk guna dalam UI (sebelum registry diload)
+STYLE_CATEGORIES = STYLE_CATEGORIES_DEFAULT
 
 TEMPLATES_DEFAULT = {
     "Essential": {
@@ -541,7 +558,7 @@ with st.sidebar:
     st.markdown("---")
     page = st.radio(
         "Navigation",
-        ["🆕 Jana Kad Baru", "📊 RSVP & Doa", "🔧 Template Converter", "📜 History", "⚙️ GitHub Settings", "📋 Cara Guna", "🗂️ Template Info"],
+        ["🆕 Jana Kad Baru", "📊 RSVP & Doa", "🔧 Template Converter", "📜 History", "⚙️ GitHub Settings", "📋 Cara Guna", "🗂️ Template Info", "🎨 Style Manager"],
         label_visibility="collapsed"
     )
     st.markdown("---")
@@ -1168,8 +1185,12 @@ elif "🔧 Template Converter" in page:
             t_name  = st.text_input("Nama Template")
             t_emoji = st.text_input("Emoji", max_chars=2)
         with c2:
-            t_style = st.selectbox("Style Category", ["— Tiada —"] + STYLE_CATEGORIES,
-                                   help="Subcategory untuk filter di website — contoh: Dark Luxury, Korean Style")
+            gh_token_sc      = st.session_state.get("gh_token","")      or st.secrets.get("GH_TOKEN","")
+            gh_cards_repo_sc = st.session_state.get("gh_cards_repo","") or st.secrets.get("GH_CARDS_REPO","nureqmal/eqstudio-cards")
+            _reg_sc     = load_registry(gh_token_sc, gh_cards_repo_sc)
+            _style_opts = ["— Tiada —"] + get_style_categories(_reg_sc)
+            t_style = st.selectbox("Style Category", _style_opts,
+                                   help="Subcategory untuk filter di website — urus dalam 🎨 Style Manager")
             t_desc  = st.text_input("Penerangan ringkas")
             t_file  = st.text_input("Nama Fail (tanpa .html)")
 
@@ -1361,7 +1382,7 @@ elif "🗂️ Template Info" in page:
                 )
 
             with col_style:
-                style_opts = ["— Tiada —"] + STYLE_CATEGORIES
+                style_opts = ["— Tiada —"] + get_style_categories(TEMPLATES)
                 curr_idx   = style_opts.index(tmpl_style) if tmpl_style in style_opts else 0
                 new_style  = st.selectbox("Style", style_opts, index=curr_idx, key=f"style_{key}", label_visibility="collapsed")
                 if new_style != (tmpl_style or "— Tiada —"):
@@ -1480,3 +1501,219 @@ elif "🗂️ Template Info" in page:
                     if st.button("❌ Batal", key=f"no_{key}"):
                         del st.session_state[f"confirm_del_{key}"]
                         st.rerun()
+
+# ─────────────────────────────────────────
+#  PAGE: STYLE MANAGER
+# ─────────────────────────────────────────
+elif "🎨 Style Manager" in page:
+    st.markdown("# 🎨 Style Manager")
+    st.markdown("Urus subcategory style untuk template katalog. Style categories ni akan muncul sebagai filter chips di website kau.")
+    st.markdown("---")
+
+    gh_token      = st.session_state.get("gh_token",      "") or st.secrets.get("GH_TOKEN",      "")
+    gh_cards_repo = st.session_state.get("gh_cards_repo", "") or st.secrets.get("GH_CARDS_REPO", "nureqmal/eqstudio-cards")
+
+    if not gh_token or not gh_cards_repo:
+        st.warning("⚠️ GitHub belum setup — pergi ⚙️ GitHub Settings dulu.")
+        st.stop()
+
+    col_r, _ = st.columns([1, 5])
+    with col_r:
+        if st.button("🔄 Refresh"):
+            st.cache_data.clear(); st.rerun()
+
+    registry   = load_registry(gh_token, gh_cards_repo)
+    style_cats = get_style_categories(registry)
+
+    # ── STATS ──
+    usage = {}
+    for cat_data in registry.values():
+        if not isinstance(cat_data, dict): continue
+        for info in cat_data.values():
+            if not isinstance(info, dict): continue
+            s = info.get("style", "")
+            if s:
+                usage[s] = usage.get(s, 0) + 1
+
+    total_styles   = len(style_cats)
+    total_assigned = sum(1 for cat_data in registry.values() if isinstance(cat_data, dict)
+                         for info in cat_data.values() if isinstance(info, dict) and info.get("style"))
+
+    c1, c2, c3 = st.columns(3)
+    with c1:
+        st.markdown(f"<div class='metric-card'><div class='metric-num'>{total_styles}</div><div class='metric-lbl'>Style Categories</div></div>", unsafe_allow_html=True)
+    with c2:
+        st.markdown(f"<div class='metric-card'><div class='metric-num'>{total_assigned}</div><div class='metric-lbl'>Template Dah Assign</div></div>", unsafe_allow_html=True)
+    with c3:
+        unassigned = sum(1 for cat_data in registry.values() if isinstance(cat_data, dict)
+                         for info in cat_data.values() if isinstance(info, dict) and not info.get("style"))
+        st.markdown(f"<div class='metric-card'><div class='metric-num'>{unassigned}</div><div class='metric-lbl'>Belum Ada Style</div></div>", unsafe_allow_html=True)
+
+    st.markdown("---")
+
+    # ── SECTION 1: SENARAI STYLE YANG ADA ──
+    st.markdown("## 📋 Senarai Style Categories")
+    st.markdown("<div class='info-box'>Kau boleh rename atau delete setiap style. Style yang ada template assign tak boleh delete terus — kena reassign dulu.</div>", unsafe_allow_html=True)
+    st.markdown("")
+
+    for i, style in enumerate(style_cats):
+        used_count = usage.get(style, 0)
+        col_badge, col_edit, col_del = st.columns([4, 2, 1])
+
+        with col_badge:
+            bar_html = ""
+            if used_count:
+                bar_html = f"<span style='background:#8b5cf622;border:1px solid #8b5cf655;border-radius:20px;padding:2px 10px;font-size:0.7rem;color:#c4b5fd;margin-left:8px'>🎨 {used_count} template</span>"
+            else:
+                bar_html = "<span style='color:#444;font-size:0.7rem;margin-left:8px'>— tiada template</span>"
+            st.markdown(
+                f"<div class='template-card' style='padding:0.7rem 1rem;margin:0'>"
+                f"<b style='color:#f0e8d8'>{style}</b>{bar_html}"
+                f"</div>",
+                unsafe_allow_html=True
+            )
+
+        with col_edit:
+            if st.button("✏️ Rename", key=f"ren_btn_{i}"):
+                st.session_state[f"editing_style_{i}"] = True
+
+        with col_del:
+            if st.button("🗑️", key=f"del_style_{i}"):
+                st.session_state[f"confirm_del_style_{i}"] = True
+
+        # ── RENAME INLINE ──
+        if st.session_state.get(f"editing_style_{i}"):
+            with st.container():
+                st.markdown(f"<div class='warning-box'>✏️ Rename <b>{style}</b></div>", unsafe_allow_html=True)
+                new_name = st.text_input("Nama baru", value=style, key=f"rename_input_{i}")
+                rc1, rc2, _ = st.columns([1, 1, 4])
+                with rc1:
+                    if st.button("✅ Simpan", key=f"ren_save_{i}"):
+                        new_name = new_name.strip()
+                        if not new_name:
+                            st.error("Nama tak boleh kosong.")
+                        elif new_name in style_cats and new_name != style:
+                            st.error(f"'{new_name}' dah wujud.")
+                        else:
+                            # Update style_cats list
+                            new_cats = [new_name if c == style else c for c in style_cats]
+                            reg = load_registry(gh_token, gh_cards_repo)
+                            # Rename dalam semua template entries jugak
+                            for cat_key, cat_data in reg.items():
+                                if not isinstance(cat_data, dict): continue
+                                for tmpl_key, info in cat_data.items():
+                                    if isinstance(info, dict) and info.get("style") == style:
+                                        reg[cat_key][tmpl_key]["style"] = new_name
+                            set_style_categories(reg, new_cats)
+                            if save_registry(gh_token, gh_cards_repo, reg):
+                                st.cache_data.clear()
+                                del st.session_state[f"editing_style_{i}"]
+                                st.success(f"✅ '{style}' → '{new_name}' — semua template turut dikemaskini.")
+                                st.rerun()
+                            else:
+                                st.error("❌ Gagal simpan.")
+                with rc2:
+                    if st.button("❌ Batal", key=f"ren_cancel_{i}"):
+                        del st.session_state[f"editing_style_{i}"]
+                        st.rerun()
+
+        # ── DELETE CONFIRM ──
+        if st.session_state.get(f"confirm_del_style_{i}"):
+            with st.container():
+                if used_count > 0:
+                    st.markdown(
+                        f"<div class='warning-box'>⚠️ <b>{style}</b> masih digunakan oleh <b>{used_count} template</b>. "
+                        f"Style pada template berkenaan akan dikosongkan jika kau delete.</div>",
+                        unsafe_allow_html=True
+                    )
+                else:
+                    st.markdown(f"<div class='warning-box'>🗑️ Delete style <b>{style}</b>?</div>", unsafe_allow_html=True)
+
+                dc1, dc2, _ = st.columns([1, 1, 4])
+                with dc1:
+                    if st.button("✅ Ya, Delete", key=f"del_style_yes_{i}"):
+                        new_cats = [c for c in style_cats if c != style]
+                        reg = load_registry(gh_token, gh_cards_repo)
+                        # Kosongkan style pada template yang guna style ni
+                        for cat_key, cat_data in reg.items():
+                            if not isinstance(cat_data, dict): continue
+                            for tmpl_key, info in cat_data.items():
+                                if isinstance(info, dict) and info.get("style") == style:
+                                    reg[cat_key][tmpl_key]["style"] = ""
+                        set_style_categories(reg, new_cats)
+                        if save_registry(gh_token, gh_cards_repo, reg):
+                            st.cache_data.clear()
+                            del st.session_state[f"confirm_del_style_{i}"]
+                            st.success(f"✅ Style '{style}' dipadam.")
+                            st.rerun()
+                        else:
+                            st.error("❌ Gagal simpan.")
+                with dc2:
+                    if st.button("❌ Batal", key=f"del_style_no_{i}"):
+                        del st.session_state[f"confirm_del_style_{i}"]
+                        st.rerun()
+
+    # ── SECTION 2: TAMBAH STYLE BARU ──
+    st.markdown("---")
+    st.markdown("## ➕ Tambah Style Baru")
+    with st.container():
+        col_inp, col_btn = st.columns([3, 1])
+        with col_inp:
+            new_style_input = st.text_input(
+                "Nama style baru",
+                placeholder="contoh: Vintage Garden, Boho Chic, Moden Islami...",
+                key="new_style_name",
+                label_visibility="collapsed"
+            )
+        with col_btn:
+            if st.button("➕ Tambah", use_container_width=True):
+                new_style_input = new_style_input.strip()
+                if not new_style_input:
+                    st.error("Sila taip nama style dulu.")
+                elif new_style_input in style_cats:
+                    st.error(f"'{new_style_input}' dah ada dalam senarai.")
+                else:
+                    new_cats = style_cats + [new_style_input]
+                    reg = load_registry(gh_token, gh_cards_repo)
+                    set_style_categories(reg, new_cats)
+                    if save_registry(gh_token, gh_cards_repo, reg):
+                        st.cache_data.clear()
+                        st.success(f"✅ Style '{new_style_input}' berjaya ditambah!")
+                        st.rerun()
+                    else:
+                        st.error("❌ Gagal simpan ke GitHub.")
+
+    st.markdown("<div class='info-box'>💡 <b>Tips:</b> Nama style yang bagus — pendek, deskriptif, dan mudah pelanggan faham. Contoh: <i>Dark Luxury, Korean Style, Floral Romance</i>.</div>", unsafe_allow_html=True)
+
+    # ── SECTION 3: REORDER ──
+    st.markdown("---")
+    st.markdown("## 🔀 Susun Semula Urutan")
+    st.markdown("<small style='color:#666'>Urutan ni akan follow susunan filter chips di website kau.</small>", unsafe_allow_html=True)
+
+    reorder_input = st.text_area(
+        "Satu style satu baris — ubah urutan, kemudian klik Simpan Urutan",
+        value="\n".join(style_cats),
+        height=max(200, len(style_cats) * 32),
+        key="reorder_textarea"
+    )
+    if st.button("💾 Simpan Urutan"):
+        reordered = [s.strip() for s in reorder_input.strip().splitlines() if s.strip()]
+        # Validate — mesti sama set
+        if set(reordered) != set(style_cats):
+            missing = set(style_cats) - set(reordered)
+            extra   = set(reordered) - set(style_cats)
+            errs = []
+            if missing: errs.append(f"Hilang: {', '.join(missing)}")
+            if extra:   errs.append(f"Tidak dikenali: {', '.join(extra)}")
+            st.error("❌ " + " · ".join(errs) + " — pastikan semua nama betul, tiada tambah atau buang.")
+        elif len(reordered) != len(set(reordered)):
+            st.error("❌ Ada nama yang berulang — semak semula.")
+        else:
+            reg = load_registry(gh_token, gh_cards_repo)
+            set_style_categories(reg, reordered)
+            if save_registry(gh_token, gh_cards_repo, reg):
+                st.cache_data.clear()
+                st.success("✅ Urutan disimpan!")
+                st.rerun()
+            else:
+                st.error("❌ Gagal simpan ke GitHub.")
