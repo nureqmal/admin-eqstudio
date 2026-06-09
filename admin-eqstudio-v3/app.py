@@ -768,7 +768,7 @@ elif "🆕 Jana Kad Baru" in page:
     st.markdown("## 1️⃣ Pilih Template")
     TEMPLATES = load_registry(gh_token, gh_repo)
     if st.button("🔄 Refresh senarai template"): st.cache_data.clear(); st.rerun()
-    cat_sel = st.selectbox("Category", list(TEMPLATES.keys()))
+    cat_sel = st.selectbox("Category", [k for k, v in TEMPLATES.items() if isinstance(v, dict)])
     tmpl_opts = TEMPLATES[cat_sel]
     tmpl_key = st.selectbox("Template", list(tmpl_opts.keys()), format_func=lambda k: f"{tmpl_opts[k]['preview_emoji']}  {tmpl_opts[k]['name']}")
     sel = tmpl_opts[tmpl_key]
@@ -1238,6 +1238,7 @@ elif "🔧 Template Converter" in page:
         # Flatten registry jadi senarai pilihan
         tmpl_choices = {}
         for _cat, _tmpls in registry_for_prev.items():
+            if not isinstance(_tmpls, dict): continue
             for _key, _info in _tmpls.items():
                 label = f"{_info.get('preview_emoji','✨')} [{_cat}] {_info['name']}"
                 tmpl_choices[label] = (_cat, _key, _info)
@@ -1345,15 +1346,16 @@ elif "🗂️ Template Info" in page:
     with col_ref:
         if st.button("🔄 Refresh"): st.cache_data.clear(); st.rerun()
     with col_info:
-        total = sum(len(v) for v in TEMPLATES.values())
-        popular_count = sum(1 for cat in TEMPLATES.values() for info in cat.values() if info.get("popular"))
-        new_count = sum(1 for cat in TEMPLATES.values() for info in cat.values() if info.get("new"))
-        mark_new_count = sum(1 for cat in TEMPLATES.values() for info in cat.values() if info.get("mark_new"))
+        total = sum(len(v) for v in TEMPLATES.values() if isinstance(v, dict))
+        popular_count  = sum(1 for cat in TEMPLATES.values() if isinstance(cat, dict) for info in cat.values() if isinstance(info, dict) and info.get("popular"))
+        new_count      = sum(1 for cat in TEMPLATES.values() if isinstance(cat, dict) for info in cat.values() if isinstance(info, dict) and info.get("new"))
+        mark_new_count = sum(1 for cat in TEMPLATES.values() if isinstance(cat, dict) for info in cat.values() if isinstance(info, dict) and info.get("mark_new"))
         st.markdown(f"<div class='info-box'>📦 <b>{total}</b> template &nbsp;·&nbsp; ⭐ <b>{popular_count}</b> popular &nbsp;·&nbsp; 🆕 <b>{new_count}</b> new popout &nbsp;·&nbsp; 🏷️ <b>{mark_new_count}</b> marked new</div>", unsafe_allow_html=True)
 
     st.markdown("---")
 
     for category, templates in TEMPLATES.items():
+        if not isinstance(templates, dict): continue  # skip _style_categories etc
         cat_emoji = "⭐" if category=="Essential" else "📸" if category=="Portrait" else "☀️" if category=="Light" else "🎬" if category=="Cinematic" else "💎"
         st.markdown(f"## {cat_emoji} {category}")
 
