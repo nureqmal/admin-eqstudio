@@ -558,7 +558,7 @@ with st.sidebar:
     st.markdown("---")
     page = st.radio(
         "Navigation",
-        ["🆕 Jana Kad Baru", "📊 RSVP & Doa", "🔧 Template Converter", "📜 History", "⚙️ GitHub Settings", "📋 Cara Guna", "🗂️ Template Info", "🎨 Style Manager"],
+        ["🆕 Jana Kad Baru", "📊 RSVP & Doa", "🔧 Template Converter", "📜 History", "🎟️ Promo Codes", "⚙️ GitHub Settings", "📋 Cara Guna", "🗂️ Template Info", "🎨 Style Manager"],
         label_visibility="collapsed"
     )
     st.markdown("---")
@@ -575,6 +575,126 @@ with st.sidebar:
         st.markdown(f"<div style='font-size:0.7rem;color:#666;margin-top:2px'>📁 {gh_cards_repo}</div>", unsafe_allow_html=True)
     st.markdown("---")
     st.markdown("<div style='font-size:0.75rem;color:#666'><b style='color:#C9A96E'>EQStudio</b><br>Admin v4.1</div>", unsafe_allow_html=True)
+
+# ─────────────────────────────────────────
+#  PAGE: PROMO CODES
+# ─────────────────────────────────────────
+PROMO_PATH = "promo_codes.json"
+
+def load_promos(token, repo):
+    url = f"https://api.github.com/repos/{repo}/contents/{PROMO_PATH}"
+    headers = {"Authorization": f"token {token}", "Accept": "application/vnd.github.v3+json"}
+    r = requests.get(url, headers=headers, timeout=15)
+    if r.status_code == 200:
+        import base64 as _b64, json as _json
+        content = _b64.b64decode(r.json()["content"]).decode("utf-8")
+        return _json.loads(content)
+    return {}
+
+def save_promos(token, repo, promos):
+    import json as _json
+    content = _json.dumps(promos, indent=2, ensure_ascii=False)
+    result = github_upload_file(token, repo, PROMO_PATH, content, "Update promo codes")
+    return result["success"]
+
+if "🎟️ Promo Codes" in page:
+    st.markdown("# 🎟️ Promo Codes")
+    st.markdown("<small style='color:#888'>Promo codes disimpan dalam `promo_codes.json` di repo cards anda. Borang akan fetch secara automatik.</small>", unsafe_allow_html=True)
+
+    if not gh_token or not gh_cards_repo:
+        st.warning("⚠️ Sila setup GitHub token dan cards repo dahulu dalam ⚙️ GitHub Settings.")
+        st.stop()
+
+    # Load existing promos
+    with st.spinner("Memuatkan promo codes..."):
+        promos = load_promos(gh_token, gh_cards_repo)
+
+    st.markdown("---")
+
+    # ── TAMBAH PROMO BARU ──
+    st.markdown("### ➕ Tambah Promo Code Baru")
+    col1, col2, col3 = st.columns([2, 1, 2])
+    with col1:
+        new_code = st.text_input("Kod Promo", placeholder="cth: LAUNCH20", key="new_code").strip().upper()
+    with col2:
+        new_discount = st.number_input("Diskaun (RM)", min_value=1, max_value=200, value=10, step=1, key="new_disc")
+    with col3:
+        new_desc = st.text_input("Keterangan (optional)", placeholder="cth: Harga Pelancaran", key="new_desc")
+
+    col_a, col_b = st.columns([1, 3])
+    with col_a:
+        new_active = st.checkbox("Aktif", value=True, key="new_active")
+    with col_b:
+        new_expiry = st.text_input("Tarikh tamat (optional, YYYY-MM-DD)", placeholder="2026-12-31", key="new_expiry")
+
+    if st.button("💾 Simpan Promo Code", key="btn_add_promo"):
+        if not new_code:
+            st.error("❌ Kod promo tidak boleh kosong.")
+        elif new_code in promos:
+            st.error(f"❌ Kod `{new_code}` sudah wujud. Edit dalam senarai di bawah.")
+        else:
+            promos[new_code] = {
+                "discount": int(new_discount),
+                "desc": new_desc or f"Diskaun RM{new_discount}",
+                "active": new_active,
+                "expiry": new_expiry.strip() or None,
+            }
+            if save_promos(gh_token, gh_cards_repo, promos):
+                st.success(f"✅ Promo code `{new_code}` berjaya disimpan!")
+                st.rerun()
+            else:
+                st.error("❌ Gagal simpan ke GitHub.")
+
+    st.markdown("---")
+
+    # ── SENARAI PROMO CODES ──
+    st.markdown(f"### 📋 Senarai Promo Codes ({len(promos)} kod)")
+
+    if not promos:
+        st.info("Tiada promo code lagi. Tambah satu di atas!")
+    else:
+        for code, info in list(promos.items()):
+            with st.expander(f"{'🟢' if info.get('active') else '🔴'} `{code}` — RM{info.get('discount', 0)} off · {info.get('desc', '')}"):
+                ec1, ec2, ec3 = st.columns([2, 1, 2])
+                with ec1:
+                    e_code = st.text_input("Kod", value=code, key=f"ec_{code}", disabled=True)
+                with ec2:
+                    e_disc = st.number_input("Diskaun (RM)", min_value=1, max_value=200,
+                                             value=int(info.get("discount", 10)), key=f"ed_{code}")
+                with ec3:
+                    e_desc = st.text_input("Keterangan", value=info.get("desc", ""), key=f"edesc_{code}")
+
+                ea1, ea2 = st.columns([1, 2])
+                with ea1:
+                    e_active = st.checkbox("Aktif", value=bool(info.get("active", True)), key=f"eact_{code}")
+                with ea2:
+                    e_expiry = st.text_input("Tarikh tamat", value=info.get("expiry") or "", key=f"eexp_{code}", placeholder="YYYY-MM-DD")
+
+                btn1, btn2 = st.columns(2)
+                with btn1:
+                    if st.button(f"💾 Update", key=f"upd_{code}"):
+                        promos[code] = {
+                            "discount": int(e_disc),
+                            "desc": e_desc,
+                            "active": e_active,
+                            "expiry": e_expiry.strip() or None,
+                        }
+                        if save_promos(gh_token, gh_cards_repo, promos):
+                            st.success(f"✅ `{code}` dikemaskini!")
+                            st.rerun()
+                        else:
+                            st.error("❌ Gagal simpan.")
+                with btn2:
+                    if st.button(f"🗑️ Padam", key=f"del_{code}"):
+                        del promos[code]
+                        if save_promos(gh_token, gh_cards_repo, promos):
+                            st.success(f"✅ `{code}` dipadam.")
+                            st.rerun()
+                        else:
+                            st.error("❌ Gagal padam.")
+
+    st.markdown("---")
+    st.markdown("<small style='color:#555'>Format `promo_codes.json`: <code>{\"LAUNCH20\": {\"discount\": 20, \"desc\": \"Harga Pelancaran\", \"active\": true, \"expiry\": null}}</code></small>", unsafe_allow_html=True)
 
 # ─────────────────────────────────────────
 #  PAGE: GITHUB SETTINGS
