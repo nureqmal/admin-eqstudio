@@ -399,7 +399,8 @@ def build_replacements(data):
     r["{{CONTACT2_NAME}}"]          = s("contact2_name")
     r["{{CONTACT2_PHONE_DISPLAY}}"] = s("contact2_phone_display")
     r["{{CONTACT2_PHONE_WA}}"]      = s("contact2_phone_wa")
-    r["{{MUSIC_URL}}"]              = s("music_url")
+    r["{{MUSIC_URL}}"]              = s("music_url")   # legacy — untuk template lama guna <audio>
+    r["{{YT_VIDEO_ID}}"]            = s("music_url")   # untuk template baru guna YouTube IFrame API
     r["{{MUSIC_LABEL}}"]            = s("music_label")
     r["{{LOVE_YEAR_1}}"]            = s("love_year_1")
     r["{{LOVE_STORY_1}}"]           = s("love_story_1")
@@ -982,8 +983,9 @@ elif "🆕 Jana Kad Baru" in page:
         contact2_wa    = get_whatsapp_number(contact2_phone) if contact2_phone else ""
     st.markdown("---")
     st.markdown("## 8️⃣ Lagu Latar")
+    st.markdown("<div class='info-box'>💡 Masukkan <b>YouTube Video ID</b> sahaja — contoh: URL <code>youtube.com/watch?v=<b>Trjrj_fQnIM</b></code>, ID nya ialah <b>Trjrj_fQnIM</b>. Kaedah ini legal & zero DMCA risk.</div>", unsafe_allow_html=True)
     c1, c2 = st.columns(2)
-    with c1: music_url   = st.text_input("Link Direct MP3 (Dropbox)")
+    with c1: music_url   = st.text_input("YouTube Video ID", placeholder="cth: Trjrj_fQnIM")
     with c2: music_label = st.text_input("Nama Lagu", placeholder="Beautiful In White — Westlife")
     st.markdown("---")
     st.markdown("## 9️⃣ QR Code Salam Kaut")
