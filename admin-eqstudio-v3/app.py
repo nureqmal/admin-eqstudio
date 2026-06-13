@@ -1316,6 +1316,16 @@ elif "🔧 Template Converter" in page:
             t_desc  = st.text_input("Penerangan ringkas")
             t_file  = st.text_input("Nama Fail (tanpa .html)")
 
+        st.markdown("**🎨 Warna Palette Template** — untuk auto-generate preview gradient bila tiada screenshot")
+        st.markdown("<div class='info-box'>Pilih 2–3 warna utama template. Ini akan jadi gradient placeholder dalam katalog website.</div>", unsafe_allow_html=True)
+        cc1, cc2, cc3 = st.columns(3)
+        with cc1:
+            t_color1 = st.color_picker("Warna 1 (Utama)", "#C9A99E", key="tc1")
+        with cc2:
+            t_color2 = st.color_picker("Warna 2", "#F5EDE8", key="tc2")
+        with cc3:
+            t_color3 = st.color_picker("Warna 3 (optional)", "#FAF7F4", key="tc3")
+
         gh_token2 = st.session_state.get("gh_token","") or st.secrets.get("GH_TOKEN","")
         gh_repo2  = st.session_state.get("gh_repo", "") or st.secrets.get("GH_REPO", "")
         can = bool(ready and t_name and t_file and gh_token2 and gh_repo2)
@@ -1334,6 +1344,7 @@ elif "🔧 Template Converter" in page:
                     "preview_emoji": t_emoji or "✨",
                     "desc": t_desc,
                     "style": t_style if t_style != "— Tiada —" else "",
+                    "colors": [t_color1, t_color2, t_color3],
                 }
                 registry = load_registry(gh_token2, gh_repo2)
                 if t_cat not in registry: registry[t_cat]={}
@@ -1427,6 +1438,50 @@ elif "🔧 Template Converter" in page:
                 try: err_msg = r_up.json().get("message", r_up.text)
                 except: err_msg = r_up.text
                 st.error(f"❌ Upload gagal: {err_msg}")
+
+    # ── UPDATE COLORS (untuk template yang dah ada) ──
+    st.markdown("---")
+    st.markdown("### 🎨 Kemaskini Warna Placeholder")
+    st.markdown("<div class='info-box'>Untuk template yang dah upload tapi belum ada warna — set di sini supaya gradient placeholder nampak cantik dalam katalog.</div>", unsafe_allow_html=True)
+
+    gh_token4      = st.session_state.get("gh_token","")      or st.secrets.get("GH_TOKEN","")
+    gh_cards_repo4 = st.session_state.get("gh_cards_repo","") or st.secrets.get("GH_CARDS_REPO","nureqmal/eqstudio-cards")
+    registry_for_col = load_registry(gh_token4, gh_cards_repo4)
+
+    col_choices = {}
+    for _cat, _tmpls in registry_for_col.items():
+        if not isinstance(_tmpls, dict): continue
+        for _key, _info in _tmpls.items():
+            label = f"{_info.get('preview_emoji','✨')} [{_cat}] {_info['name']}"
+            col_choices[label] = (_cat, _key, _info)
+
+    if col_choices:
+        col_sel_label = st.selectbox("Pilih Template", list(col_choices.keys()), key="col_tmpl_sel")
+        col_cat, col_key, col_info = col_choices[col_sel_label]
+
+        existing_colors = col_info.get("colors", ["#C9A99E", "#F5EDE8", "#FAF7F4"])
+        while len(existing_colors) < 3:
+            existing_colors.append("#FAF7F4")
+
+        uc1, uc2, uc3 = st.columns(3)
+        with uc1:
+            u_color1 = st.color_picker("Warna 1 (Utama)", existing_colors[0], key="uc1")
+        with uc2:
+            u_color2 = st.color_picker("Warna 2", existing_colors[1], key="uc2")
+        with uc3:
+            u_color3 = st.color_picker("Warna 3", existing_colors[2], key="uc3")
+
+        if st.button("💾 Simpan Warna", key="btn_save_colors"):
+            registry_upd2 = load_registry(gh_token4, gh_cards_repo4)
+            if col_cat in registry_upd2 and col_key in registry_upd2[col_cat]:
+                registry_upd2[col_cat][col_key]["colors"] = [u_color1, u_color2, u_color3]
+                if save_registry(gh_token4, gh_cards_repo4, registry_upd2):
+                    st.cache_data.clear()
+                    st.success(f"✅ Warna untuk `{col_info['name']}` berjaya dikemaskini!")
+                else:
+                    st.error("❌ Gagal simpan ke registry.")
+    else:
+        st.info("Tiada template dalam registry.")
 
 # ─────────────────────────────────────────
 #  PAGE: CARA GUNA
