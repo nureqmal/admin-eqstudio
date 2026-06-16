@@ -1294,8 +1294,9 @@ elif "🆕 Jana Kad Baru" in page:
 # ─────────────────────────────────────────
 elif "📜 History" in page:
     st.markdown("# 📜 History Kad Deployed")
-    gh_token = st.session_state.get("gh_token", "") or st.secrets.get("GH_TOKEN", "")
-    gh_repo  = st.session_state.get("gh_repo",  "") or st.secrets.get("GH_REPO",  "")
+    gh_token      = st.session_state.get("gh_token",      "") or st.secrets.get("GH_TOKEN",      "")
+    gh_repo       = st.session_state.get("gh_repo",       "") or st.secrets.get("GH_REPO",       "")
+    gh_cards_repo = st.session_state.get("gh_cards_repo", "") or st.secrets.get("GH_CARDS_REPO", "nureqmal/eqstudio-cards")
     if not gh_token or not gh_repo:
         st.warning("⚠️ Setup GitHub dulu di ⚙️ GitHub Settings")
     else:
