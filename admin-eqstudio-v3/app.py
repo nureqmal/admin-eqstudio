@@ -641,7 +641,7 @@ def show_edit_kad_form(entry, gh_token, gh_cards_repo, username, role):
     venue_city     = st.text_input("Bandar / Negeri",     value=entry.get("venue_city",""),      key=f"e_vc_{order_id}")
     c1, c2 = st.columns(2)
     with c1: waze_custom = st.text_input("Link Waze",         value=entry.get("waze_custom",""), key=f"e_wz_{order_id}")
-    with c2: gmap_custom = st.text_input("Link Google Maps",  value=entry.get("gmap_custom",""), key=f"e_gm_{order_id}")
+    with c2: gmap_custom = st.text_input("Link Google Maps",  value=entry.get("gmap_custom",""), key=f"e_gmap_{order_id}")
     venue_waze_query  = venue_name.replace(" ", "+") if venue_name else ""
     venue_gmaps_query = venue_name.replace(" ", "+") if venue_name else ""
     waze_link = waze_custom or (get_waze_link(venue_name, venue_address) if venue_name else "")
