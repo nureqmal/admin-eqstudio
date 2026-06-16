@@ -1236,7 +1236,7 @@ elif "🆕 Jana Kad Baru" in page:
                         "created_at": datetime.now().strftime("%d/%m/%Y %H:%M"),
                         "created_by": username,
                     }
-                    add_to_history(gh_token, gh_repo, _entry)
+                    add_to_history(gh_token, gh_cards_repo, _entry)
 
                     log_activity(
                         username, role,
