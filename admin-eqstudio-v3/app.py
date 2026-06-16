@@ -4,13 +4,20 @@ import re
 import requests
 from pathlib import Path
 from datetime import datetime
+from auth import (
+    show_login_page, is_logged_in, is_admin, is_staff,
+    logout, get_current_user, log_activity, show_activity_log
+)
+
 BASE_DIR = Path(__file__).parent
+
 st.set_page_config(
     page_title="EQStudio Admin — Kad Kahwin Digital",
     page_icon="💍",
     layout="wide",
     initial_sidebar_state="expanded",
 )
+
 st.markdown("""
 <style>
     .main { background: #0f0f0f; }
@@ -86,12 +93,20 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ─────────────────────────────────────────
+#  AUTH GATE
+# ─────────────────────────────────────────
+if not is_logged_in():
+    show_login_page()
+    st.stop()
+
+username, role = get_current_user()
+
+# ─────────────────────────────────────────
 #  FIREBASE CONFIG
 # ─────────────────────────────────────────
 FIREBASE_DB_URL = "https://eqstudio-6225d-default-rtdb.asia-southeast1.firebasedatabase.app"
 
 def firebase_get(path):
-    """GET dari Firebase REST API"""
     try:
         r = requests.get(f"{FIREBASE_DB_URL}/{path}.json", timeout=8)
         if r.status_code == 200:
@@ -101,7 +116,6 @@ def firebase_get(path):
     return None
 
 def firebase_delete(path):
-    """DELETE dari Firebase REST API"""
     try:
         r = requests.delete(f"{FIREBASE_DB_URL}/{path}.json", timeout=8)
         return r.status_code == 200
@@ -110,11 +124,6 @@ def firebase_delete(path):
 
 # ─────────────────────────────────────────
 #  TEMPLATE REGISTRY
-# ─────────────────────────────────────────
-
-# ─────────────────────────────────────────
-#  STYLE CATEGORIES — default fallback
-#  (sebenarnya diload dari registry.json["_style_categories"])
 # ─────────────────────────────────────────
 STYLE_CATEGORIES_DEFAULT = [
     "Bright Mood",
@@ -128,18 +137,15 @@ STYLE_CATEGORIES_DEFAULT = [
 ]
 
 def get_style_categories(registry):
-    """Ambil senarai style categories dari registry. Fallback ke default."""
     cats = registry.get("_style_categories", None)
     if isinstance(cats, list) and cats:
         return cats
     return list(STYLE_CATEGORIES_DEFAULT)
 
 def set_style_categories(registry, categories):
-    """Simpan style categories ke dalam registry dict (in-place)."""
     registry["_style_categories"] = categories
     return registry
 
-# Shortcut untuk guna dalam UI (sebelum registry diload)
 STYLE_CATEGORIES = STYLE_CATEGORIES_DEFAULT
 
 TEMPLATES_DEFAULT = {
@@ -399,8 +405,8 @@ def build_replacements(data):
     r["{{CONTACT2_NAME}}"]          = s("contact2_name")
     r["{{CONTACT2_PHONE_DISPLAY}}"] = s("contact2_phone_display")
     r["{{CONTACT2_PHONE_WA}}"]      = s("contact2_phone_wa")
-    r["{{MUSIC_URL}}"]              = s("music_url")   # legacy — untuk template lama guna <audio>
-    r["{{YT_VIDEO_ID}}"]            = s("music_url")   # untuk template baru guna YouTube IFrame API
+    r["{{MUSIC_URL}}"]              = s("music_url")
+    r["{{YT_VIDEO_ID}}"]            = s("music_url")
     r["{{MUSIC_LABEL}}"]            = s("music_label")
     r["{{LOVE_YEAR_1}}"]            = s("love_year_1")
     r["{{LOVE_STORY_1}}"]           = s("love_story_1")
@@ -412,7 +418,7 @@ def build_replacements(data):
     r["{{DRESSCODE_THEME}}"]        = s("dresscode_theme")
     r["{{DRESSCODE_THEME_EN}}"]     = s("dresscode_theme_en")
     r["{{DRESSCODE_NOTE}}"]         = s("dresscode_note")
-    r["{{DRESSCODE_NOTE_EN}}"]      = s("dresscode_note") # same for now
+    r["{{DRESSCODE_NOTE_EN}}"]      = s("dresscode_note")
     r["{{COLOR1_HEX}}"]             = s("color1_hex")
     r["{{COLOR1_NAME}}"]            = s("color1_name")
     r["{{COLOR2_HEX}}"]             = s("color2_hex")
@@ -429,8 +435,8 @@ def build_replacements(data):
     r["{{DOA_SAMPLE2_MSG}}"]        = s("doa_sample2_msg")
     r["{{QR_CODE_URL}}"]            = s("qr_code_url")
     r["{{HERO_PHOTO_URL}}"]         = s("hero_url")
-    r["{{PHOTO1_URL}}"]             = s("photo1_url")   # portrait split
-    r["{{PHOTO2_URL}}"]             = s("photo2_url")   # portrait cinematic
+    r["{{PHOTO1_URL}}"]             = s("photo1_url")
+    r["{{PHOTO2_URL}}"]             = s("photo2_url")
     r["{{PHOTO3_URL}}"]             = s("photo3_url")
     r["{{OPENING_PHOTO_URL}}"]      = s("opening_url")
     r["{{VIDEO_URL}}"]              = s("video_url")
@@ -440,7 +446,6 @@ def build_replacements(data):
     r["{{GALLERY4_URL}}"]           = s("gallery4_url")
     r["{{GALLERY5_URL}}"]           = s("gallery5_url")
 
-    # Calendar
     import calendar as _cal
     yyyymmdd = s("date_yyyymmdd")
     if yyyymmdd and len(yyyymmdd) == 8:
@@ -462,7 +467,6 @@ def build_replacements(data):
             _cells += f'<div class="cdd{_hl}">{_d}</div>'
         r["{{CAL_GRID_CELLS}}"] = _cells
 
-    # Countdown
     hhmm = s("time_start_hhmm")
     if yyyymmdd and hhmm:
         iso_date = f"{yyyymmdd[:4]}-{yyyymmdd[4:6]}-{yyyymmdd[6:8]}"
@@ -555,17 +559,60 @@ def validate_github_token(token, repo):
 #  SIDEBAR
 # ─────────────────────────────────────────
 with st.sidebar:
-    st.markdown("## 💍 EQStudio Admin")
+    st.markdown("## 💍 EQStudio")
+
+    # ── USER INFO ──
+    role_color = "#C9A96E" if role == "admin" else "#88cc88"
+    role_label = "Admin" if role == "admin" else "Staff"
+    st.markdown(
+        f"<div style='background:#1e1e1e;border:1px solid #2a2a2a;border-radius:10px;"
+        f"padding:0.7rem 1rem;margin-bottom:0.5rem'>"
+        f"<div style='font-size:0.75rem;color:#555'>Logged in sebagai</div>"
+        f"<div style='font-weight:700;color:#f0e8d8'>{username}</div>"
+        f"<div style='font-size:0.7rem;color:{role_color}'>{role_label}</div>"
+        f"</div>",
+        unsafe_allow_html=True
+    )
+
+    # ── LOGOUT ──
+    if st.button("🚪 Log Keluar", use_container_width=True):
+        logout()
+        st.rerun()
+
     st.markdown("---")
+
+    # ── NAVIGATION — filter ikut role ──
+    if is_admin():
+        nav_options = [
+            "🆕 Jana Kad Baru",
+            "📊 RSVP & Doa",
+            "🔧 Template Converter",
+            "📜 History",
+            "🎟️ Promo Codes",
+            "⚙️ GitHub Settings",
+            "📋 Cara Guna",
+            "🗂️ Template Info",
+            "🎨 Style Manager",
+            "📈 Activity Log",
+        ]
+    else:
+        nav_options = [
+            "🆕 Jana Kad Baru",
+            "📈 Activity Log",
+        ]
+
     page = st.radio(
         "Navigation",
-        ["🆕 Jana Kad Baru", "📊 RSVP & Doa", "🔧 Template Converter", "📜 History", "🎟️ Promo Codes", "⚙️ GitHub Settings", "📋 Cara Guna", "🗂️ Template Info", "🎨 Style Manager"],
+        nav_options,
         label_visibility="collapsed"
     )
+
     st.markdown("---")
+
     gh_token      = st.session_state.get("gh_token",      "") or st.secrets.get("GH_TOKEN",      "")
     gh_repo       = st.session_state.get("gh_repo",       "") or st.secrets.get("GH_REPO",       "")
     gh_cards_repo = st.session_state.get("gh_cards_repo", "") or st.secrets.get("GH_CARDS_REPO", "nureqmal/eqstudio-cards")
+
     if gh_token and gh_repo:
         st.markdown(f"<div style='font-size:0.75rem;color:#4CAF50'>✅ <b style='color:#C9A96E'>Admin Repo</b></div>", unsafe_allow_html=True)
         st.markdown(f"<div style='font-size:0.7rem;color:#666;margin-top:2px'>📁 {gh_repo}</div>", unsafe_allow_html=True)
@@ -575,7 +622,7 @@ with st.sidebar:
         st.markdown(f"<div style='font-size:0.75rem;color:#4CAF50;margin-top:4px'>✅ <b style='color:#C9A96E'>Cards Repo</b></div>", unsafe_allow_html=True)
         st.markdown(f"<div style='font-size:0.7rem;color:#666;margin-top:2px'>📁 {gh_cards_repo}</div>", unsafe_allow_html=True)
     st.markdown("---")
-    st.markdown("<div style='font-size:0.75rem;color:#666'><b style='color:#C9A96E'>EQStudio</b><br>Admin v4.1</div>", unsafe_allow_html=True)
+    st.markdown(f"<div style='font-size:0.75rem;color:#666'><b style='color:#C9A96E'>EQStudio</b><br>Admin v5.0</div>", unsafe_allow_html=True)
 
 # ─────────────────────────────────────────
 #  PAGE: PROMO CODES
@@ -606,13 +653,11 @@ if "🎟️ Promo Codes" in page:
         st.warning("⚠️ Sila setup GitHub token dan cards repo dahulu dalam ⚙️ GitHub Settings.")
         st.stop()
 
-    # Load existing promos
     with st.spinner("Memuatkan promo codes..."):
         promos = load_promos(gh_token, gh_cards_repo)
 
     st.markdown("---")
 
-    # ── TAMBAH PROMO BARU ──
     st.markdown("### ➕ Tambah Promo Code Baru")
     col1, col2, col3 = st.columns([2, 1, 2])
     with col1:
@@ -648,7 +693,6 @@ if "🎟️ Promo Codes" in page:
 
     st.markdown("---")
 
-    # ── SENARAI PROMO CODES ──
     st.markdown(f"### 📋 Senarai Promo Codes ({len(promos)} kod)")
 
     if not promos:
@@ -700,7 +744,7 @@ if "🎟️ Promo Codes" in page:
 # ─────────────────────────────────────────
 #  PAGE: GITHUB SETTINGS
 # ─────────────────────────────────────────
-if "⚙️ GitHub Settings" in page:
+elif "⚙️ GitHub Settings" in page:
     st.markdown("# ⚙️ GitHub Settings")
     with st.expander("📋 Langkah setup", expanded=True):
         st.markdown("""
@@ -745,7 +789,18 @@ if "⚙️ GitHub Settings" in page:
 
     st.markdown("---")
     st.markdown("#### 📋 secrets.toml")
-    st.code('GH_TOKEN = "ghp_xxxxxxxxxxxxx"\nGH_REPO  = "nureqmal/admin-eqstudio"\nGH_CARDS_REPO = "nureqmal/eqstudio-cards"', language="toml")
+    st.code(
+        'GH_TOKEN = "ghp_xxxxxxxxxxxxx"\n'
+        'GH_REPO  = "nureqmal/admin-eqstudio"\n'
+        'GH_CARDS_REPO = "nureqmal/eqstudio-cards"\n\n'
+        '[users.admin]\n'
+        'password = "password_admin_kau"\n'
+        'role = "admin"\n\n'
+        '[users.pekerja]\n'
+        'password = "password_pekerja"\n'
+        'role = "staff"',
+        language="toml"
+    )
 
 # ─────────────────────────────────────────
 #  PAGE: RSVP & DOA DASHBOARD
@@ -758,13 +813,11 @@ elif "📊 RSVP & Doa" in page:
     gh_token = st.session_state.get("gh_token", "") or st.secrets.get("GH_TOKEN", "")
     gh_repo  = st.session_state.get("gh_repo",  "") or st.secrets.get("GH_REPO",  "")
 
-    # Load history to get list of generated kads
     history = load_history(gh_token, gh_repo) if (gh_token and gh_repo) else []
 
     if not history:
         st.info("Belum ada kad yang di-deploy. Jana kad dulu melalui 🆕 Jana Kad Baru.")
     else:
-        # Kad selector
         kad_options = {f"{h['groom']} & {h['bride']} [{h['order_id']}]": h['order_id'] for h in history}
         selected_label = st.selectbox("Pilih Kad", list(kad_options.keys()))
         selected_order_id = kad_options[selected_label]
@@ -783,7 +836,6 @@ elif "📊 RSVP & Doa" in page:
 
         st.markdown("---")
 
-        # Load data dari Firebase
         kad_path = f"kads/{selected_order_id}"
         with st.spinner("Memuatkan data Firebase..."):
             rsvp_data     = firebase_get(f"{kad_path}/rsvp") or {}
@@ -798,7 +850,6 @@ elif "📊 RSVP & Doa" in page:
         tidak_list = [r for r in rsvp_list if r.get('s') != 'hadir']
         total_pax  = sum(int(r.get('c', 0)) for r in hadir_list)
 
-        # Stats
         c1, c2, c3, c4 = st.columns(4)
         with c1:
             st.markdown(f"<div class='metric-card'><div class='metric-num'>{len(rsvp_list)}</div><div class='metric-lbl'>Jumlah RSVP</div></div>", unsafe_allow_html=True)
@@ -811,15 +862,12 @@ elif "📊 RSVP & Doa" in page:
 
         st.markdown("---")
 
-        # Tabs
         tab1, tab2, tab3 = st.tabs(["📋 Senarai RSVP", "💬 Ucapan & Doa", "🎁 Salam Kaut"])
 
-        # ── TAB 1: RSVP ──
         with tab1:
             if not rsvp_list:
                 st.info("Belum ada RSVP lagi.")
             else:
-                # Export CSV
                 import io, csv
                 buf = io.StringIO()
                 writer = csv.writer(buf)
@@ -836,12 +884,11 @@ elif "📊 RSVP & Doa" in page:
                     badge = f"<span class='badge-hadir'>Hadir</span>" if r.get('s')=='hadir' else f"<span class='badge-tidak'>Tidak</span>"
                     st.markdown(f"<div class='rsvp-row'><span style='color:#555;width:28px'>{i}.</span><span style='flex:1;color:#f0e8d8'>{r.get('n','')}</span><span style='width:50px;color:#888'>{r.get('c','')} pax</span>{badge}<span style='width:90px;font-size:0.65rem;color:#555;text-align:right'>{t}</span></div>", unsafe_allow_html=True)
 
-        # ── TAB 2: DOA ──
         with tab2:
             if not doa_list:
                 st.info("Belum ada ucapan lagi.")
             else:
-                # Export CSV
+                import io, csv
                 buf2 = io.StringIO()
                 writer2 = csv.writer(buf2)
                 writer2.writerow(["No","Nama","Ucapan","Masa"])
@@ -856,11 +903,11 @@ elif "📊 RSVP & Doa" in page:
                     t = datetime.fromtimestamp(d.get('t',0)/1000).strftime('%d/%m %H:%M') if d.get('t') else ''
                     st.markdown(f"<div class='doa-card-dash'><div style='color:#C9A96E;font-size:0.7rem;margin-bottom:0.3rem'>✦ {d.get('n','')} <span style='color:#555;float:right'>{t}</span></div><div style='color:#e0d8d0;font-size:0.82rem'>{d.get('m','')}</div></div>", unsafe_allow_html=True)
 
-        # ── TAB 3: SALAM KAUT ──
         with tab3:
             if not registry_list:
                 st.info("Belum ada salam kaut lagi.")
             else:
+                import io, csv
                 buf3 = io.StringIO()
                 writer3 = csv.writer(buf3)
                 writer3.writerow(["No","Nama","Masa"])
@@ -1104,11 +1151,9 @@ elif "🆕 Jana Kad Baru" in page:
         if template_html is None:
             st.error(f"❌ Template tidak jumpa: `templates/{sel['file']}`")
         else:
-            # ── GENERATE UNIQUE KAD_ID FROM ORDER_ID ──
             order_id = generate_order_id()
-            kad_id   = order_id.lower()  # eg: eq260603143022
+            kad_id   = order_id.lower()
 
-            # Replace KAD_ID in template with unique order-based ID
             template_html = re.sub(
                 r"const KAD_ID\s*=\s*'[^']*'",
                 f"const KAD_ID='{kad_id}'",
@@ -1163,7 +1208,6 @@ elif "🆕 Jana Kad Baru" in page:
             final_html   = apply_replacements(template_html, replacements)
             filename     = f"kad-{sanitize_filename(groom_name)}-{sanitize_filename(bride_name)}-{order_id.lower()}.html"
 
-            # Fix monogram
             if "function initMonogram()" in final_html and groom_name and bride_name:
                 gi = groom_name.strip()[0].upper()
                 bi = bride_name.strip()[0].upper()
@@ -1184,19 +1228,54 @@ elif "🆕 Jana Kad Baru" in page:
                         "date": date_display, "template": sel["name"],
                         "filename": f"cards/{filename}", "url": result["pages_url"],
                         "created_at": datetime.now().strftime("%d/%m/%Y %H:%M"),
+                        "created_by": username,
                     }
                     add_to_history(gh_token, gh_repo, _entry)
+
+                    log_activity(
+                        username, role,
+                        "GENERATE_KAD",
+                        f"{groom_name} & {bride_name} — {order_id}"
+                    )
+
                     st.cache_data.clear()
                     st.markdown(f"""
                     <div class='success-box'>
                         <h3 style='color:#4CAF50;margin:0 0 .5rem'>✅ Deployed!</h3>
                         <span class='order-id'>{order_id}</span>
-                        <span style='font-family:monospace;background:#1a1a1a;padding:4px 10px;border-radius:6px;color:#80c0ff;font-size:0.8rem;margin-left:0.5rem'>KAD_ID: {kad_id}</span><br><br>
+                        <span style='font-family:monospace;background:#1a1a1a;padding:4px 10px;
+                        border-radius:6px;color:#80c0ff;font-size:0.8rem;margin-left:0.5rem'>
+                        KAD_ID: {kad_id}</span><br><br>
                         <b>{groom_name} & {bride_name}</b> · {date_display}<br>
-                        <small style='color:#666'>Data RSVP & Doa akan tersimpan dalam Firebase path: <code>kads/{kad_id}/</code></small>
+                        <small style='color:#666'>Dijana oleh: {username}</small>
                     </div>""", unsafe_allow_html=True)
-                    st.markdown(f"<div class='link-box'><b style='color:#C9A96E'>🔗 Link Kad</b><br><a href='{result['pages_url']}' target='_blank' style='color:#4ade80;font-weight:600'>{result['pages_url']}</a><br><small style='color:#666'>⚠️ Ambik 1-2 minit pertama kali</small></div>", unsafe_allow_html=True)
-                    st.code(result["pages_url"], language=None)
+
+                    kad_url = result["pages_url"]
+                    st.markdown(
+                        f"<div class='link-box'>"
+                        f"<b style='color:#C9A96E'>🔗 Link Kad</b><br>"
+                        f"<span style='color:#4ade80;font-weight:600;font-family:monospace;font-size:0.85rem'>{kad_url}</span><br>"
+                        f"<small style='color:#666'>⚠️ Ambik 1-2 minit pertama kali</small>"
+                        f"</div>",
+                        unsafe_allow_html=True
+                    )
+
+                    col_link, col_copy = st.columns([4, 1])
+                    with col_link:
+                        st.code(kad_url, language=None)
+                    with col_copy:
+                        st.markdown("<div style='padding-top:0.4rem'>", unsafe_allow_html=True)
+                        if st.button("📋 Copy", key=f"copy_{order_id}", use_container_width=True):
+                            st.components.v1.html(
+                                f"""<script>
+                                navigator.clipboard.writeText("{kad_url}");
+                                </script>""",
+                                height=0
+                            )
+                            log_activity(username, role, "COPY_LINK", f"Copy link — {order_id}")
+                            st.toast("✅ Link disalin!", icon="📋")
+                        st.markdown("</div>", unsafe_allow_html=True)
+
                 else:
                     st.error(f"❌ {result['error']}")
             else:
@@ -1221,45 +1300,69 @@ elif "📜 History" in page:
         else:
             st.markdown(f"<div class='info-box'>📊 Jumlah kad: <b>{len(history)}</b></div>", unsafe_allow_html=True)
             for i, entry in enumerate(history):
-                col_info, col_link, col_del = st.columns([3, 2, 1])
+                if is_admin():
+                    col_info, col_link, col_copy, col_del = st.columns([3, 1, 1, 1])
+                else:
+                    col_info, col_link, col_copy = st.columns([3, 1, 1])
+
                 with col_info:
                     kad_id_display = entry.get('kad_id', entry.get('order_id','').lower())
+                    creator = entry.get('created_by', '—')
                     st.markdown(f"""
                     <div class='template-card'>
                         <span class='order-id'>{entry.get('order_id','—')}</span>
                         <span style='font-size:0.65rem;color:#666;margin-left:0.5rem'>{entry.get('created_at','')}</span><br>
                         <b style='color:#f0e8d8'>{entry.get('groom','?')} & {entry.get('bride','?')}</b><br>
                         <small style='color:#888'>📅 {entry.get('date','')} · 🎨 {entry.get('template','')}</small><br>
-                        <small style='color:#555;font-family:monospace'>Firebase: kads/{kad_id_display}/</small>
+                        <small style='color:#555'>👤 {creator} &nbsp;·&nbsp; <span style='font-family:monospace'>kads/{kad_id_display}/</span></small>
                     </div>""", unsafe_allow_html=True)
+
                 with col_link:
                     url = entry.get("url", "")
                     if url:
-                        st.markdown(f"<div style='padding-top:1.1rem'><a href='{url}' target='_blank' style='font-size:0.68rem;color:#4ade80'>🔗 Buka Kad</a></div>", unsafe_allow_html=True)
-                with col_del:
-                    if st.button("🗑️", key=f"hdel_{i}"):
-                        st.session_state[f"confirm_hdel_{i}"] = True
-                if st.session_state.get(f"confirm_hdel_{i}"):
-                    fname = entry.get("filename","")
-                    cc1, cc2, _ = st.columns([1,1,4])
-                    with cc1:
-                        if st.button("✅ Ya", key=f"hyes_{i}"):
-                            ok, err = delete_github_file(gh_token, gh_repo, fname)
-                            if ok:
-                                new_hist = [h for h in history if h.get("order_id") != entry.get("order_id")]
-                                save_history(gh_token, gh_repo, new_hist)
-                                st.cache_data.clear()
+                        st.markdown(f"<div style='padding-top:1.1rem'><a href='{url}' target='_blank' style='font-size:0.75rem;color:#4ade80'>🔗 Buka</a></div>", unsafe_allow_html=True)
+
+                with col_copy:
+                    url = entry.get("url", "")
+                    if url and st.button("📋", key=f"copy_hist_{i}", help="Copy link"):
+                        st.components.v1.html(
+                            f"""<script>navigator.clipboard.writeText("{url}");</script>""",
+                            height=0
+                        )
+                        log_activity(username, role, "COPY_LINK", f"Copy dari History — {entry.get('order_id','')}")
+                        st.toast("✅ Link disalin!", icon="📋")
+
+                if is_admin():
+                    with col_del:
+                        if st.button("🗑️", key=f"hdel_{i}"):
+                            st.session_state[f"confirm_hdel_{i}"] = True
+
+                    if st.session_state.get(f"confirm_hdel_{i}"):
+                        fname = entry.get("filename","")
+                        cc1, cc2, _ = st.columns([1,1,4])
+                        with cc1:
+                            if st.button("✅ Ya", key=f"hyes_{i}"):
+                                ok, err = delete_github_file(gh_token, gh_repo, fname)
+                                if ok:
+                                    new_hist = [h for h in history if h.get("order_id") != entry.get("order_id")]
+                                    save_history(gh_token, gh_repo, new_hist)
+                                    log_activity(
+                                        username, role,
+                                        "DELETE_KAD",
+                                        f"Delete — {entry.get('order_id','')} ({entry.get('groom','')} & {entry.get('bride','')})"
+                                    )
+                                    st.cache_data.clear()
+                                    del st.session_state[f"confirm_hdel_{i}"]
+                                    st.success("✅ Dipadam."); st.rerun()
+                                else:
+                                    st.error(f"❌ {err}")
+                        with cc2:
+                            if st.button("❌ Batal", key=f"hno_{i}"):
                                 del st.session_state[f"confirm_hdel_{i}"]
-                                st.success("✅ Dipadam."); st.rerun()
-                            else:
-                                st.error(f"❌ {err}")
-                    with cc2:
-                        if st.button("❌ Batal", key=f"hno_{i}"):
-                            del st.session_state[f"confirm_hdel_{i}"]
-                            st.rerun()
+                                st.rerun()
 
 # ─────────────────────────────────────────
-#  PAGE: TEMPLATE CONVERTER (unchanged from original)
+#  PAGE: TEMPLATE CONVERTER
 # ─────────────────────────────────────────
 elif "🔧 Template Converter" in page:
     st.markdown("# 🔧 Template Converter")
@@ -1316,7 +1419,7 @@ elif "🔧 Template Converter" in page:
             t_desc  = st.text_input("Penerangan ringkas")
             t_file  = st.text_input("Nama Fail (tanpa .html)")
 
-        st.markdown("**🎨 Warna Palette Template** — untuk auto-generate preview gradient bila tiada screenshot")
+        st.markdown("**🎨 Warna Palette Template**")
         st.markdown("<div class='info-box'>Pilih 2–3 warna utama template. Ini akan jadi gradient placeholder dalam katalog website.</div>", unsafe_allow_html=True)
         cc1, cc2, cc3 = st.columns(3)
         with cc1:
@@ -1356,31 +1459,28 @@ elif "🔧 Template Converter" in page:
             else:
                 st.error(f"❌ {res['error']}")
 
-    # ── PREVIEW IMAGE UPLOAD (standalone — boleh guna lepas template dah upload) ──
+    # ── PREVIEW IMAGE UPLOAD ──
     st.markdown("---")
     st.markdown("### 🖼️ Upload / Kemaskini Preview Image")
-    st.markdown("<div class='info-box'>Upload screenshot template sebagai gambar preview dalam katalog website utama. Pastikan nama fail sama dengan nama template yang dah upload.</div>", unsafe_allow_html=True)
+    st.markdown("<div class='info-box'>Upload screenshot template sebagai gambar preview dalam katalog website utama.</div>", unsafe_allow_html=True)
 
     col_prev1, col_prev2 = st.columns(2)
     with col_prev1:
-        # Pilih template dari registry untuk update preview
         gh_token3      = st.session_state.get("gh_token","")      or st.secrets.get("GH_TOKEN","")
         gh_cards_repo3 = st.session_state.get("gh_cards_repo","") or st.secrets.get("GH_CARDS_REPO","nureqmal/eqstudio-cards")
         registry_for_prev = load_registry(gh_token3, gh_cards_repo3)
-        
-        # Flatten registry jadi senarai pilihan
+
         tmpl_choices = {}
         for _cat, _tmpls in registry_for_prev.items():
             if not isinstance(_tmpls, dict): continue
             for _key, _info in _tmpls.items():
                 label = f"{_info.get('preview_emoji','✨')} [{_cat}] {_info['name']}"
                 tmpl_choices[label] = (_cat, _key, _info)
-        
+
         if tmpl_choices:
             selected_prev_label = st.selectbox("Pilih Template", list(tmpl_choices.keys()), key="prev_tmpl_sel")
             sel_cat, sel_key, sel_info = tmpl_choices[selected_prev_label]
-            
-            # Tunjuk status preview sekarang
+
             curr_prev = sel_info.get('preview_img', '')
             if curr_prev:
                 st.markdown(f"<div class='info-box'>✅ Preview sedia ada: <code>{curr_prev}</code></div>", unsafe_allow_html=True)
@@ -1396,40 +1496,37 @@ elif "🔧 Template Converter" in page:
             st.image(prev_file, caption="Preview", use_column_width=True)
 
     if prev_file and selected_prev_label and tmpl_choices and gh_token3 and gh_cards_repo3:
-        # Auto-generate nama fail berdasarkan template key
         _cat_sel, _key_sel, _info_sel = tmpl_choices[selected_prev_label]
         base_name = re.sub(r'[^a-z0-9_]', '_', _key_sel.lower().strip())
         ext = prev_file.name.rsplit('.', 1)[-1].lower()
         if ext == 'jpeg': ext = 'jpg'
         preview_filename = f"previews/{base_name}.{ext}"
-        
+
         st.markdown(f"<div class='info-box'>📁 Akan disimpan sebagai: <code>{preview_filename}</code></div>", unsafe_allow_html=True)
-        
+
         if st.button("📤 Upload Preview Image", key="btn_upload_preview"):
             prev_bytes = prev_file.getvalue()
             prev_b64   = base64.b64encode(prev_bytes).decode()
             api_url    = f"https://api.github.com/repos/{gh_cards_repo3}/contents/{preview_filename}"
             headers    = {"Authorization": f"token {gh_token3}", "Accept": "application/vnd.github.v3+json"}
-            
+
             with st.spinner("Uploading..."):
-                # Check SHA kalau dah ada
                 r_check = requests.get(api_url, headers=headers, timeout=10)
                 payload = {"message": f"Add preview: {_info_sel['name']}", "content": prev_b64}
                 if r_check.status_code == 200:
                     payload["sha"] = r_check.json().get("sha")
                     payload["message"] = f"Update preview: {_info_sel['name']}"
-                
+
                 r_up = requests.put(api_url, headers=headers, json=payload, timeout=30)
-            
+
             if r_up.status_code in (200, 201):
-                # Update registry dengan preview_img field
                 registry_upd = load_registry(gh_token3, gh_cards_repo3)
                 if _cat_sel in registry_upd and _key_sel in registry_upd[_cat_sel]:
                     registry_upd[_cat_sel][_key_sel]["preview_img"] = preview_filename
                     if save_registry(gh_token3, gh_cards_repo3, registry_upd):
                         st.cache_data.clear()
                         st.success(f"✅ Preview uploaded & registry dikemaskini! → `{preview_filename}`")
-                        st.markdown(f"<div class='info-box'>🌐 Preview URL: <code>https://nureqmal.github.io/eqstudio-cards/{preview_filename}</code><br><small style='color:#666'>⚠️ GitHub Pages ambik 1-2 minit untuk update</small></div>", unsafe_allow_html=True)
+                        st.markdown(f"<div class='info-box'>🌐 Preview URL: <code>https://nureqmal.github.io/eqstudio-cards/{preview_filename}</code></div>", unsafe_allow_html=True)
                     else:
                         st.warning("⚠️ Gambar uploaded tapi registry gagal dikemaskini.")
                 else:
@@ -1439,7 +1536,7 @@ elif "🔧 Template Converter" in page:
                 except: err_msg = r_up.text
                 st.error(f"❌ Upload gagal: {err_msg}")
 
-    # ── UPDATE COLORS (untuk template yang dah ada) ──
+    # ── UPDATE COLORS ──
     st.markdown("---")
     st.markdown("### 🎨 Kemaskini Warna Placeholder")
     st.markdown("<div class='info-box'>Untuk template yang dah upload tapi belum ada warna — set di sini supaya gradient placeholder nampak cantik dalam katalog.</div>", unsafe_allow_html=True)
@@ -1532,7 +1629,7 @@ elif "🗂️ Template Info" in page:
     st.markdown("---")
 
     for category, templates in TEMPLATES.items():
-        if not isinstance(templates, dict): continue  # skip _style_categories etc
+        if not isinstance(templates, dict): continue
         cat_emoji = "⭐" if category=="Essential" else "📸" if category=="Portrait" else "☀️" if category=="Light" else "🎬" if category=="Cinematic" else "💎"
         st.markdown(f"## {cat_emoji} {category}")
 
@@ -1577,56 +1674,43 @@ elif "🗂️ Template Info" in page:
 
             with col_pop:
                 pop_label = "⭐ Popular" if is_popular else "☆ Popular"
-                pop_help  = "Klik untuk buang tag popular" if is_popular else "Klik untuk tag sebagai popular"
-                if st.button(pop_label, key=f"pop_{key}", help=pop_help):
+                if st.button(pop_label, key=f"pop_{key}"):
                     reg = load_registry(gh_token, gh_cards_repo)
                     if category in reg and key in reg[category]:
                         reg[category][key]["popular"] = not is_popular
                         if save_registry(gh_token, gh_cards_repo, reg):
-                            st.cache_data.clear()
-                            action = "ditag" if not is_popular else "dibuang dari"
-                            st.success(f"✅ {info['name']} {action} popular!")
-                            st.rerun()
+                            st.cache_data.clear(); st.rerun()
                         else:
                             st.error("❌ Gagal simpan registry.")
 
             with col_new:
                 new_label = "🆕 New ✓" if is_new else "🆕 New"
-                new_help  = "Klik untuk buang tag new (popout website)" if is_new else "Klik untuk tag sebagai new — akan muncul sebagai popout di website"
-                if st.button(new_label, key=f"new_{key}", help=new_help):
+                if st.button(new_label, key=f"new_{key}"):
                     reg = load_registry(gh_token, gh_cards_repo)
                     if category in reg and key in reg[category]:
                         reg[category][key]["new"] = not is_new
                         if save_registry(gh_token, gh_cards_repo, reg):
-                            st.cache_data.clear()
-                            action = "ditag sebagai New — akan muncul di popout website!" if not is_new else "dibuang dari New tag."
-                            st.success(f"✅ {info['name']} {action}")
-                            st.rerun()
+                            st.cache_data.clear(); st.rerun()
                         else:
                             st.error("❌ Gagal simpan registry.")
 
             with col_mark:
                 mark_label = "🏷️ New ✓" if is_mark_new else "🏷️ Mark"
-                mark_help  = "Klik untuk buang badge New pada kad" if is_mark_new else "Klik untuk paparkan ribbon 'NEW' di penjuru kad template"
-                if st.button(mark_label, key=f"mark_{key}", help=mark_help):
+                if st.button(mark_label, key=f"mark_{key}"):
                     reg = load_registry(gh_token, gh_cards_repo)
                     if category in reg and key in reg[category]:
                         reg[category][key]["mark_new"] = not is_mark_new
                         if save_registry(gh_token, gh_cards_repo, reg):
-                            st.cache_data.clear()
-                            action = "ditandakan New — ribbon akan muncul pada kad!" if not is_mark_new else "ribbon New dibuang dari kad."
-                            st.success(f"✅ {info['name']} {action}")
-                            st.rerun()
+                            st.cache_data.clear(); st.rerun()
                         else:
                             st.error("❌ Gagal simpan registry.")
 
             with col_ren:
-                ren_label = "✏️ Rename"
-                if st.button(ren_label, key=f"ren_{key}", help="Tukar nama template ini dalam registry"):
+                if st.button("✏️ Rename", key=f"ren_{key}"):
                     st.session_state[f"show_rename_{key}"] = not st.session_state.get(f"show_rename_{key}", False)
 
             with col_rep:
-                if st.button("📤 Replace", key=f"rep_{key}", help="Ganti fail HTML template — registry & preview tak berubah"):
+                if st.button("📤 Replace", key=f"rep_{key}"):
                     st.session_state[f"show_replace_{key}"] = not st.session_state.get(f"show_replace_{key}", False)
 
             with col_del:
@@ -1661,7 +1745,7 @@ elif "🗂️ Template Info" in page:
                                 if res["success"]:
                                     st.cache_data.clear()
                                     del st.session_state[f"show_replace_{key}"]
-                                    st.success(f"✅ Template **{info['name']}** berjaya diganti! Registry & preview kekal.")
+                                    st.success(f"✅ Template **{info['name']}** berjaya diganti!")
                                     st.rerun()
                                 else:
                                     st.error(f"❌ {res['error']}")
@@ -1677,11 +1761,7 @@ elif "🗂️ Template Info" in page:
                         f"<div class='warning-box'>✏️ <b>Rename template:</b> <code>{info['name']}</code></div>",
                         unsafe_allow_html=True
                     )
-                    new_tmpl_name = st.text_input(
-                        "Nama baru",
-                        value=info['name'],
-                        key=f"rename_tmpl_input_{key}"
-                    )
+                    new_tmpl_name = st.text_input("Nama baru", value=info['name'], key=f"rename_tmpl_input_{key}")
                     rn1, rn2, _ = st.columns([1, 1, 4])
                     with rn1:
                         if st.button("✅ Simpan", key=f"rename_tmpl_save_{key}"):
@@ -1746,7 +1826,6 @@ elif "🎨 Style Manager" in page:
     registry   = load_registry(gh_token, gh_cards_repo)
     style_cats = get_style_categories(registry)
 
-    # ── STATS ──
     usage = {}
     for cat_data in registry.values():
         if not isinstance(cat_data, dict): continue
@@ -1772,7 +1851,6 @@ elif "🎨 Style Manager" in page:
 
     st.markdown("---")
 
-    # ── SECTION 1: SENARAI STYLE YANG ADA ──
     st.markdown("## 📋 Senarai Style Categories")
     st.markdown("<div class='info-box'>Kau boleh rename atau delete setiap style. Style yang ada template assign tak boleh delete terus — kena reassign dulu.</div>", unsafe_allow_html=True)
     st.markdown("")
@@ -1802,7 +1880,6 @@ elif "🎨 Style Manager" in page:
             if st.button("🗑️", key=f"del_style_{i}"):
                 st.session_state[f"confirm_del_style_{i}"] = True
 
-        # ── RENAME INLINE ──
         if st.session_state.get(f"editing_style_{i}"):
             with st.container():
                 st.markdown(f"<div class='warning-box'>✏️ Rename <b>{style}</b></div>", unsafe_allow_html=True)
@@ -1816,10 +1893,8 @@ elif "🎨 Style Manager" in page:
                         elif new_name in style_cats and new_name != style:
                             st.error(f"'{new_name}' dah wujud.")
                         else:
-                            # Update style_cats list
                             new_cats = [new_name if c == style else c for c in style_cats]
                             reg = load_registry(gh_token, gh_cards_repo)
-                            # Rename dalam semua template entries jugak
                             for cat_key, cat_data in reg.items():
                                 if not isinstance(cat_data, dict): continue
                                 for tmpl_key, info in cat_data.items():
@@ -1838,7 +1913,6 @@ elif "🎨 Style Manager" in page:
                         del st.session_state[f"editing_style_{i}"]
                         st.rerun()
 
-        # ── DELETE CONFIRM ──
         if st.session_state.get(f"confirm_del_style_{i}"):
             with st.container():
                 if used_count > 0:
@@ -1855,7 +1929,6 @@ elif "🎨 Style Manager" in page:
                     if st.button("✅ Ya, Delete", key=f"del_style_yes_{i}"):
                         new_cats = [c for c in style_cats if c != style]
                         reg = load_registry(gh_token, gh_cards_repo)
-                        # Kosongkan style pada template yang guna style ni
                         for cat_key, cat_data in reg.items():
                             if not isinstance(cat_data, dict): continue
                             for tmpl_key, info in cat_data.items():
@@ -1874,7 +1947,6 @@ elif "🎨 Style Manager" in page:
                         del st.session_state[f"confirm_del_style_{i}"]
                         st.rerun()
 
-    # ── SECTION 2: TAMBAH STYLE BARU ──
     st.markdown("---")
     st.markdown("## ➕ Tambah Style Baru")
     with st.container():
@@ -1906,7 +1978,6 @@ elif "🎨 Style Manager" in page:
 
     st.markdown("<div class='info-box'>💡 <b>Tips:</b> Nama style yang bagus — pendek, deskriptif, dan mudah pelanggan faham. Contoh: <i>Dark Luxury, Korean Style, Floral Romance</i>.</div>", unsafe_allow_html=True)
 
-    # ── SECTION 3: REORDER ──
     st.markdown("---")
     st.markdown("## 🔀 Susun Semula / Buang Style")
     st.markdown("<small style='color:#888'>Ubah urutan atau <b>padam baris</b> untuk delete style tu. Nama baru tak boleh ditaip di sini — guna bahagian Tambah di atas.</small>", unsafe_allow_html=True)
@@ -1919,16 +1990,14 @@ elif "🎨 Style Manager" in page:
     )
     if st.button("💾 Simpan Urutan"):
         reordered = [s.strip() for s in reorder_input.strip().splitlines() if s.strip()]
-        # Reject nama yang tak dikenali (typo etc)
         extra = set(reordered) - set(style_cats)
         if extra:
-            st.error(f"❌ Nama tidak dikenali: **{', '.join(extra)}** — jangan taip nama baru di sini. Guna bahagian 'Tambah Style Baru' di atas.")
+            st.error(f"❌ Nama tidak dikenali: **{', '.join(extra)}** — jangan taip nama baru di sini.")
         elif len(reordered) != len(set(reordered)):
             st.error("❌ Ada nama yang berulang — semak semula.")
         elif not reordered:
             st.error("❌ Senarai tak boleh kosong.")
         else:
-            # Baris yang dihilangkan = delete — kosongkan style pada template yang guna
             deleted = set(style_cats) - set(reordered)
             reg = load_registry(gh_token, gh_cards_repo)
             if deleted:
@@ -1940,10 +2009,38 @@ elif "🎨 Style Manager" in page:
             set_style_categories(reg, reordered)
             if save_registry(gh_token, gh_cards_repo, reg):
                 st.cache_data.clear()
-                msg = f"✅ Urutan disimpan!"
+                msg = "✅ Urutan disimpan!"
                 if deleted:
                     msg += f" Style dibuang: {', '.join(deleted)}."
                 st.success(msg)
                 st.rerun()
             else:
                 st.error("❌ Gagal simpan ke GitHub.")
+
+# ─────────────────────────────────────────
+#  PAGE: ACTIVITY LOG
+# ─────────────────────────────────────────
+elif "📈 Activity Log" in page:
+    st.markdown("# 📈 Activity Log")
+    st.markdown("---")
+
+    if is_admin():
+        st.markdown("## 👥 Semua Activity")
+        col_f1, col_f2 = st.columns([2, 1])
+        with col_f1:
+            users_list = ["Semua"] + list({u for u in st.secrets.get("users", {}).keys()})
+            filter_user = st.selectbox("Filter by user", users_list, key="log_filter_user")
+        with col_f2:
+            log_limit = st.selectbox("Tunjuk", [25, 50, 100], key="log_limit")
+
+        filter_arg = None if filter_user == "Semua" else filter_user
+        if st.button("🔄 Refresh"):
+            st.rerun()
+        show_activity_log(username_filter=filter_arg, limit=log_limit)
+
+    else:
+        st.markdown(f"## 📋 Activity Kau — `{username}`")
+        st.markdown("<div class='info-box'>Ini adalah rekod semua tindakan yang kau lakukan dalam sistem.</div>", unsafe_allow_html=True)
+        if st.button("🔄 Refresh"):
+            st.rerun()
+        show_activity_log(username_filter=username, limit=50)
