@@ -1301,7 +1301,7 @@ elif "📜 History" in page:
         st.warning("⚠️ Setup GitHub dulu di ⚙️ GitHub Settings")
     else:
         if st.button("🔄 Refresh"): st.cache_data.clear(); st.rerun()
-        history = load_history(gh_token, gh_repo)
+        history = load_history(gh_token, gh_cards_repo)
         if not history:
             st.info("Belum ada kad yang di-deploy.")
         else:
@@ -1352,7 +1352,7 @@ elif "📜 History" in page:
                                 ok, err = delete_github_file(gh_token, gh_repo, fname)
                                 if ok:
                                     new_hist = [h for h in history if h.get("order_id") != entry.get("order_id")]
-                                    save_history(gh_token, gh_repo, new_hist)
+                                    save_history(gh_token, gh_cards_repo, new_hist)
                                     log_activity(
                                         username, role,
                                         "DELETE_KAD",
