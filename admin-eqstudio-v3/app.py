@@ -934,12 +934,13 @@ elif "🆕 Jana Kad Baru" in page:
     st.markdown("# 🆕 Jana Kad Kahwin Digital")
     gh_token = st.session_state.get("gh_token", "") or st.secrets.get("GH_TOKEN", "")
     gh_repo  = st.session_state.get("gh_repo",  "") or st.secrets.get("GH_REPO",  "")
+    gh_cards_repo = st.session_state.get("gh_cards_repo", "") or st.secrets.get("GH_CARDS_REPO", "nureqmal/eqstudio-cards")
     github_ready = bool(gh_token and gh_repo)
     if not github_ready:
         st.markdown("<div class='warning-box'>⚠️ GitHub belum setup — pergi ⚙️ GitHub Settings</div>", unsafe_allow_html=True)
     st.markdown("---")
     st.markdown("## 1️⃣ Pilih Template")
-    TEMPLATES = load_registry(gh_token, gh_repo)
+    TEMPLATES = load_registry(gh_token, gh_cards_repo)
     if st.button("🔄 Refresh senarai template"): st.cache_data.clear(); st.rerun()
     cat_sel = st.selectbox("Category", [k for k, v in TEMPLATES.items() if isinstance(v, dict)])
     tmpl_opts = TEMPLATES[cat_sel]
