@@ -33,7 +33,7 @@ def log_activity(username, role, action, detail=""):
 def get_activity_log(limit=50, username_filter=None):
     """Ambil activity log dari Firebase."""
     try:
-        url = f"{FIREBASE_DB_URL}/activity_log.json?orderBy=\"unix\"&limitToLast={limit}"
+        url = f"{FIREBASE_DB_URL}/activity_log.json"
         r = requests.get(url, timeout=8)
         if r.status_code == 200 and r.json():
             logs = list(r.json().values())
