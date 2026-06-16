@@ -794,10 +794,10 @@ elif "⚙️ GitHub Settings" in page:
         'GH_REPO  = "nureqmal/admin-eqstudio"\n'
         'GH_CARDS_REPO = "nureqmal/eqstudio-cards"\n\n'
         '[users.admin]\n'
-        'password = "password_admin_kau"\n'
+        'password = "kimi2020"\n'
         'role = "admin"\n\n'
         '[users.pekerja]\n'
-        'password = "password_pekerja"\n'
+        'password = "pekerja123"\n'
         'role = "staff"',
         language="toml"
     )
