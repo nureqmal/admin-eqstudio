@@ -100,6 +100,11 @@ if not is_logged_in():
     st.stop()
 
 username, role = get_current_user()
+# ── AUTO-LOAD GITHUB CREDENTIALS FROM SECRETS ──
+if not st.session_state.get("gh_token"):
+    st.session_state["gh_token"]      = st.secrets.get("GH_TOKEN", "")
+    st.session_state["gh_repo"]       = st.secrets.get("GH_REPO", "")
+    st.session_state["gh_cards_repo"] = st.secrets.get("GH_CARDS_REPO", "nureqmal/eqstudio-cards")
 
 # ─────────────────────────────────────────
 #  FIREBASE CONFIG
@@ -794,10 +799,10 @@ elif "⚙️ GitHub Settings" in page:
         'GH_REPO  = "nureqmal/admin-eqstudio"\n'
         'GH_CARDS_REPO = "nureqmal/eqstudio-cards"\n\n'
         '[users.admin]\n'
-        'password = "kimi2020"\n'
+        'password = "password_admin_kau"\n'
         'role = "admin"\n\n'
         '[users.pekerja]\n'
-        'password = "pekerja123"\n'
+        'password = "password_pekerja"\n'
         'role = "staff"',
         language="toml"
     )
