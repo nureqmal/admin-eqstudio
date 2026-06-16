@@ -1225,7 +1225,7 @@ elif "🆕 Jana Kad Baru" in page:
 
             if "Deploy" in deploy_mode and github_ready:
                 with st.spinner("🚀 Deploying..."):
-                    result = github_upload_file(gh_token, gh_repo, f"cards/{filename}", final_html,
+                    result = github_upload_file(gh_token, gh_cards_repo, f"cards/{filename}", final_html,
                         f"Add kad: {groom_name} & {bride_name} [{order_id}]")
                 if result["success"]:
                     _entry = {
