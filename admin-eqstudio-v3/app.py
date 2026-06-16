@@ -530,6 +530,353 @@ def sanitize_filename(name):
     name = re.sub(r'[^a-z0-9]+', '-', name)
     return name.strip('-')
 
+# ─────────────────────────────────────────
+#  EDIT KAD FORM
+# ─────────────────────────────────────────
+def show_edit_kad_form(entry, gh_token, gh_cards_repo, username, role):
+    """Form edit kad — pre-filled dengan data dari history entry."""
+    import streamlit.components.v1 as components
+
+    order_id = entry.get("order_id", "")
+    kad_id   = entry.get("kad_id", order_id.lower())
+    filename = entry.get("filename", "")
+
+    st.markdown(f"### ✏️ Edit Kad — <span class='order-id'>{order_id}</span>", unsafe_allow_html=True)
+    st.markdown(f"<div class='info-box'>✅ Link kad <b>tidak akan berubah</b> — hanya info dalam kad dikemaskini.<br><small style='color:#555'>📁 {filename}</small></div>", unsafe_allow_html=True)
+    st.markdown("---")
+
+    # Load registry untuk template selector
+    TEMPLATES = load_registry(gh_token, gh_cards_repo)
+
+    # ── TEMPLATE ──
+    st.markdown("## 1️⃣ Template")
+    saved_cat = entry.get("template_cat", "")
+    saved_key = entry.get("template_key", "")
+    cat_list  = [k for k, v in TEMPLATES.items() if isinstance(v, dict)]
+    cat_idx   = cat_list.index(saved_cat) if saved_cat in cat_list else 0
+    cat_sel   = st.selectbox("Category", cat_list, index=cat_idx, key=f"edit_cat_{order_id}")
+    tmpl_opts = TEMPLATES[cat_sel]
+    tmpl_keys = list(tmpl_opts.keys())
+    tmpl_idx  = tmpl_keys.index(saved_key) if saved_key in tmpl_keys else 0
+    tmpl_key  = st.selectbox("Template", tmpl_keys, index=tmpl_idx,
+                              format_func=lambda k: f"{tmpl_opts[k]['preview_emoji']}  {tmpl_opts[k]['name']}",
+                              key=f"edit_tmpl_{order_id}")
+    sel = tmpl_opts[tmpl_key]
+    st.markdown(f"<div class='info-box'>{sel['preview_emoji']} <b>{sel['name']}</b> — {sel['desc']}</div>", unsafe_allow_html=True)
+    st.markdown("---")
+
+    # ── PENGANTIN ──
+    st.markdown("## 2️⃣ Maklumat Pengantin")
+    c1, c2 = st.columns(2)
+    with c1:
+        st.markdown("**🤵 Pengantin Lelaki**")
+        groom_name   = st.text_input("Nama Panggilan", value=entry.get("groom",""),       key=f"e_groom_{order_id}")
+        groom_full   = st.text_input("Nama Penuh",     value=entry.get("groom_full",""),  key=f"e_groom_full_{order_id}")
+        groom_father = st.text_input("Nama Bapa",      value=entry.get("groom_father",""),key=f"e_gf_{order_id}")
+        groom_mother = st.text_input("Nama Ibu",       value=entry.get("groom_mother",""),key=f"e_gm_{order_id}")
+    with c2:
+        st.markdown("**👰 Pengantin Perempuan**")
+        bride_name   = st.text_input("Nama Panggilan", value=entry.get("bride",""),       key=f"e_bride_{order_id}")
+        bride_full   = st.text_input("Nama Penuh",     value=entry.get("bride_full",""),  key=f"e_bride_full_{order_id}")
+        bride_father = st.text_input("Nama Bapa",      value=entry.get("bride_father",""),key=f"e_bf_{order_id}")
+        bride_mother = st.text_input("Nama Ibu",       value=entry.get("bride_mother",""),key=f"e_bm_{order_id}")
+    st.markdown("---")
+
+    # ── TUAN RUMAH ──
+    st.markdown("## 3️⃣ Tuan Rumah & Mesej")
+    c1, c2 = st.columns(2)
+    with c1:
+        host_family_custom = st.text_input("Nama Keluarga Tuan Rumah", value=entry.get("host_family",""),      key=f"e_hf_{order_id}")
+        host_family_full   = st.text_input("Nama Penuh (footer)",      value=entry.get("host_family_full",""), key=f"e_hff_{order_id}")
+    with c2:
+        host_message_bm = st.text_area("Mesej Tuan Rumah (BM)", value=entry.get("host_message_bm",""), height=100, key=f"e_hmbm_{order_id}")
+        host_message_en = st.text_area("Mesej Tuan Rumah (EN)", value=entry.get("host_message_en",""), height=100, key=f"e_hmen_{order_id}")
+    st.markdown("---")
+
+    # ── TARIKH & MASA ──
+    st.markdown("## 4️⃣ Tarikh & Masa")
+    from datetime import date as _date
+    saved_yyyymmdd = entry.get("date_yyyymmdd", "")
+    if saved_yyyymmdd and len(saved_yyyymmdd) == 8:
+        saved_date = _date(int(saved_yyyymmdd[:4]), int(saved_yyyymmdd[4:6]), int(saved_yyyymmdd[6:8]))
+    else:
+        saved_date = _date.today()
+    c1, c2 = st.columns(2)
+    with c1:
+        event_date = st.date_input("Tarikh Majlis", value=saved_date, key=f"e_date_{order_id}")
+        hijri_date = st.text_input("Tarikh Hijri",  value=entry.get("date_hijri",""), key=f"e_hijri_{order_id}")
+        time_start = st.text_input("Masa Mula",     value=entry.get("time_start","11:00 PG"), key=f"e_ts_{order_id}")
+        time_end   = st.text_input("Masa Tamat",    value=entry.get("time_end","4:00 PTG"),   key=f"e_te_{order_id}")
+    with c2:
+        days_ms   = ["Isnin","Selasa","Rabu","Khamis","Jumaat","Sabtu","Ahad"]
+        months_ms = ["","Januari","Februari","Mac","April","Mei","Jun","Julai","Ogos","September","Oktober","November","Disember"]
+        day_name     = days_ms[event_date.weekday()]
+        date_display = f"{event_date.day} {months_ms[event_date.month]} {event_date.year}"
+        date_yyyymmdd = event_date.strftime('%Y%m%d')
+        _hm = re.search(r'(\d{1,2}):(\d{2})', time_start)
+        time_start_hhmm = f"{int(_hm.group(1)):02d}{int(_hm.group(2)):02d}" if _hm else "1100"
+        _hm2 = re.search(r'(\d{1,2}):(\d{2})', time_end)
+        time_end_hhmm = f"{int(_hm2.group(1)):02d}{int(_hm2.group(2)):02d}" if _hm2 else "1600"
+        date_iso = f"{event_date.isoformat()}T{time_start_hhmm[:2]}:{time_start_hhmm[2:]}:00"
+        st.markdown(f"<div class='info-box'>📅 {day_name}, {date_display}<br>🕐 {time_start} — {time_end}</div>", unsafe_allow_html=True)
+    st.markdown("---")
+
+    # ── ATURCARA ──
+    st.markdown("## 5️⃣ Aturcara")
+    c1, c2 = st.columns(2)
+    with c1:
+        time_arrival    = st.text_input("🌅 Ketibaan Tetamu", value=entry.get("time_arrival",""),    key=f"e_tarr_{order_id}")
+        time_akad       = st.text_input("🌸 Akad Nikah",      value=entry.get("time_akad",""),       key=f"e_takad_{order_id}")
+        time_bersanding = st.text_input("👑 Persandingan",    value=entry.get("time_bersanding",""), key=f"e_tbrs_{order_id}")
+    with c2:
+        time_makan    = st.text_input("🍽️ Jamuan Makan",   value=entry.get("time_makan",""),    key=f"e_tmkn_{order_id}")
+        time_bersurai = st.text_input("🌙 Majlis Bersurai", value=entry.get("time_bersurai",""), key=f"e_tbsur_{order_id}")
+    st.markdown("---")
+
+    # ── LOKASI ──
+    st.markdown("## 6️⃣ Lokasi")
+    venue_name     = st.text_input("Nama Dewan / Tempat", value=entry.get("venue_name",""),     key=f"e_vn_{order_id}")
+    venue_fullname = st.text_input("Nama Penuh Venue",    value=entry.get("venue_fullname",""),  key=f"e_vfn_{order_id}")
+    venue_address  = st.text_area("Alamat Penuh",         value=entry.get("venue_address",""),   height=70, key=f"e_va_{order_id}")
+    venue_city     = st.text_input("Bandar / Negeri",     value=entry.get("venue_city",""),      key=f"e_vc_{order_id}")
+    c1, c2 = st.columns(2)
+    with c1: waze_custom = st.text_input("Link Waze",         value=entry.get("waze_custom",""), key=f"e_wz_{order_id}")
+    with c2: gmap_custom = st.text_input("Link Google Maps",  value=entry.get("gmap_custom",""), key=f"e_gm_{order_id}")
+    venue_waze_query  = venue_name.replace(" ", "+") if venue_name else ""
+    venue_gmaps_query = venue_name.replace(" ", "+") if venue_name else ""
+    waze_link = waze_custom or (get_waze_link(venue_name, venue_address) if venue_name else "")
+    gmap_link = gmap_custom or (get_gmap_link(venue_name, venue_address) if venue_name else "")
+    st.markdown("---")
+
+    # ── CONTACT ──
+    st.markdown("## 7️⃣ Contact Person")
+    c1, c2 = st.columns(2)
+    with c1:
+        contact1_name  = st.text_input("Nama",       value=entry.get("contact1_name",""),  key=f"e_c1n_{order_id}")
+        contact1_phone = st.text_input("No Telefon", value=entry.get("contact1_phone",""), key=f"e_c1p_{order_id}")
+        contact1_wa    = get_whatsapp_number(contact1_phone) if contact1_phone else ""
+    with c2:
+        contact2_name  = st.text_input("Nama",       value=entry.get("contact2_name",""),  key=f"e_c2n_{order_id}")
+        contact2_phone = st.text_input("No Telefon", value=entry.get("contact2_phone",""), key=f"e_c2p_{order_id}")
+        contact2_wa    = get_whatsapp_number(contact2_phone) if contact2_phone else ""
+    st.markdown("---")
+
+    # ── LAGU ──
+    st.markdown("## 8️⃣ Lagu Latar")
+    c1, c2 = st.columns(2)
+    with c1: music_url   = st.text_input("YouTube Video ID", value=entry.get("music_url",""),   key=f"e_mu_{order_id}")
+    with c2: music_label = st.text_input("Nama Lagu",        value=entry.get("music_label",""), key=f"e_ml_{order_id}")
+    st.markdown("---")
+
+    # ── QR ──
+    st.markdown("## 9️⃣ QR Code Salam Kaut")
+    qr_code_url = st.text_input("URL QR Code", value=entry.get("qr_code_url","") if not entry.get("qr_code_url","").startswith("data:") else "", key=f"e_qr_{order_id}")
+    st.markdown("---")
+
+    # ── KISAH CINTA ──
+    st.markdown("## 🔟 Kisah Cinta")
+    c1, c2 = st.columns(2)
+    with c1:
+        love_year_1  = st.text_input("Tahun 1",              value=entry.get("love_year_1",""),  key=f"e_ly1_{order_id}")
+        love_story_1 = st.text_area("Kisah 1 — Pertemuan",   value=entry.get("love_story_1",""), height=80, key=f"e_ls1_{order_id}")
+        love_year_2  = st.text_input("Tahun 2",              value=entry.get("love_year_2",""),  key=f"e_ly2_{order_id}")
+        love_story_2 = st.text_area("Kisah 2 — Bercinta",    value=entry.get("love_story_2",""), height=80, key=f"e_ls2_{order_id}")
+    with c2:
+        love_year_3  = st.text_input("Tahun 3",              value=entry.get("love_year_3",""),  key=f"e_ly3_{order_id}")
+        love_story_3 = st.text_area("Kisah 3 — Bertunang",   value=entry.get("love_story_3",""), height=80, key=f"e_ls3_{order_id}")
+    love_year_4 = str(event_date.year)
+    st.markdown("---")
+
+    # ── DRESS CODE ──
+    st.markdown("## 🎨 Dress Code")
+    c1, c2 = st.columns(2)
+    with c1:
+        dresscode_theme    = st.text_input("Tema (BM)", value=entry.get("dresscode_theme",""),    key=f"e_dt_{order_id}")
+        dresscode_theme_en = st.text_input("Tema (EN)", value=entry.get("dresscode_theme_en",""), key=f"e_dte_{order_id}")
+        dresscode_note     = st.text_input("Nota",      value=entry.get("dresscode_note",""),     key=f"e_dn_{order_id}")
+    st.markdown("---")
+
+    # ── SWATCHES ──
+    st.markdown("**🎨 Warna Swatch**")
+    SWATCH_DEFAULTS = [("#7d9b76","Sage"),("#a8c5a0","Mist"),("#f0ede6","Ivory"),("#d4a574","Champagne"),("#4a6741","Forest")]
+    saved_colors = [
+        (entry.get("color1_hex", SWATCH_DEFAULTS[0][0]), entry.get("color1_name", SWATCH_DEFAULTS[0][1])),
+        (entry.get("color2_hex", SWATCH_DEFAULTS[1][0]), entry.get("color2_name", SWATCH_DEFAULTS[1][1])),
+        (entry.get("color3_hex", SWATCH_DEFAULTS[2][0]), entry.get("color3_name", SWATCH_DEFAULTS[2][1])),
+        (entry.get("color4_hex", SWATCH_DEFAULTS[3][0]), entry.get("color4_name", SWATCH_DEFAULTS[3][1])),
+        (entry.get("color5_hex", SWATCH_DEFAULTS[4][0]), entry.get("color5_name", SWATCH_DEFAULTS[4][1])),
+    ]
+    swatch_cols = st.columns(5)
+    swatches = []
+    for i, col in enumerate(swatch_cols):
+        with col:
+            hex_val  = st.color_picker(f"W{i+1}", value=saved_colors[i][0], key=f"e_sw_hex_{i}_{order_id}")
+            name_val = st.text_input(f"N{i+1}",   value=saved_colors[i][1], key=f"e_sw_name_{i}_{order_id}", label_visibility="collapsed")
+            swatches.append((hex_val, name_val))
+    color1_hex,color1_name = swatches[0]; color2_hex,color2_name = swatches[1]
+    color3_hex,color3_name = swatches[2]; color4_hex,color4_name = swatches[3]
+    color5_hex,color5_name = swatches[4]
+    st.markdown("---")
+
+    # ── DOA ──
+    st.markdown("## 💬 Contoh Ucapan Doa")
+    c1, c2 = st.columns(2)
+    with c1:
+        doa1_name = st.text_input("Nama 1",   value=entry.get("doa1_name",""), key=f"e_d1n_{order_id}")
+        doa1_msg  = st.text_area("Ucapan 1",  value=entry.get("doa1_msg",""),  height=70, key=f"e_d1m_{order_id}")
+    with c2:
+        doa2_name = st.text_input("Nama 2",   value=entry.get("doa2_name",""), key=f"e_d2n_{order_id}")
+        doa2_msg  = st.text_area("Ucapan 2",  value=entry.get("doa2_msg",""),  height=70, key=f"e_d2m_{order_id}")
+    st.markdown("---")
+
+    # ── GAMBAR (URL je) ──
+    st.markdown("## 🖼️ Gambar (URL)")
+    st.markdown("<div class='info-box'>⚠️ Gambar yang di-upload (base64) tidak disimpan dalam history. Sila masukkan URL semula kalau nak kekalkan gambar.</div>", unsafe_allow_html=True)
+    hero_url    = st.text_input("Hero URL",      value=entry.get("hero_url",""),    key=f"e_hero_{order_id}")
+    photo1_url  = st.text_input("Gallery 1 URL", value=entry.get("photo1_url",""),  key=f"e_p1_{order_id}")
+    photo2_url  = st.text_input("Gallery 2 URL", value=entry.get("photo2_url",""),  key=f"e_p2_{order_id}")
+    photo3_url  = st.text_input("Gallery 3 URL", value=entry.get("photo3_url",""),  key=f"e_p3_{order_id}")
+    opening_url = st.text_input("Opening URL",   value=entry.get("opening_url",""), key=f"e_op_{order_id}")
+    video_url   = st.text_input("Video URL",     value=entry.get("video_url",""),   key=f"e_vid_{order_id}")
+    g1 = st.text_input("Gallery 4 URL", value=entry.get("gallery1_url",""), key=f"e_g1_{order_id}")
+    g2 = st.text_input("Gallery 5 URL", value=entry.get("gallery2_url",""), key=f"e_g2_{order_id}")
+    st.markdown("---")
+
+    # ── SIMPAN ──
+    if st.button("💾 Simpan & Update Kad", key=f"save_edit_{order_id}", use_container_width=True):
+        template_html = load_template(sel["file"], gh_token, gh_cards_repo)
+        if template_html is None:
+            st.error(f"❌ Template tidak jumpa: `templates/{sel['file']}`")
+            return
+
+        template_html = re.sub(
+            r"const KAD_ID\s*=\s*'[^']*'",
+            f"const KAD_ID='{kad_id}'",
+            template_html
+        )
+
+        data = {
+            "groom_name": groom_name, "bride_name": bride_name,
+            "groom_full": groom_full, "bride_full": bride_full,
+            "groom_father": groom_father, "groom_mother": groom_mother,
+            "bride_father": bride_father, "bride_mother": bride_mother,
+            "host_family": host_family_custom, "host_family_full": host_family_full,
+            "host_message_bm": host_message_bm, "host_message_en": host_message_en,
+            "date_display": date_display, "date_day": day_name, "date_hijri": hijri_date,
+            "date_iso": date_iso, "date_dd": str(event_date.day).zfill(2),
+            "date_mm": str(event_date.month).zfill(2), "date_yyyy": str(event_date.year),
+            "date_yyyymmdd": date_yyyymmdd,
+            "time_start": time_start, "time_end": time_end,
+            "time_start_hhmm": time_start_hhmm, "time_end_hhmm": time_end_hhmm,
+            "time_arrival": time_arrival, "time_akad": time_akad,
+            "time_bersanding": time_bersanding, "time_makan": time_makan,
+            "time_bersurai": time_bersurai,
+            "venue_name": venue_name, "venue_fullname": venue_fullname,
+            "venue_address": venue_address, "venue_city": venue_city,
+            "venue_waze_query": venue_waze_query, "venue_gmaps_query": venue_gmaps_query,
+            "waze_link": waze_link, "gmap_link": gmap_link,
+            "contact1_name": contact1_name, "contact1_phone_display": contact1_phone,
+            "contact1_phone_wa": contact1_wa, "contact2_name": contact2_name,
+            "contact2_phone_display": contact2_phone, "contact2_phone_wa": contact2_wa,
+            "music_url": music_url, "music_label": music_label,
+            "love_year_1": love_year_1, "love_story_1": love_story_1,
+            "love_year_2": love_year_2, "love_story_2": love_story_2,
+            "love_year_3": love_year_3, "love_story_3": love_story_3,
+            "love_year_4": love_year_4,
+            "dresscode_theme": dresscode_theme, "dresscode_theme_en": dresscode_theme_en,
+            "dresscode_note": dresscode_note,
+            "color1_hex": color1_hex, "color1_name": color1_name,
+            "color2_hex": color2_hex, "color2_name": color2_name,
+            "color3_hex": color3_hex, "color3_name": color3_name,
+            "color4_hex": color4_hex, "color4_name": color4_name,
+            "color5_hex": color5_hex, "color5_name": color5_name,
+            "doa_sample1_name": doa1_name, "doa_sample1_msg": doa1_msg,
+            "doa_sample2_name": doa2_name, "doa_sample2_msg": doa2_msg,
+            "qr_code_url": qr_code_url, "hero_url": hero_url,
+            "photo1_url": photo1_url, "photo2_url": photo2_url,
+            "photo3_url": photo3_url, "opening_url": opening_url,
+            "video_url": video_url, "gallery1_url": g1, "gallery2_url": g2,
+            "gallery3_url": "", "gallery4_url": "", "gallery5_url": "",
+        }
+
+        replacements = build_replacements(data)
+        final_html   = apply_replacements(template_html, replacements)
+
+        if "function initMonogram()" in final_html and groom_name and bride_name:
+            gi = groom_name.strip()[0].upper()
+            bi = bride_name.strip()[0].upper()
+            final_html = re.sub(
+                r'function initMonogram\(\)\{[^}]*\}',
+                f"function initMonogram(){{const el=document.getElementById('sealInitials');if(el)el.textContent='{gi}&{bi}';}}",
+                final_html
+            )
+
+        with st.spinner("💾 Mengemas kini kad..."):
+            result = github_upload_file(gh_token, gh_cards_repo, filename, final_html,
+                f"Edit kad: {groom_name} & {bride_name} [{order_id}]")
+
+        if result["success"]:
+            # Update history entry
+            updated_entry = {
+                **entry,
+                "groom": groom_name, "bride": bride_name,
+                "date": date_display, "template": sel["name"],
+                "template_key": tmpl_key, "template_cat": cat_sel, "template_name": sel["name"],
+                "last_edited_by": username,
+                "last_edited_at": datetime.now().strftime("%d/%m/%Y %H:%M"),
+                "groom_full": groom_full, "bride_full": bride_full,
+                "groom_father": groom_father, "groom_mother": groom_mother,
+                "bride_father": bride_father, "bride_mother": bride_mother,
+                "host_family": host_family_custom, "host_family_full": host_family_full,
+                "host_message_bm": host_message_bm, "host_message_en": host_message_en,
+                "date_yyyymmdd": date_yyyymmdd, "date_hijri": hijri_date,
+                "time_start": time_start, "time_end": time_end,
+                "time_arrival": time_arrival, "time_akad": time_akad,
+                "time_bersanding": time_bersanding, "time_makan": time_makan,
+                "time_bersurai": time_bersurai,
+                "venue_name": venue_name, "venue_fullname": venue_fullname,
+                "venue_address": venue_address, "venue_city": venue_city,
+                "waze_custom": waze_custom, "gmap_custom": gmap_custom,
+                "contact1_name": contact1_name, "contact1_phone": contact1_phone,
+                "contact2_name": contact2_name, "contact2_phone": contact2_phone,
+                "music_url": music_url, "music_label": music_label,
+                "love_year_1": love_year_1, "love_story_1": love_story_1,
+                "love_year_2": love_year_2, "love_story_2": love_story_2,
+                "love_year_3": love_year_3, "love_story_3": love_story_3,
+                "dresscode_theme": dresscode_theme, "dresscode_theme_en": dresscode_theme_en,
+                "dresscode_note": dresscode_note,
+                "color1_hex": color1_hex, "color1_name": color1_name,
+                "color2_hex": color2_hex, "color2_name": color2_name,
+                "color3_hex": color3_hex, "color3_name": color3_name,
+                "color4_hex": color4_hex, "color4_name": color4_name,
+                "color5_hex": color5_hex, "color5_name": color5_name,
+                "doa1_name": doa1_name, "doa1_msg": doa1_msg,
+                "doa2_name": doa2_name, "doa2_msg": doa2_msg,
+                "qr_code_url": qr_code_url,
+                "hero_url": hero_url, "photo1_url": photo1_url,
+                "photo2_url": photo2_url, "photo3_url": photo3_url,
+                "opening_url": opening_url, "video_url": video_url,
+                "gallery1_url": g1, "gallery2_url": g2,
+            }
+            add_to_history(gh_token, gh_cards_repo, updated_entry)
+
+            log_activity(username, role, "EDIT_KAD",
+                f"{groom_name} & {bride_name} — {order_id}")
+
+            st.cache_data.clear()
+            st.success("✅ Kad berjaya dikemaskini! Link masih sama.")
+            st.markdown(
+                f"<div class='link-box'><b style='color:#C9A96E'>🔗 Link Kad</b><br>"
+                f"<span style='color:#4ade80;font-family:monospace'>{entry.get('url','')}</span></div>",
+                unsafe_allow_html=True
+            )
+
+            # Clear edit state
+            st.session_state.pop(f"editing_{order_id}", None)
+            st.rerun()
+        else:
+            st.error(f"❌ {result['error']}")
+
 def github_upload_file(token, repo, filepath, content, commit_msg):
     api_url = f"https://api.github.com/repos/{repo}/contents/{filepath}"
     headers = {"Authorization": f"token {token}", "Accept": "application/vnd.github.v3+json", "X-GitHub-Api-Version": "2022-11-28"}
@@ -600,11 +947,12 @@ with st.sidebar:
             "🎨 Style Manager",
             "📈 Activity Log",
         ]
-    else:
-        nav_options = [
-            "🆕 Jana Kad Baru",
-            "📈 Activity Log",
-        ]
+   else:
+    nav_options = [
+        "🆕 Jana Kad Baru",
+        "📂 My Kads",
+        "📈 Activity Log",
+    ]
 
     page = st.radio(
         "Navigation",
@@ -1228,14 +1576,67 @@ elif "🆕 Jana Kad Baru" in page:
                     result = github_upload_file(gh_token, gh_cards_repo, f"cards/{filename}", final_html,
                         f"Add kad: {groom_name} & {bride_name} [{order_id}]")
                 if result["success"]:
-                    _entry = {
-                        "order_id": order_id, "kad_id": kad_id,
-                        "groom": groom_name, "bride": bride_name,
-                        "date": date_display, "template": sel["name"],
-                        "filename": f"cards/{filename}", "url": result["pages_url"],
-                        "created_at": datetime.now().strftime("%d/%m/%Y %H:%M"),
-                        "created_by": username,
-                    }
+_entry = {
+    # ── Meta ──
+    "order_id": order_id, "kad_id": kad_id,
+    "filename": f"cards/{filename}", "url": result["pages_url"],
+    "created_at": datetime.now().strftime("%d/%m/%Y %H:%M"),
+    "created_by": username,
+    "last_edited_by": "", "last_edited_at": "",
+    "template_key": tmpl_key, "template_cat": cat_sel, "template_name": sel["name"],
+    # ── Pengantin ──
+    "groom": groom_name, "bride": bride_name,
+    "groom_full": groom_full, "bride_full": bride_full,
+    "groom_father": groom_father, "groom_mother": groom_mother,
+    "bride_father": bride_father, "bride_mother": bride_mother,
+    # ── Tuan Rumah ──
+    "host_family": host_family_custom, "host_family_full": host_family_full,
+    "host_message_bm": host_message_bm, "host_message_en": host_message_en,
+    # ── Tarikh & Masa ──
+    "date": date_display, "date_yyyymmdd": date_yyyymmdd,
+    "date_day": day_name, "date_hijri": hijri_date,
+    "time_start": time_start, "time_end": time_end,
+    "time_arrival": time_arrival, "time_akad": time_akad,
+    "time_bersanding": time_bersanding, "time_makan": time_makan,
+    "time_bersurai": time_bersurai,
+    # ── Lokasi ──
+    "venue_name": venue_name, "venue_fullname": venue_fullname,
+    "venue_address": venue_address, "venue_city": venue_city,
+    "waze_custom": waze_custom, "gmap_custom": gmap_custom,
+    # ── Contact ──
+    "contact1_name": contact1_name, "contact1_phone": contact1_phone,
+    "contact2_name": contact2_name, "contact2_phone": contact2_phone,
+    # ── Lagu ──
+    "music_url": music_url, "music_label": music_label,
+    # ── Kisah Cinta ──
+    "love_year_1": love_year_1, "love_story_1": love_story_1,
+    "love_year_2": love_year_2, "love_story_2": love_story_2,
+    "love_year_3": love_year_3, "love_story_3": love_story_3,
+    # ── Dress Code ──
+    "dresscode_theme": dresscode_theme, "dresscode_theme_en": dresscode_theme_en,
+    "dresscode_note": dresscode_note,
+    # ── Swatches ──
+    "color1_hex": color1_hex, "color1_name": color1_name,
+    "color2_hex": color2_hex, "color2_name": color2_name,
+    "color3_hex": color3_hex, "color3_name": color3_name,
+    "color4_hex": color4_hex, "color4_name": color4_name,
+    "color5_hex": color5_hex, "color5_name": color5_name,
+    # ── Doa ──
+    "doa1_name": doa1_name, "doa1_msg": doa1_msg,
+    "doa2_name": doa2_name, "doa2_msg": doa2_msg,
+    # ── QR ──
+    "qr_code_url": qr_code_url,
+    # ── Gambar (URL je, base64 too large) ──
+    "hero_url": hero_url if not hero_url.startswith("data:") else "",
+    "photo1_url": photo1_url if not photo1_url.startswith("data:") else "",
+    "photo2_url": photo2_url if not photo2_url.startswith("data:") else "",
+    "photo3_url": photo3_url if not photo3_url.startswith("data:") else "",
+    "opening_url": opening_url if not opening_url.startswith("data:") else "",
+    "video_url": video_url,
+    "gallery1_url": g1, "gallery2_url": g2, "gallery3_url": g3,
+    "gallery4_url": g4, "gallery5_url": g5,
+}
+                    
                     add_to_history(gh_token, gh_cards_repo, _entry)
 
                     log_activity(
@@ -1289,6 +1690,73 @@ elif "🆕 Jana Kad Baru" in page:
 
             st.download_button("⬇️ Download HTML", data=final_html.encode("utf-8"), file_name=filename, mime="text/html", use_container_width=True)
 
+
+# ─────────────────────────────────────────
+#  PAGE: MY KADS (STAFF)
+# ─────────────────────────────────────────
+elif "📂 My Kads" in page:
+    st.markdown("# 📂 My Kads")
+    st.markdown(f"Semua kad yang kau pernah jana, **{username}**.")
+    st.markdown("---")
+
+    gh_token      = st.session_state.get("gh_token",      "") or st.secrets.get("GH_TOKEN",      "")
+    gh_cards_repo = st.session_state.get("gh_cards_repo", "") or st.secrets.get("GH_CARDS_REPO", "nureqmal/eqstudio-cards")
+
+    if st.button("🔄 Refresh"): st.cache_data.clear(); st.rerun()
+
+    history = load_history(gh_token, gh_cards_repo)
+    my_kads = [h for h in history if h.get("created_by") == username]
+
+    if not my_kads:
+        st.info("Belum ada kad yang kau jana lagi.")
+    else:
+        st.markdown(f"<div class='info-box'>📊 Jumlah kad: <b>{len(my_kads)}</b></div>", unsafe_allow_html=True)
+
+        for i, entry in enumerate(my_kads):
+            order_id = entry.get("order_id", "")
+            is_editing = st.session_state.get(f"editing_{order_id}", False)
+
+            col_info, col_link, col_copy, col_edit = st.columns([3, 1, 1, 1])
+
+            with col_info:
+                last_edit = ""
+                if entry.get("last_edited_at"):
+                    last_edit = f"<br><small style='color:#8b5cf6'>✏️ Last edit: {entry.get('last_edited_at')} oleh {entry.get('last_edited_by','')}</small>"
+                st.markdown(f"""
+                <div class='template-card'>
+                    <span class='order-id'>{order_id}</span>
+                    <span style='font-size:0.65rem;color:#666;margin-left:0.5rem'>{entry.get('created_at','')}</span><br>
+                    <b style='color:#f0e8d8'>{entry.get('groom','?')} & {entry.get('bride','?')}</b><br>
+                    <small style='color:#888'>📅 {entry.get('date','')} · 🎨 {entry.get('template','')}</small>{last_edit}
+                </div>""", unsafe_allow_html=True)
+
+            with col_link:
+                url = entry.get("url", "")
+                if url:
+                    st.markdown(f"<div style='padding-top:1.1rem'><a href='{url}' target='_blank' style='font-size:0.75rem;color:#4ade80'>🔗 Buka</a></div>", unsafe_allow_html=True)
+
+            with col_copy:
+                url = entry.get("url", "")
+                if url and st.button("📋", key=f"copy_my_{i}", help="Copy link"):
+                    st.components.v1.html(
+                        f"""<script>navigator.clipboard.writeText("{url}");</script>""",
+                        height=0
+                    )
+                    log_activity(username, role, "COPY_LINK", f"Copy dari My Kads — {order_id}")
+                    st.toast("✅ Link disalin!", icon="📋")
+
+            with col_edit:
+                btn_label = "✖ Tutup" if is_editing else "✏️ Edit"
+                if st.button(btn_label, key=f"edit_my_{i}"):
+                    st.session_state[f"editing_{order_id}"] = not is_editing
+                    st.rerun()
+
+            if is_editing:
+                with st.container():
+                    st.markdown("---")
+                    show_edit_kad_form(entry, gh_token, gh_cards_repo, username, role)
+                    st.markdown("---")
+
 # ─────────────────────────────────────────
 #  PAGE: HISTORY
 # ─────────────────────────────────────────
@@ -1308,9 +1776,9 @@ elif "📜 History" in page:
             st.markdown(f"<div class='info-box'>📊 Jumlah kad: <b>{len(history)}</b></div>", unsafe_allow_html=True)
             for i, entry in enumerate(history):
                 if is_admin():
-                    col_info, col_link, col_copy, col_del = st.columns([3, 1, 1, 1])
-                else:
-                    col_info, col_link, col_copy = st.columns([3, 1, 1])
+    col_info, col_link, col_copy, col_edit, col_del = st.columns([3, 1, 1, 1, 1])
+else:
+    col_info, col_link, col_copy = st.columns([3, 1, 1])
 
                 with col_info:
                     kad_id_display = entry.get('kad_id', entry.get('order_id','').lower())
@@ -1719,6 +2187,21 @@ elif "🗂️ Template Info" in page:
             with col_rep:
                 if st.button("📤 Replace", key=f"rep_{key}"):
                     st.session_state[f"show_replace_{key}"] = not st.session_state.get(f"show_replace_{key}", False)
+            with col_edit:
+    is_editing = st.session_state.get(f"editing_{entry.get('order_id','')}", False)
+    btn_label = "✖ Tutup" if is_editing else "✏️ Edit"
+    if st.button(btn_label, key=f"edit_hist_{i}"):
+        order_id_e = entry.get("order_id","")
+        st.session_state[f"editing_{order_id_e}"] = not is_editing
+        st.rerun()
+
+# Edit form — render kalau active
+order_id_e = entry.get("order_id","")
+if st.session_state.get(f"editing_{order_id_e}"):
+    with st.container():
+        st.markdown("---")
+        show_edit_kad_form(entry, gh_token, gh_cards_repo, username, role)
+        st.markdown("---")
 
             with col_del:
                 if st.button("🗑️", key=f"del_{key}"):
