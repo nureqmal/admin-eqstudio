@@ -946,7 +946,7 @@ elif "🆕 Jana Kad Baru" in page:
     tmpl_opts = TEMPLATES[cat_sel]
     tmpl_key = st.selectbox("Template", list(tmpl_opts.keys()), format_func=lambda k: f"{tmpl_opts[k]['preview_emoji']}  {tmpl_opts[k]['name']}")
     sel = tmpl_opts[tmpl_key]
-    tmpl_html_check = load_template(sel["file"], gh_token, gh_repo)
+    tmpl_html_check = load_template(sel["file"], gh_token, gh_cards_repo)
     tmpl_fmt = detect_format(tmpl_html_check) if tmpl_html_check else "curly"
     st.markdown(f"<div class='info-box'>{sel['preview_emoji']} <b>{sel['name']}</b> — {sel['desc']}</div>", unsafe_allow_html=True)
     st.markdown("---")
@@ -1153,7 +1153,7 @@ elif "🆕 Jana Kad Baru" in page:
         deploy_mode = "⬇️ Download sahaja"
 
     if st.button("✨ Jana Kad Sekarang!", disabled=bool(missing)):
-        template_html = load_template(sel["file"], gh_token, gh_repo)
+        template_html = load_template(sel["file"], gh_token, gh_cards_repo)
         if template_html is None:
             st.error(f"❌ Template tidak jumpa: `templates/{sel['file']}`")
         else:
