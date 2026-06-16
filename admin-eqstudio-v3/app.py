@@ -947,12 +947,12 @@ with st.sidebar:
             "🎨 Style Manager",
             "📈 Activity Log",
         ]
-   else:
-    nav_options = [
-        "🆕 Jana Kad Baru",
-        "📂 My Kads",
-        "📈 Activity Log",
-    ]
+    else:
+        nav_options = [
+            "🆕 Jana Kad Baru",
+            "📂 My Kads",
+            "📈 Activity Log",
+        ]
 
     page = st.radio(
         "Navigation",
@@ -1576,67 +1576,67 @@ elif "🆕 Jana Kad Baru" in page:
                     result = github_upload_file(gh_token, gh_cards_repo, f"cards/{filename}", final_html,
                         f"Add kad: {groom_name} & {bride_name} [{order_id}]")
                 if result["success"]:
-_entry = {
-    # ── Meta ──
-    "order_id": order_id, "kad_id": kad_id,
-    "filename": f"cards/{filename}", "url": result["pages_url"],
-    "created_at": datetime.now().strftime("%d/%m/%Y %H:%M"),
-    "created_by": username,
-    "last_edited_by": "", "last_edited_at": "",
-    "template_key": tmpl_key, "template_cat": cat_sel, "template_name": sel["name"],
-    # ── Pengantin ──
-    "groom": groom_name, "bride": bride_name,
-    "groom_full": groom_full, "bride_full": bride_full,
-    "groom_father": groom_father, "groom_mother": groom_mother,
-    "bride_father": bride_father, "bride_mother": bride_mother,
-    # ── Tuan Rumah ──
-    "host_family": host_family_custom, "host_family_full": host_family_full,
-    "host_message_bm": host_message_bm, "host_message_en": host_message_en,
-    # ── Tarikh & Masa ──
-    "date": date_display, "date_yyyymmdd": date_yyyymmdd,
-    "date_day": day_name, "date_hijri": hijri_date,
-    "time_start": time_start, "time_end": time_end,
-    "time_arrival": time_arrival, "time_akad": time_akad,
-    "time_bersanding": time_bersanding, "time_makan": time_makan,
-    "time_bersurai": time_bersurai,
-    # ── Lokasi ──
-    "venue_name": venue_name, "venue_fullname": venue_fullname,
-    "venue_address": venue_address, "venue_city": venue_city,
-    "waze_custom": waze_custom, "gmap_custom": gmap_custom,
-    # ── Contact ──
-    "contact1_name": contact1_name, "contact1_phone": contact1_phone,
-    "contact2_name": contact2_name, "contact2_phone": contact2_phone,
-    # ── Lagu ──
-    "music_url": music_url, "music_label": music_label,
-    # ── Kisah Cinta ──
-    "love_year_1": love_year_1, "love_story_1": love_story_1,
-    "love_year_2": love_year_2, "love_story_2": love_story_2,
-    "love_year_3": love_year_3, "love_story_3": love_story_3,
-    # ── Dress Code ──
-    "dresscode_theme": dresscode_theme, "dresscode_theme_en": dresscode_theme_en,
-    "dresscode_note": dresscode_note,
-    # ── Swatches ──
-    "color1_hex": color1_hex, "color1_name": color1_name,
-    "color2_hex": color2_hex, "color2_name": color2_name,
-    "color3_hex": color3_hex, "color3_name": color3_name,
-    "color4_hex": color4_hex, "color4_name": color4_name,
-    "color5_hex": color5_hex, "color5_name": color5_name,
-    # ── Doa ──
-    "doa1_name": doa1_name, "doa1_msg": doa1_msg,
-    "doa2_name": doa2_name, "doa2_msg": doa2_msg,
-    # ── QR ──
-    "qr_code_url": qr_code_url,
-    # ── Gambar (URL je, base64 too large) ──
-    "hero_url": hero_url if not hero_url.startswith("data:") else "",
-    "photo1_url": photo1_url if not photo1_url.startswith("data:") else "",
-    "photo2_url": photo2_url if not photo2_url.startswith("data:") else "",
-    "photo3_url": photo3_url if not photo3_url.startswith("data:") else "",
-    "opening_url": opening_url if not opening_url.startswith("data:") else "",
-    "video_url": video_url,
-    "gallery1_url": g1, "gallery2_url": g2, "gallery3_url": g3,
-    "gallery4_url": g4, "gallery5_url": g5,
-}
-                    
+                    _entry = {
+                        # ── Meta ──
+                        "order_id": order_id, "kad_id": kad_id,
+                        "filename": f"cards/{filename}", "url": result["pages_url"],
+                        "created_at": datetime.now().strftime("%d/%m/%Y %H:%M"),
+                        "created_by": username,
+                        "last_edited_by": "", "last_edited_at": "",
+                        "template_key": tmpl_key, "template_cat": cat_sel, "template_name": sel["name"],
+                        # ── Pengantin ──
+                        "groom": groom_name, "bride": bride_name,
+                        "groom_full": groom_full, "bride_full": bride_full,
+                        "groom_father": groom_father, "groom_mother": groom_mother,
+                        "bride_father": bride_father, "bride_mother": bride_mother,
+                        # ── Tuan Rumah ──
+                        "host_family": host_family_custom, "host_family_full": host_family_full,
+                        "host_message_bm": host_message_bm, "host_message_en": host_message_en,
+                        # ── Tarikh & Masa ──
+                        "date": date_display, "date_yyyymmdd": date_yyyymmdd,
+                        "date_day": day_name, "date_hijri": hijri_date,
+                        "time_start": time_start, "time_end": time_end,
+                        "time_arrival": time_arrival, "time_akad": time_akad,
+                        "time_bersanding": time_bersanding, "time_makan": time_makan,
+                        "time_bersurai": time_bersurai,
+                        # ── Lokasi ──
+                        "venue_name": venue_name, "venue_fullname": venue_fullname,
+                        "venue_address": venue_address, "venue_city": venue_city,
+                        "waze_custom": waze_custom, "gmap_custom": gmap_custom,
+                        # ── Contact ──
+                        "contact1_name": contact1_name, "contact1_phone": contact1_phone,
+                        "contact2_name": contact2_name, "contact2_phone": contact2_phone,
+                        # ── Lagu ──
+                        "music_url": music_url, "music_label": music_label,
+                        # ── Kisah Cinta ──
+                        "love_year_1": love_year_1, "love_story_1": love_story_1,
+                        "love_year_2": love_year_2, "love_story_2": love_story_2,
+                        "love_year_3": love_year_3, "love_story_3": love_story_3,
+                        # ── Dress Code ──
+                        "dresscode_theme": dresscode_theme, "dresscode_theme_en": dresscode_theme_en,
+                        "dresscode_note": dresscode_note,
+                        # ── Swatches ──
+                        "color1_hex": color1_hex, "color1_name": color1_name,
+                        "color2_hex": color2_hex, "color2_name": color2_name,
+                        "color3_hex": color3_hex, "color3_name": color3_name,
+                        "color4_hex": color4_hex, "color4_name": color4_name,
+                        "color5_hex": color5_hex, "color5_name": color5_name,
+                        # ── Doa ──
+                        "doa1_name": doa1_name, "doa1_msg": doa1_msg,
+                        "doa2_name": doa2_name, "doa2_msg": doa2_msg,
+                        # ── QR ──
+                        "qr_code_url": qr_code_url,
+                        # ── Gambar (URL je, base64 too large) ──
+                        "hero_url": hero_url if not hero_url.startswith("data:") else "",
+                        "photo1_url": photo1_url if not photo1_url.startswith("data:") else "",
+                        "photo2_url": photo2_url if not photo2_url.startswith("data:") else "",
+                        "photo3_url": photo3_url if not photo3_url.startswith("data:") else "",
+                        "opening_url": opening_url if not opening_url.startswith("data:") else "",
+                        "video_url": video_url,
+                        "gallery1_url": g1, "gallery2_url": g2, "gallery3_url": g3,
+                        "gallery4_url": g4, "gallery5_url": g5,
+                    }
+
                     add_to_history(gh_token, gh_cards_repo, _entry)
 
                     log_activity(
@@ -1776,9 +1776,9 @@ elif "📜 History" in page:
             st.markdown(f"<div class='info-box'>📊 Jumlah kad: <b>{len(history)}</b></div>", unsafe_allow_html=True)
             for i, entry in enumerate(history):
                 if is_admin():
-    col_info, col_link, col_copy, col_edit, col_del = st.columns([3, 1, 1, 1, 1])
-else:
-    col_info, col_link, col_copy = st.columns([3, 1, 1])
+                    col_info, col_link, col_copy, col_edit, col_del = st.columns([3, 1, 1, 1, 1])
+                else:
+                    col_info, col_link, col_copy = st.columns([3, 1, 1])
 
                 with col_info:
                     kad_id_display = entry.get('kad_id', entry.get('order_id','').lower())
@@ -1808,8 +1808,24 @@ else:
                         st.toast("✅ Link disalin!", icon="📋")
 
                 if is_admin():
+                    with col_edit:
+                        order_id_e = entry.get("order_id","")
+                        is_editing_h = st.session_state.get(f"editing_{order_id_e}", False)
+                        btn_label_h = "✖ Tutup" if is_editing_h else "✏️ Edit"
+                        if st.button(btn_label_h, key=f"edit_hist_{i}"):
+                            st.session_state[f"editing_{order_id_e}"] = not is_editing_h
+                            st.rerun()
+
                     with col_del:
                         if st.button("🗑️", key=f"hdel_{i}"):
+                            st.session_state[f"confirm_hdel_{i}"] = True
+
+                    order_id_e = entry.get("order_id","")
+                    if st.session_state.get(f"editing_{order_id_e}"):
+                        with st.container():
+                            st.markdown("---")
+                            show_edit_kad_form(entry, gh_token, gh_cards_repo, username, role)
+                            st.markdown("---")
                             st.session_state[f"confirm_hdel_{i}"] = True
 
                     if st.session_state.get(f"confirm_hdel_{i}"):
@@ -2187,21 +2203,6 @@ elif "🗂️ Template Info" in page:
             with col_rep:
                 if st.button("📤 Replace", key=f"rep_{key}"):
                     st.session_state[f"show_replace_{key}"] = not st.session_state.get(f"show_replace_{key}", False)
-            with col_edit:
-    is_editing = st.session_state.get(f"editing_{entry.get('order_id','')}", False)
-    btn_label = "✖ Tutup" if is_editing else "✏️ Edit"
-    if st.button(btn_label, key=f"edit_hist_{i}"):
-        order_id_e = entry.get("order_id","")
-        st.session_state[f"editing_{order_id_e}"] = not is_editing
-        st.rerun()
-
-# Edit form — render kalau active
-order_id_e = entry.get("order_id","")
-if st.session_state.get(f"editing_{order_id_e}"):
-    with st.container():
-        st.markdown("---")
-        show_edit_kad_form(entry, gh_token, gh_cards_repo, username, role)
-        st.markdown("---")
 
             with col_del:
                 if st.button("🗑️", key=f"del_{key}"):
