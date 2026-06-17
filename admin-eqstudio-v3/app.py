@@ -2128,6 +2128,7 @@ elif "🗂️ Template Info" in page:
             is_popular   = info.get("popular",   False)
             is_new       = info.get("new",        False)
             is_mark_new  = info.get("mark_new",   False)
+            is_master    = info.get("is_master",  False)
             tmpl_style   = info.get("style",      "")
             tmpl_html    = load_template(info["file"], gh_token, gh_cards_repo)
             status       = "✅ Ada" if tmpl_html else "❌ Fail tidak jumpa"
@@ -2135,13 +2136,14 @@ elif "🗂️ Template Info" in page:
             new_badge    = " &nbsp;<span style='background:#0d6b5222;border:1px solid #0d6b5288;border-radius:20px;padding:2px 10px;font-size:0.7rem;color:#4ade80'>🆕 New Popout</span>" if is_new else ""
             mark_badge   = " &nbsp;<span style='background:#4ade8018;border:1px solid #4ade8055;border-radius:3px;padding:2px 8px;font-size:0.7rem;color:#4ade80'>🏷️ Marked New</span>" if is_mark_new else ""
             style_badge  = f" &nbsp;<span style='background:#8b5cf622;border:1px solid #8b5cf655;border-radius:20px;padding:2px 10px;font-size:0.7rem;color:#c4b5fd'>🎨 {tmpl_style}</span>" if tmpl_style else ""
+            master_badge = " &nbsp;<span style='background:#1a2a3a;border:1px solid #4488cc55;border-radius:20px;padding:2px 10px;font-size:0.7rem;color:#88ccff'>🧬 Master</span>" if is_master else ""
 
-            col_info_c, col_style, col_pop, col_new, col_mark, col_ren, col_rep, col_del = st.columns([4, 1.5, 1, 1, 1, 1, 1, 1])
+            col_info_c, col_style, col_pop, col_new, col_mark, col_master, col_ren, col_rep, col_del = st.columns([4, 1.5, 1, 1, 1, 1, 1, 1, 1])
 
             with col_info_c:
                 st.markdown(
                     f"<div class='template-card'>"
-                    f"<b>{info.get('preview_emoji','✨')} {info['name']}</b>{pop_badge}{new_badge}{mark_badge}{style_badge}<br>"
+                    f"<b>{info.get('preview_emoji','✨')} {info['name']}</b>{pop_badge}{new_badge}{mark_badge}{style_badge}{master_badge}<br>"
                     f"<small style='color:#888'>{info.get('desc','')}</small><br>"
                     f"<small>📁 <code>{info['file']}</code> — {status}</small>"
                     f"</div>",
@@ -2196,7 +2198,17 @@ elif "🗂️ Template Info" in page:
                         else:
                             st.error("❌ Gagal simpan registry.")
 
-            with col_ren:
+            with col_master:
+                master_label = "🧬 Master ✓" if is_master else "🧬 Master"
+                master_help  = "Klik untuk buang flag Master" if is_master else "Set sebagai Master Template untuk Theme Studio"
+                if st.button(master_label, key=f"master_{key}", help=master_help):
+                    reg = load_registry(gh_token, gh_cards_repo)
+                    if category in reg and key in reg[category]:
+                        reg[category][key]["is_master"] = not is_master
+                        if save_registry(gh_token, gh_cards_repo, reg):
+                            st.cache_data.clear(); st.rerun()
+                        else:
+                            st.error("❌ Gagal simpan registry.")
                 if st.button("✏️ Rename", key=f"ren_{key}"):
                     st.session_state[f"show_rename_{key}"] = not st.session_state.get(f"show_rename_{key}", False)
 
