@@ -2138,7 +2138,8 @@ elif "🗂️ Template Info" in page:
             style_badge  = f" &nbsp;<span style='background:#8b5cf622;border:1px solid #8b5cf655;border-radius:20px;padding:2px 10px;font-size:0.7rem;color:#c4b5fd'>🎨 {tmpl_style}</span>" if tmpl_style else ""
             master_badge = " &nbsp;<span style='background:#1a2a3a;border:1px solid #4488cc55;border-radius:20px;padding:2px 10px;font-size:0.7rem;color:#88ccff'>🧬 Master</span>" if is_master else ""
 
-            col_info_c, col_style, col_pop, col_new, col_mark, col_master, col_ren, col_rep, col_del = st.columns([4, 1.5, 1, 1, 1, 1, 1, 1, 1])
+            # ── BARIS 1: Info + Style dropdown ──
+            col_info_c, col_style = st.columns([5, 2])
 
             with col_info_c:
                 st.markdown(
@@ -2165,9 +2166,12 @@ elif "🗂️ Template Info" in page:
                         else:
                             st.error("❌ Gagal simpan.")
 
+            # ── BARIS 2: Toggle buttons + Actions ──
+            col_pop, col_new, col_mark, col_master, col_actions, col_del = st.columns([1, 1, 1, 1, 2, 1])
+
             with col_pop:
                 pop_label = "⭐ Popular" if is_popular else "☆ Popular"
-                if st.button(pop_label, key=f"pop_{key}"):
+                if st.button(pop_label, key=f"pop_{key}", use_container_width=True):
                     reg = load_registry(gh_token, gh_cards_repo)
                     if category in reg and key in reg[category]:
                         reg[category][key]["popular"] = not is_popular
@@ -2178,7 +2182,7 @@ elif "🗂️ Template Info" in page:
 
             with col_new:
                 new_label = "🆕 New ✓" if is_new else "🆕 New"
-                if st.button(new_label, key=f"new_{key}"):
+                if st.button(new_label, key=f"new_{key}", use_container_width=True):
                     reg = load_registry(gh_token, gh_cards_repo)
                     if category in reg and key in reg[category]:
                         reg[category][key]["new"] = not is_new
@@ -2188,8 +2192,8 @@ elif "🗂️ Template Info" in page:
                             st.error("❌ Gagal simpan registry.")
 
             with col_mark:
-                mark_label = "🏷️ New ✓" if is_mark_new else "🏷️ Mark"
-                if st.button(mark_label, key=f"mark_{key}"):
+                mark_label = "🏷️ Mark ✓" if is_mark_new else "🏷️ Mark"
+                if st.button(mark_label, key=f"mark_{key}", use_container_width=True):
                     reg = load_registry(gh_token, gh_cards_repo)
                     if category in reg and key in reg[category]:
                         reg[category][key]["mark_new"] = not is_mark_new
@@ -2201,7 +2205,7 @@ elif "🗂️ Template Info" in page:
             with col_master:
                 master_label = "🧬 Master ✓" if is_master else "🧬 Master"
                 master_help  = "Klik untuk buang flag Master" if is_master else "Set sebagai Master Template untuk Theme Studio"
-                if st.button(master_label, key=f"master_{key}", help=master_help):
+                if st.button(master_label, key=f"master_{key}", help=master_help, use_container_width=True):
                     reg = load_registry(gh_token, gh_cards_repo)
                     if category in reg and key in reg[category]:
                         reg[category][key]["is_master"] = not is_master
@@ -2209,16 +2213,21 @@ elif "🗂️ Template Info" in page:
                             st.cache_data.clear(); st.rerun()
                         else:
                             st.error("❌ Gagal simpan registry.")
-                if st.button("✏️ Rename", key=f"ren_{key}"):
-                    st.session_state[f"show_rename_{key}"] = not st.session_state.get(f"show_rename_{key}", False)
 
-            with col_rep:
-                if st.button("📤 Replace", key=f"rep_{key}"):
-                    st.session_state[f"show_replace_{key}"] = not st.session_state.get(f"show_replace_{key}", False)
+            with col_actions:
+                col_ren, col_rep = st.columns(2)
+                with col_ren:
+                    if st.button("✏️ Rename", key=f"ren_{key}", use_container_width=True):
+                        st.session_state[f"show_rename_{key}"] = not st.session_state.get(f"show_rename_{key}", False)
+                with col_rep:
+                    if st.button("📤 Replace", key=f"rep_{key}", use_container_width=True):
+                        st.session_state[f"show_replace_{key}"] = not st.session_state.get(f"show_replace_{key}", False)
 
             with col_del:
-                if st.button("🗑️", key=f"del_{key}"):
+                if st.button("🗑️ Padam", key=f"del_{key}", use_container_width=True):
                     st.session_state[f"confirm_del_{key}"] = True
+
+            st.markdown("<div style='margin-bottom:0.5rem'></div>", unsafe_allow_html=True)
 
             # ── REPLACE UPLOADER ──
             if st.session_state.get(f"show_replace_{key}"):
