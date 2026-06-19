@@ -1,0 +1,2840 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Wedding Invitation | {{GROOM_NAME}} & {{BRIDE_NAME}}</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,600&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Inter:wght@300;400;500;600&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html{scroll-behavior:smooth;}
+html,body{width:100%;overflow-x:hidden;-webkit-text-size-adjust:100%;}
+
+:root{
+  /* ══ THEME COLORS — tukar nilai ni untuk clone tema baru ══ */
+  --rgb-primary:139,0,0;
+  --rgb-primary-dark:107,0,0;
+
+  /* ══ SEMANTIC ALIASES ══ */
+  --crimson:#8B0000;
+  --crimson-light:#A50000;
+  --crimson-dark:#6B0000;
+  --crimson-pale:#F5EDED;
+  --crimson-mist:#FAF3F3;
+  --white:#FFFFFF;
+  --off-white:#FBF8F8;
+  --cream:#F7F2F2;
+  --text-dark:#1A0505;
+  --text-mid:#3D1010;
+  --text-muted:#7A4040;
+  --text-light:#B08080;
+  --border-light:rgba(var(--rgb-primary),0.15);
+  --border-mid:rgba(var(--rgb-primary),0.25);
+  --border-strong:rgba(var(--rgb-primary),0.4);
+  --shadow-soft:0 4px 24px rgba(var(--rgb-primary),0.08);
+  --shadow-mid:0 8px 40px rgba(var(--rgb-primary),0.12);
+
+  /* ══ BACKGROUND & SURFACE COLORS ══ */
+  --bg-page:#FBF8F8;
+  --bg-section-light:#FFFFFF;
+  --bg-card:#FFFFFF;
+  --bg-input:#FFFFFF;
+  --hero-text:#FFFFFF;
+
+  /* ══ ENVELOPE COLORS ══ */
+  --env-bg-image:none;
+  --env-body-from:#F7F2F2;
+  --env-body-to:#EDE0E0;
+  --env-flap-from:#880000;
+  --env-flap-to:#E8D0D0;
+  --env-side-left:#EDD8D8;
+  --env-side-right:#E8D0D0;
+  --env-bottom:#670909;
+}
+
+body{
+  font-family:'Inter',sans-serif;
+  background:var(--bg-page);
+  color:var(--text-dark);
+  min-height:100vh;
+  font-size:16px;
+}
+
+/* ══ DAMASK BACKGROUND PATTERN ══ */
+body::before{
+  content:'';
+  position:fixed;
+  inset:0;
+  z-index:0;
+  pointer-events:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cg fill='none' stroke='rgba(var(--rgb-primary),0.055)' stroke-width='0.7'%3E%3Cpath d='M40 8 C48 16 56 16 56 24 C56 32 48 32 40 40 C32 32 24 32 24 24 C24 16 32 16 40 8Z'/%3E%3Cpath d='M40 40 C48 48 56 48 56 56 C56 64 48 64 40 72 C32 64 24 64 24 56 C24 48 32 48 40 40Z'/%3E%3Ccircle cx='40' cy='40' r='4'/%3E%3Ccircle cx='40' cy='8' r='2'/%3E%3Ccircle cx='40' cy='72' r='2'/%3E%3Ccircle cx='8' cy='40' r='2'/%3E%3Ccircle cx='72' cy='40' r='2'/%3E%3Cpath d='M8 8 L16 16 M64 8 L72 16 M8 64 L16 72 M64 64 L72 72' stroke-width='0.5'/%3E%3Cline x1='0' y1='40' x2='80' y2='40' stroke-width='0.3' stroke-dasharray='2,6'/%3E%3Cline x1='40' y1='0' x2='40' y2='80' stroke-width='0.3' stroke-dasharray='2,6'/%3E%3C/g%3E%3C/svg%3E");
+  background-size:80px 80px;
+  opacity:1;
+}
+
+/* ══ STICKY NAV ══ */
+#stickyNav{
+  position:fixed;bottom:1.4rem;left:50%;transform:translateX(-50%);
+  z-index:290;
+  background:rgba(var(--rgb-primary),0.92);
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  border:1px solid rgba(255,255,255,0.15);
+  border-radius:50px;
+  display:none;
+  overflow-x:auto;scrollbar-width:none;
+  white-space:nowrap;
+  max-width:calc(100vw - 2rem);
+  box-shadow:0 8px 40px rgba(var(--rgb-primary),0.35),0 0 0 1px rgba(255,255,255,0.08);
+}
+#stickyNav::-webkit-scrollbar{display:none;}
+.nav-inner{display:flex;align-items:center;padding:0 0.5rem;}
+.nav-btn{
+  flex-shrink:0;
+  padding:0.6rem 0.85rem;
+  font-family:'Inter',sans-serif;
+  font-size:0.5rem;letter-spacing:0.14em;text-transform:uppercase;
+  color:rgba(255,255,255,0.55);
+  background:none;border:none;border-radius:50px;
+  cursor:pointer;transition:all 0.2s;white-space:nowrap;
+}
+.nav-btn:hover,.nav-btn.nav-act{
+  color:#fff;background:rgba(255,255,255,0.15);
+}
+.nav-sep{width:1px;height:10px;background:rgba(255,255,255,0.15);flex-shrink:0;margin:0 0.05rem;}
+
+/* ══ CONFETTI ══ */
+#confettiCanvas{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:998;}
+
+/* ══ FLOATING BTNS ══ */
+#shareBtn{
+  position:fixed;bottom:4.8rem;right:1.1rem;
+  width:44px;height:44px;border-radius:50%;
+  background:rgba(var(--rgb-primary),0.12);
+  border:1px solid rgba(var(--rgb-primary),0.3);
+  display:none;align-items:center;justify-content:center;
+  font-size:1rem;cursor:pointer;z-index:288;
+  backdrop-filter:blur(12px);transition:all 0.2s;
+  color:var(--crimson);
+}
+#shareBtn:active{transform:scale(0.9);}
+#audioBtn{
+  position:fixed;bottom:1.2rem;right:1.1rem;
+  width:44px;height:44px;border-radius:50%;
+  background:rgba(var(--rgb-primary),0.1);
+  border:1px solid rgba(var(--rgb-primary),0.3);
+  display:none;align-items:center;justify-content:center;
+  font-size:0.95rem;cursor:pointer;z-index:300;
+  backdrop-filter:blur(12px);transition:all 0.2s;
+}
+#audioBtn:active{transform:scale(0.9);}
+@keyframes audioPulse{0%,100%{box-shadow:0 0 16px rgba(var(--rgb-primary),0.25);}50%{box-shadow:0 0 28px rgba(var(--rgb-primary),0.5),0 0 0 6px rgba(var(--rgb-primary),0.06);}}
+#audioBtn.playing{border-color:var(--crimson);animation:audioPulse 2.5s ease infinite;}
+
+/* ══ AUDIO VISUALIZER ══ */
+#audioViz{
+  position:fixed;bottom:4.8rem;left:1.1rem;z-index:288;
+  display:none;align-items:flex-end;gap:2px;height:28px;
+  padding:4px 8px;
+  background:rgba(var(--rgb-primary),0.85);backdrop-filter:blur(10px);
+  border:1px solid rgba(255,255,255,0.15);border-radius:20px;
+}
+.viz-bar{width:3px;border-radius:3px;background:linear-gradient(to top,rgba(255,255,255,0.6),#fff);transform-origin:bottom;}
+@keyframes vizIdle{0%,100%{transform:scaleY(0.15);}50%{transform:scaleY(0.3);}}
+@keyframes vizDance{0%{transform:scaleY(0.2);}25%{transform:scaleY(1);}50%{transform:scaleY(0.5);}75%{transform:scaleY(0.85);}100%{transform:scaleY(0.2);}}
+.viz-bar{animation:vizIdle 1.2s ease-in-out infinite;}
+#audioViz.viz-playing .viz-bar:nth-child(1){animation:vizDance 0.6s ease-in-out infinite;}
+#audioViz.viz-playing .viz-bar:nth-child(2){animation:vizDance 0.5s ease-in-out infinite 0.08s;}
+#audioViz.viz-playing .viz-bar:nth-child(3){animation:vizDance 0.7s ease-in-out infinite 0.04s;}
+#audioViz.viz-playing .viz-bar:nth-child(4){animation:vizDance 0.45s ease-in-out infinite 0.12s;}
+#audioViz.viz-playing .viz-bar:nth-child(5){animation:vizDance 0.65s ease-in-out infinite 0.06s;}
+#audioViz.viz-playing .viz-bar:nth-child(6){animation:vizDance 0.55s ease-in-out infinite 0.10s;}
+#audioViz.viz-playing .viz-bar:nth-child(7){animation:vizDance 0.5s ease-in-out infinite 0.02s;}
+#audioViz.viz-playing .viz-bar:nth-child(8){animation:vizDance 0.7s ease-in-out infinite 0.09s;}
+
+/* ══ LANG BAR ══ */
+#langBar{
+  position:fixed;top:0;left:0;right:0;
+  display:none;justify-content:flex-end;align-items:center;
+  padding:0.65rem 1rem;z-index:300;
+  background:linear-gradient(to bottom,rgba(251,248,248,0.95),transparent);
+}
+.lb{
+  padding:0.22rem 0.75rem;border:1px solid var(--border-mid);
+  border-radius:20px;background:transparent;color:var(--text-muted);
+  font-family:'Inter',sans-serif;font-size:0.55rem;
+  letter-spacing:0.12em;cursor:pointer;transition:all 0.25s;margin-left:0.3rem;
+}
+.lb.active{background:var(--crimson);color:#fff;border-color:var(--crimson);}
+
+/* ══ SAFARI AUDIO NOTICE ══ */
+#safariAudioNotice{
+  display:none;position:fixed;bottom:5.8rem;right:1.1rem;z-index:301;
+  background:rgba(var(--rgb-primary),0.92);backdrop-filter:blur(12px);
+  border:1px solid rgba(255,255,255,0.15);border-radius:10px;
+  padding:0.55rem 0.9rem;font-family:'Inter',sans-serif;
+  font-size:0.64rem;color:#fff;white-space:nowrap;
+  box-shadow:var(--shadow-mid);pointer-events:none;
+}
+
+/* ══ RSVP SUCCESS ══ */
+#rsvpSuccess{display:none;flex-direction:column;align-items:center;gap:0.8rem;padding:2rem 1.5rem;text-align:center;}
+.rsvp-tick{
+  width:64px;height:64px;border-radius:50%;
+  background:rgba(var(--rgb-primary),0.08);border:1.5px solid var(--crimson);
+  display:flex;align-items:center;justify-content:center;font-size:1.8rem;
+  animation:tickPop 0.5s cubic-bezier(0.34,1.56,0.64,1) forwards;
+}
+@keyframes tickPop{from{transform:scale(0);opacity:0;}to{transform:scale(1);opacity:1;}}
+.rsvp-ok-txt{font-family:'Playfair Display',serif;font-size:0.7rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--crimson);}
+.rsvp-ok-sub{font-size:0.72rem;color:var(--text-muted);line-height:1.6;}
+.rsvp-card{
+  background:rgba(var(--rgb-primary),0.05);border:1px solid var(--border-light);
+  border-radius:12px;padding:0.85rem 1.1rem;width:100%;font-size:0.72rem;color:var(--text-dark);
+}
+
+/* ══ COUNTDOWN DONE ══ */
+#cdDone{display:none;flex-direction:column;align-items:center;gap:0;padding:1.2rem 0;}
+.cd-live-ring{position:relative;width:180px;height:180px;margin:0 auto 1.2rem;}
+.cd-live-ring::before,.cd-live-ring::after{content:'';position:absolute;inset:0;border-radius:50%;border:1px solid var(--crimson);animation:cdRingPulse 2.4s ease-in-out infinite;}
+.cd-live-ring::after{inset:10px;border-color:rgba(var(--rgb-primary),0.4);animation-delay:0.8s;animation-duration:2s;}
+@keyframes cdRingPulse{0%,100%{opacity:0.3;transform:scale(1);}50%{opacity:0.9;transform:scale(1.05);}}
+.cd-live-svg{position:absolute;inset:0;animation:slowSpin 18s linear infinite;}
+@keyframes slowSpin{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+.cd-live-centre{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.18rem;}
+.cd-live-icon{font-size:1.6rem;animation:iconBounce 2s ease-in-out infinite;}
+@keyframes iconBounce{0%,100%{transform:translateY(0);}50%{transform:translateY(-8px);}}
+.cd-live-title{font-family:'Playfair Display',serif;font-size:2rem;font-weight:700;color:var(--crimson);line-height:1.1;}
+.cd-live-badge{display:inline-flex;align-items:center;gap:0.4rem;background:rgba(var(--rgb-primary),0.07);border:1px solid var(--border-mid);border-radius:30px;padding:0.32rem 0.95rem;margin-top:0.5rem;}
+.cd-live-dot{width:7px;height:7px;border-radius:50%;background:var(--crimson);animation:liveDot 1.1s ease-in-out infinite;}
+@keyframes liveDot{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(var(--rgb-primary),0.5);}50%{opacity:0.5;box-shadow:0 0 0 5px rgba(var(--rgb-primary),0);}}
+.cd-live-label{font-family:'Inter',sans-serif;font-size:0.58rem;letter-spacing:0.28em;text-transform:uppercase;color:var(--crimson);font-weight:500;}
+.cd-live-petals{position:relative;width:100%;height:40px;overflow:hidden;margin-top:0.4rem;}
+.cd-petal{position:absolute;font-size:0.85rem;animation:cdPetalFloat linear infinite;opacity:0;}
+@keyframes cdPetalFloat{0%{transform:translateY(40px) rotate(0deg);opacity:0;}15%{opacity:0.8;}85%{opacity:0.6;}100%{transform:translateY(-10px) rotate(360deg);opacity:0;}}
+
+/* ══ ENVELOPE SECTION ══ */
+#envSection{
+  position:fixed;inset:0;z-index:999;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:2rem;overflow:hidden;
+  background:var(--crimson-dark);
+  transition:opacity 0.9s ease,visibility 0.9s ease;
+  --px:0px;--py:0px;
+}
+#envSection.hide{opacity:0;visibility:hidden;pointer-events:none;}
+#envCanvas{position:absolute;inset:0;pointer-events:none;}
+
+/* Envelope cover damask */
+#envSection::before{
+  content:'';
+  position:absolute;inset:-20px;z-index:0;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cg fill='none' stroke='rgba(255,255,255,0.07)' stroke-width='0.8'%3E%3Cpath d='M40 8 C48 16 56 16 56 24 C56 32 48 32 40 40 C32 32 24 32 24 24 C24 16 32 16 40 8Z'/%3E%3Cpath d='M40 40 C48 48 56 48 56 56 C56 64 48 64 40 72 C32 64 24 64 24 56 C24 48 32 48 40 40Z'/%3E%3Ccircle cx='40' cy='40' r='4'/%3E%3Ccircle cx='40' cy='8' r='2'/%3E%3Ccircle cx='40' cy='72' r='2'/%3E%3C/g%3E%3C/svg%3E");
+  background-size:80px 80px;
+  pointer-events:none;
+  transform:translate(var(--px),var(--py));
+  transition:transform 0.3s ease-out;
+}
+
+.env-wrap{position:relative;z-index:1;text-align:center;}
+.env-label{
+  font-family:'Cormorant Garamond',serif;
+  font-size:0.85rem;letter-spacing:0.35em;text-transform:uppercase;
+  color:rgba(255,255,255,0.5);margin-bottom:1.8rem;font-style:italic;
+}
+
+/* European Envelope */
+.envelope{
+  width:min(300px,80vw);aspect-ratio:1.6/1;
+  position:relative;cursor:pointer;margin:0 auto;
+  filter:drop-shadow(0 20px 60px rgba(0,0,0,0.4));
+  transition:transform 0.1s ease;
+  animation:envBreathe 0.7s ease-in-out infinite;
+}
+.envelope:active{transform:scale(0.97);}
+.envelope.open{animation:none;}
+@keyframes envBreathe{
+  0%,100%{transform:scale(1);}
+  50%{transform:scale(1.012);}
+}
+.env-body{
+  position:absolute;inset:0;
+  background:linear-gradient(160deg,var(--env-body-from) 0%,var(--env-body-to) 100%);
+  border-radius:4px;
+  overflow:hidden;
+}
+.env-body::after{
+  content:'';position:absolute;inset:0;z-index:2;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.35 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size:160px 160px;
+  opacity:0.9;mix-blend-mode:overlay;pointer-events:none;
+}
+.env-body::before{
+  content:'';position:absolute;inset:0;z-index:1;
+  background:
+    linear-gradient(125deg,rgba(255,255,255,0.18) 0%,transparent 30%,transparent 70%,rgba(0,0,0,0.15) 100%),
+    linear-gradient(90deg,transparent calc(50% - 0.5px),rgba(0,0,0,0.08) 50%,transparent calc(50% + 0.5px));
+  pointer-events:none;
+}
+.env-graphic{position:absolute;inset:0;z-index:2;pointer-events:none;}
+.env-flap{
+  position:absolute;top:0;left:0;right:0;height:52%;
+  background:linear-gradient(170deg,var(--env-flap-from),var(--env-flap-to));
+  clip-path:path('M0,0 L0,2 C80,2 160,55 240,86 C260,94 280,94 300,86 C380,55 460,2 480,2 L480,0 Z');
+  border-radius:4px 4px 0 0;
+  transform-origin:top center;
+  transform-style:preserve-3d;
+  transition:transform 1.4s cubic-bezier(0.3,1.1,0.4,1);
+  z-index:5;
+  border-bottom:1px solid rgba(var(--rgb-primary),0.1);
+  filter:drop-shadow(0 0 0 rgba(0,0,0,0));
+}
+.env-flap.anticipate{
+  transform:rotateX(-4deg);
+  transition:transform 0.1s cubic-bezier(0.4,0,0.6,1);
+}
+.env-flap::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(180deg,rgba(0,0,0,0) 60%,rgba(0,0,0,0.25) 100%);
+  clip-path:path('M0,0 L0,2 C80,2 160,55 240,86 C260,94 280,94 300,86 C380,55 460,2 480,2 L480,0 Z');
+  opacity:0;transition:opacity 1s ease;
+}
+.env-flap::before{
+  content:'';position:absolute;inset:0;z-index:1;
+  background:linear-gradient(125deg,rgba(255,255,255,0.22) 0%,transparent 35%,transparent 65%,rgba(0,0,0,0.12) 100%);
+  clip-path:path('M0,0 L0,2 C80,2 160,55 240,86 C260,94 280,94 300,86 C380,55 460,2 480,2 L480,0 Z');
+  pointer-events:none;
+}
+.envelope.open .env-flap{
+  transform:rotateX(178deg);
+  filter:drop-shadow(0 25px 18px rgba(0,0,0,0.35));
+}
+.envelope.open .env-flap::after{opacity:1;}
+.env-left{
+  position:absolute;inset:0;
+  background:linear-gradient(105deg,var(--env-side-left) 0%,color-mix(in srgb,var(--env-side-left) 80%,black) 100%);
+  clip-path:polygon(0 0,0 100%,52% 50%);z-index:3;
+}
+.env-right{
+  position:absolute;inset:0;
+  background:linear-gradient(255deg,var(--env-side-right) 0%,color-mix(in srgb,var(--env-side-right) 88%,black) 100%);
+  clip-path:polygon(100% 0,48% 50%,100% 100%);z-index:3;
+}
+.env-bottom{
+  position:absolute;inset:0;
+  background:linear-gradient(0deg,color-mix(in srgb,var(--env-bottom) 85%,black) 0%,var(--env-bottom) 60%);
+  clip-path:polygon(0 100%,50% 48%,100% 100%);z-index:3;
+}
+.env-seal{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  width:56px;height:56px;
+  display:flex;align-items:center;justify-content:center;
+  z-index:6;font-size:1.2rem;
+  filter:drop-shadow(0 5px 14px rgba(var(--rgb-primary),0.55));
+  transition:transform 1.6s cubic-bezier(0.4,0,0.6,1),opacity 0.5s ease 1.05s;
+  animation:sealPulse 4.5s ease-in-out infinite;
+}
+@keyframes sealPulse{
+  0%,100%{filter:drop-shadow(0 5px 14px rgba(var(--rgb-primary),0.55));}
+  50%{filter:drop-shadow(0 5px 18px rgba(var(--rgb-primary),0.8));}
+}
+.env-seal.anticipate{animation:sealAnticipate 0.18s ease-out forwards;}
+@keyframes sealAnticipate{
+  0%{transform:translate(-50%,-50%) scale(1);}
+  100%{transform:translate(-50%,-50%) scale(0.94);}
+}
+.env-seal.cracking{animation:sealShake 0.9s ease;}
+@keyframes sealShake{
+  0%{transform:translate(-50%,-50%) rotate(0deg) scale(0.94);}
+  12%{transform:translate(-53%,-50%) rotate(-4deg) scale(1.03);}
+  26%{transform:translate(-47%,-50%) rotate(4deg) scale(1.03);}
+  40%{transform:translate(-52%,-49%) rotate(-3deg) scale(1.05);}
+  55%{transform:translate(-48%,-51%) rotate(3deg) scale(1.05);}
+  70%{transform:translate(-51%,-50%) rotate(-2deg) scale(1.03);}
+  85%{transform:translate(-49%,-50%) rotate(1deg) scale(1.01);}
+  100%{transform:translate(-50%,-50%) rotate(0deg) scale(1);}
+}
+.seal-crack{
+  position:absolute;inset:0;pointer-events:none;opacity:0;
+  transition:opacity 0.55s ease;
+}
+.env-seal.cracking .seal-crack,.envelope.open .seal-crack{opacity:1;}
+.envelope.open .env-seal{transform:translate(-50%,-50%) scale(0) rotate(25deg);opacity:0;}
+.env-letter{
+  position:absolute;bottom:61.9%;left:50%;
+  transform:translateX(-50%) translateY(0%) scale(1);
+  width:82%;
+  background:#FFFFFF;
+  border:1px solid rgba(0,0,0,0.22);
+  outline:1px solid rgba(0,0,0,0.1);
+  outline-offset:-4px;
+  border-radius:2px;
+  padding:1.1rem 0.9rem 0.9rem;text-align:center;
+  z-index:2;
+  clip-path:inset(0 0 48% 0);
+  transform-origin:center center;
+  will-change:transform,opacity,filter;
+  filter:blur(0px);
+  box-shadow:0 8px 24px rgba(0,0,0,0.25),inset 0 0 0 1px rgba(255,255,255,0.6);
+  transition:transform 1.3s cubic-bezier(0.33,0.05,0.2,1) 1.35s,clip-path 1.3s cubic-bezier(0.33,0.05,0.2,1) 1.35s;
+}
+.env-letter::after{
+  content:'';position:absolute;inset:0;z-index:0;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150'%3E%3Cfilter id='lp'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.05 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23lp)'/%3E%3C/svg%3E");
+  opacity:0.7;mix-blend-mode:multiply;pointer-events:none;
+}
+.env-letter.zooming{z-index:50;}
+.envelope.open .env-letter{
+  transform:translateX(-50%) translateY(-78%) scale(1);
+  clip-path:inset(0 0 0% 0);
+  z-index:7;
+  transition:transform 1.3s cubic-bezier(0.33,0.05,0.2,1) 1.35s,clip-path 1.3s cubic-bezier(0.33,0.05,0.2,1) 1.35s,z-index 0s 1.35s;
+}
+.envelope.open .env-letter.zoom-approach{
+  transform:translateX(-50%) translateY(-78%) scale(3.2);
+  transition:transform 0.62s cubic-bezier(0.45,0,0.4,1);
+}
+.envelope.open .env-letter.zoom-rush{
+  transform:translateX(-50%) translateY(-78%) scale(18);
+  opacity:0;
+  filter:blur(8px);
+  transition:transform 0.72s cubic-bezier(0.55,0,0.85,0.35),opacity 0.72s ease,filter 0.72s ease;
+}
+.el-top-wrap{
+  position:relative;z-index:1;
+  display:flex;align-items:center;justify-content:center;gap:0.5rem;
+  margin-bottom:0.55rem;
+}
+.el-top-wrap::before,.el-top-wrap::after{
+  content:'';flex:1;max-width:18px;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(0,0,0,0.35));
+}
+.el-top-wrap::after{background:linear-gradient(90deg,rgba(0,0,0,0.35),transparent);}
+.el-top{
+  font-family:'Inter',sans-serif;font-size:0.44rem;letter-spacing:0.35em;
+  text-transform:uppercase;color:#1a1a1a;opacity:0.88;
+  text-shadow:0 1px 0 rgba(255,255,255,0.4);
+}
+.el-foil{
+  width:64px;height:2px;margin:0.45rem auto 0;
+  background:linear-gradient(90deg,
+    transparent 0%,
+    rgba(var(--rgb-primary),0.15) 15%,
+    rgba(232,200,120,0.85) 50%,
+    rgba(var(--rgb-primary),0.15) 85%,
+    transparent 100%);
+  position:relative;z-index:1;
+}
+.el-name{font-family:'Playfair Display',serif;font-size:0.85rem;color:var(--text-dark);font-weight:600;position:relative;z-index:1;}
+.el-flourish{
+  width:36px;height:14px;margin:0 auto 0.3rem;
+  display:block;position:relative;z-index:1;
+  opacity:0.55;
+}
+.env-hint{margin-top:2rem;font-family:'Cormorant Garamond',serif;font-size:0.75rem;font-style:italic;letter-spacing:0.3em;text-transform:uppercase;color:rgba(255,255,255,0.35);animation:hintFloat 3s ease infinite;}
+@keyframes hintFloat{0%,100%{opacity:0.3;transform:translateY(0);}50%{opacity:0.8;transform:translateY(-3px);}}
+
+/* ══ MODAL ══ */
+.modal-bg{position:fixed;inset:0;background:rgba(26,5,5,0.7);display:flex;align-items:flex-end;justify-content:center;z-index:500;opacity:0;visibility:hidden;transition:all 0.4s ease;}
+.modal-bg.show{opacity:1;visibility:visible;}
+.modal-box{
+  background:var(--bg-card);border:1px solid var(--border-light);
+  border-radius:20px 20px 0 0;padding:2.5rem 2rem 3rem;
+  width:100%;max-width:480px;text-align:center;
+  transform:translateY(100%);transition:transform 0.45s cubic-bezier(0.4,0,0.2,1);
+}
+.modal-bg.show .modal-box{transform:translateY(0);}
+.modal-handle{width:32px;height:3px;background:rgba(var(--rgb-primary),0.2);border-radius:2px;margin:0 auto 2rem;}
+.modal-icon{font-size:2.2rem;margin-bottom:0.8rem;}
+.modal-title{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700;color:var(--crimson);margin-bottom:0.5rem;}
+.modal-text{font-size:0.78rem;color:var(--text-muted);line-height:1.75;margin-bottom:1.5rem;}
+.modal-close{
+  padding:0.7rem 2.5rem;background:var(--crimson);border:none;border-radius:50px;
+  font-family:'Inter',sans-serif;font-size:0.7rem;letter-spacing:0.15em;
+  color:#fff;cursor:pointer;
+}
+
+/* ══ MAIN ══ */
+#bgAudio{display:none;}
+#main{opacity:0;transition:opacity 1.4s ease;position:relative;z-index:1;padding-bottom:5rem;}
+#main.show{opacity:1;}
+
+/* ══ SHARED ══ */
+.sec{width:100%;position:relative;overflow:hidden;}
+.si{max-width:480px;margin:0 auto;padding:4.5rem 1.4rem;}
+.sec-content{position:relative;z-index:1;}
+.sec-canvas{position:absolute;inset:0;pointer-events:none;}
+
+/* Section label */
+.eu-chip{
+  display:inline-flex;align-items:center;gap:0.5rem;
+  font-family:'Inter',sans-serif;
+  font-size:0.48rem;letter-spacing:0.28em;text-transform:uppercase;
+  color:var(--crimson);margin-bottom:0.6rem;font-weight:500;
+}
+.eu-chip::before{content:'';width:20px;height:1px;background:var(--crimson);opacity:0.5;}
+
+.sec-h{
+  font-family:'Playfair Display',serif;
+  font-size:clamp(1.8rem,6vw,2.4rem);font-weight:700;
+  line-height:1.15;color:var(--text-dark);
+  letter-spacing:-0.01em;
+}
+.sec-h em{color:var(--crimson);font-style:italic;}
+
+/* Ornamental divider */
+.o-div{display:flex;align-items:center;gap:0.8rem;margin:1.3rem 0;}
+.o-div::before,.o-div::after{content:'';flex:1;height:1px;background:linear-gradient(to right,transparent,rgba(var(--rgb-primary),0.2),transparent);}
+.o-div span{font-size:0.55rem;color:var(--crimson);opacity:0.6;}
+
+.reveal{opacity:0;transform:translateY(20px);transition:opacity 0.9s ease,transform 0.9s ease;}
+.reveal.visible{opacity:1;transform:translateY(0);}
+
+/* Clean card */
+.eu-card{
+  background:var(--bg-card);
+  border:1px solid var(--border-light);
+  border-radius:8px;padding:1.5rem;
+  position:relative;overflow:hidden;
+  box-shadow:var(--shadow-soft);
+}
+.eu-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(to right,transparent,var(--crimson),transparent);
+}
+
+/* ══ TORN PAPER DIVIDER ══ */
+.torn-divider{
+  position:relative;
+  height:60px;
+  overflow:hidden;
+  margin:0;
+  pointer-events:none;
+}
+.torn-divider svg{
+  position:absolute;
+  bottom:0;left:0;
+  width:100%;height:100%;
+}
+.torn-divider-inv{
+  position:relative;
+  height:60px;
+  overflow:hidden;
+  margin:0;
+  pointer-events:none;
+}
+.torn-divider-inv svg{
+  position:absolute;
+  top:0;left:0;
+  width:100%;height:100%;
+}
+
+/* ══ HERO ══ */
+#hero{
+  min-height:100svh;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;text-align:center;
+  padding:5rem 1.4rem 6rem;position:relative;overflow:hidden;
+  background:transparent;
+}
+.hero-bg-img{
+  position:absolute;inset:0;z-index:0;
+  width:100%;height:100%;
+  object-fit:cover;object-position:center top;
+  display:block;
+}
+
+.hero-content{position:relative;z-index:2;}
+
+/* Corner ornaments hero */
+.hero-corner{position:absolute;z-index:2;opacity:0.35;pointer-events:none;}
+.hero-corner.tl{top:2rem;left:2rem;}
+.hero-corner.tr{top:2rem;right:2rem;transform:scaleX(-1);}
+.hero-corner.bl{bottom:2rem;left:2rem;transform:scaleY(-1);}
+.hero-corner.br{bottom:2rem;right:2rem;transform:scale(-1,-1);}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+
+.h-overline{
+  font-family:'Cormorant Garamond',serif;
+  font-size:0.75rem;letter-spacing:0.55em;text-transform:uppercase;
+  color:rgba(255,255,255,0.5);font-style:italic;
+  animation:fadeUp 1s ease 0.3s both;margin-bottom:1.6rem;
+}
+
+.h-invite{
+  font-family:'Cormorant Garamond',serif;font-size:1rem;
+  color:rgba(255,255,255,0.6);letter-spacing:0.04em;
+  animation:fadeUp 1s ease 0.4s both;margin-bottom:1.8rem;font-style:italic;
+}
+
+.h-names{
+  font-family:'Playfair Display',serif;
+  font-size:clamp(3rem,11vw,4.5rem);font-weight:700;
+  line-height:1.05;color:var(--hero-text);
+  animation:fadeUp 1s ease 0.5s both;
+  letter-spacing:-0.02em;
+}
+.h-names span{display:block;}
+.h-amp{
+  display:block;
+  font-size:0.22em;font-weight:400;letter-spacing:0.7em;
+  color:rgba(255,255,255,0.5);margin:0.5rem 0;
+  font-family:'Cormorant Garamond',serif;font-style:italic;
+}
+
+.h-rule{
+  width:80px;height:1px;
+  background:linear-gradient(to right,transparent,rgba(255,255,255,0.4),transparent);
+  margin:1.6rem auto;
+  animation:fadeUp 1s ease 0.6s both;
+}
+
+.h-date{
+  font-family:'Inter',sans-serif;
+  font-size:0.6rem;letter-spacing:0.35em;
+  color:rgba(255,255,255,0.55);text-transform:uppercase;
+  animation:fadeUp 1s ease 0.65s both;
+}
+.h-date strong{color:rgba(255,255,255,0.85);font-weight:500;}
+
+.h-venue{
+  font-size:0.52rem;letter-spacing:0.2em;
+  color:rgba(255,255,255,0.4);margin-top:0.4rem;
+  text-transform:uppercase;animation:fadeUp 1s ease 0.7s both;
+  font-family:'Inter',sans-serif;
+}
+
+.h-scroll{position:absolute;bottom:2rem;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:0.4rem;z-index:2;}
+.h-scroll-txt{font-family:'Inter',sans-serif;font-size:0.44rem;letter-spacing:0.4em;text-transform:uppercase;color:rgba(255,255,255,0.3);animation:fadeUp 1s ease 1s both;}
+.h-scroll-dot{width:3px;height:3px;border-radius:50%;background:rgba(255,255,255,0.4);animation:scrollDrop 2s ease infinite;}
+@keyframes scrollDrop{0%{opacity:0;transform:translateY(-6px);}50%{opacity:0.7;}100%{opacity:0;transform:translateY(6px);}}
+
+/* ══ PENGANTIN (INFO) ══ */
+#info{background:var(--bg-section-light);}
+.p-duo{display:flex;flex-direction:row;align-items:stretch;gap:0;margin-top:1.2rem;position:relative;}
+.p-portrait{flex:1;text-align:center;padding:1.5rem 0.6rem;position:relative;}
+.p-portrait-line{width:30px;height:1px;background:var(--border-mid);margin:0.5rem auto;}
+.p-side{font-family:'Inter',sans-serif;font-size:0.42rem;letter-spacing:0.32em;text-transform:uppercase;color:var(--text-light);margin-bottom:0.6rem;font-weight:500;}
+.p-name{
+  font-family:'Playfair Display',serif;font-size:clamp(1.4rem,5vw,1.9rem);font-weight:700;
+  color:var(--text-dark);margin-bottom:0.35rem;line-height:1.15;word-break:break-word;
+}
+.p-conn{font-family:'Inter',sans-serif;font-size:0.46rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-light);margin:0.5rem 0 0.35rem;}
+.p-parents{font-size:0.78rem;color:var(--text-muted);line-height:1.85;font-family:'Cormorant Garamond',serif;font-style:italic;}
+.p-and-divider{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.5rem;padding:0 0.5rem;flex-shrink:0;position:relative;}
+.p-and-divider::before,.p-and-divider::after{content:'';width:1px;flex:1;background:linear-gradient(to bottom,transparent,var(--border-mid),transparent);}
+.p-and-text{font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:700;color:var(--crimson);line-height:1;font-style:italic;}
+
+/* ══ DETAILS ══ */
+#details{background:var(--crimson-mist);}
+.det-cards{display:flex;flex-direction:column;gap:0.55rem;margin-top:1.4rem;}
+.det-card{
+  background:var(--bg-card);
+  border:1px solid var(--border-light);
+  border-radius:8px;padding:1.15rem 1.25rem;
+  cursor:pointer;position:relative;overflow:hidden;
+  transition:border-color 0.3s,box-shadow 0.3s;
+  box-shadow:var(--shadow-soft);
+}
+.det-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--crimson);border-radius:0;}
+.det-card.expanded{border-color:var(--border-strong);box-shadow:var(--shadow-mid);}
+.dh{display:flex;align-items:center;gap:0.9rem;justify-content:space-between;}
+.dl{display:flex;align-items:center;gap:0.9rem;}
+.di{
+  width:38px;height:38px;border-radius:6px;
+  background:rgba(var(--rgb-primary),0.07);border:1px solid var(--border-light);
+  display:flex;align-items:center;justify-content:center;font-size:0.95rem;flex-shrink:0;
+}
+.dlb{font-family:'Inter',sans-serif;font-size:0.48rem;letter-spacing:0.25em;text-transform:uppercase;color:var(--crimson);margin-bottom:0.15rem;font-weight:500;}
+.dv{font-family:'Playfair Display',serif;font-size:0.96rem;font-weight:600;color:var(--text-dark);}
+.ds{font-size:0.65rem;color:var(--text-muted);margin-top:0.1rem;}
+.da{font-size:0.55rem;color:var(--text-muted);transition:transform 0.3s;flex-shrink:0;}
+.da.open{transform:rotate(180deg);}
+.det-exp{max-height:0;overflow:hidden;transition:max-height 0.6s cubic-bezier(0.4,0,0.2,1);}
+.det-exp.open{max-height:340px;}
+.det-exp-b{padding-top:1.1rem;}
+.cal-wrap{background:var(--crimson-mist);border:1px solid var(--border-light);border-radius:6px;overflow:hidden;}
+.cal-head{background:var(--crimson);padding:0.85rem;text-align:center;}
+.cal-month{font-family:'Playfair Display',serif;font-size:0.92rem;font-weight:600;color:#fff;letter-spacing:0.05em;}
+.cal-yr{font-size:0.52rem;color:rgba(255,255,255,0.65);letter-spacing:0.2em;}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);padding:0.4rem;}
+.cdn{font-family:'Inter',sans-serif;font-size:0.46rem;text-align:center;padding:0.28rem 0;color:var(--text-muted);font-weight:500;}
+.cdd{font-size:0.76rem;text-align:center;padding:0.35rem 0.18rem;color:var(--text-muted);border-radius:4px;}
+.cdd.hl{background:var(--crimson);color:#fff;font-weight:600;font-family:'Playfair Display',serif;box-shadow:0 2px 8px rgba(var(--rgb-primary),0.3);}
+.cdd.em{opacity:0;}
+.clk-wrap{display:flex;flex-direction:column;align-items:center;padding:0.3rem 0;}
+.clk-svg{width:105px;height:105px;margin-bottom:0.7rem;}
+.clk-time{font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:600;color:var(--crimson);}
+.clk-sub{font-size:0.62rem;color:var(--text-muted);margin-top:0.15rem;}
+
+/* ══ COUNTDOWN ══ */
+#countdown{padding:5.5rem 1.4rem;text-align:center;position:relative;overflow:hidden;background:var(--bg-section-light);}
+.cd-inner{max-width:480px;margin:0 auto;position:relative;z-index:1;}
+.cd-grid{display:flex;justify-content:center;gap:0.6rem;margin-top:2rem;}
+.cd-box{
+  flex:1;max-width:75px;
+  background:var(--crimson);
+  border:1px solid var(--crimson-dark);
+  border-radius:6px;padding:1rem 0.3rem;
+  position:relative;overflow:hidden;
+  box-shadow:0 4px 16px rgba(var(--rgb-primary),0.2);
+}
+.cd-box::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:rgba(255,255,255,0.2);}
+.cd-n{
+  font-family:'Playfair Display',serif;font-size:2.2rem;font-weight:800;
+  color:#fff;line-height:1;
+  transition:transform 0.15s ease;
+}
+.cd-n.tick{transform:scale(1.1);}
+.cd-l{font-family:'Inter',sans-serif;font-size:0.44rem;letter-spacing:0.18em;text-transform:uppercase;color:rgba(255,255,255,0.65);margin-top:0.35rem;font-weight:500;}
+
+/* ══ ITINERARY ══ */
+#itinerary{background:var(--crimson-mist);}
+.tl{margin-top:2rem;position:relative;}
+.tl::before{
+  content:'';position:absolute;left:50%;top:10px;bottom:10px;width:2px;
+  background:linear-gradient(to bottom,rgba(var(--rgb-primary),0.15),rgba(var(--rgb-primary),0.15));
+  transform:translateX(-50%);border-radius:2px;
+}
+.tl-progress{
+  position:absolute;left:50%;top:10px;width:2px;height:0%;
+  background:linear-gradient(to bottom,var(--crimson),var(--crimson-light));
+  transform:translateX(-50%);border-radius:2px;
+  transition:height 1.2s cubic-bezier(0.4,0,0.2,1);
+  box-shadow:0 0 8px rgba(var(--rgb-primary),0.5);
+}
+.tl-progress::after{
+  content:'';position:absolute;left:50%;bottom:0;
+  width:8px;height:8px;border-radius:50%;
+  background:var(--crimson-light);
+  transform:translateX(-50%);
+  box-shadow:0 0 10px 2px rgba(var(--rgb-primary),0.7),0 0 2px rgba(255,255,255,0.8);
+  animation:tlGlowPulse 1.6s ease-in-out infinite;
+}
+@keyframes tlGlowPulse{
+  0%,100%{opacity:0.6;transform:translateX(-50%) scale(0.9);}
+  50%{opacity:1;transform:translateX(-50%) scale(1.3);}
+}
+.tl-row{
+  display:flex;align-items:center;margin-bottom:1.8rem;position:relative;gap:0;
+  opacity:1;transition:opacity 0.7s ease,transform 0.7s cubic-bezier(0.2,0.6,0.3,1);
+}
+.tl-row.js-ready{opacity:0;}
+.tl-row.js-ready.from-left{transform:translateX(-28px);}
+.tl-row.js-ready.from-right{transform:translateX(28px);}
+.tl-row.in-view{opacity:1!important;transform:translateX(0)!important;}
+.tl-dot{
+  width:40px;height:40px;flex-shrink:0;border-radius:11px;
+  background:linear-gradient(155deg,var(--crimson-light) 0%,var(--crimson) 55%,var(--crimson-dark) 100%);
+  border:none;position:relative;overflow:hidden;
+  display:flex;align-items:center;justify-content:center;font-size:1.05rem;z-index:1;
+  box-shadow:0 3px 14px rgba(var(--rgb-primary),0.38),inset 0 1px 0 rgba(255,255,255,0.35),inset 0 -2px 4px rgba(0,0,0,0.18);
+  position:absolute;left:50%;transform:translateX(-50%) scale(0.6) rotate(-8deg);
+  transition:transform 0.55s cubic-bezier(0.34,1.4,0.6,1) 0.15s,box-shadow 0.4s ease;
+}
+.tl-dot::before{
+  content:'';position:absolute;top:-30%;left:-20%;width:70%;height:70%;
+  background:radial-gradient(circle,rgba(255,255,255,0.35),transparent 70%);
+  pointer-events:none;
+}
+.tl-row.in-view .tl-dot{transform:translateX(-50%) scale(1) rotate(0deg);}
+.tl-row.tl-passed .tl-dot{
+  background:linear-gradient(155deg,var(--crimson) 0%,var(--crimson-dark) 100%);
+  box-shadow:0 2px 8px rgba(var(--rgb-primary),0.22),inset 0 1px 0 rgba(255,255,255,0.2);
+}
+.tl-row.tl-current .tl-dot{
+  animation:tlPulse 1.8s ease-in-out infinite;
+}
+@keyframes tlPulse{
+  0%,100%{box-shadow:0 0 0 0 rgba(var(--rgb-primary),0.5),0 2px 12px rgba(var(--rgb-primary),0.3);}
+  50%{box-shadow:0 0 0 9px rgba(var(--rgb-primary),0),0 2px 12px rgba(var(--rgb-primary),0.3);}
+}
+.tl-now-badge{
+  display:inline-block;font-size:0.42rem;letter-spacing:0.15em;text-transform:uppercase;
+  background:var(--crimson);color:#fff;padding:1px 6px;border-radius:8px;
+  margin-left:0.4rem;vertical-align:middle;opacity:0;
+  animation:tlBadgeIn 0.4s ease 0.3s forwards;
+}
+@keyframes tlBadgeIn{to{opacity:1;}}
+.tl-b-left{flex:1;text-align:right;padding-right:calc(19px + 3rem);padding-left:0.5rem;}
+.tl-b-right{flex:1;text-align:left;padding-left:calc(19px + 3rem);padding-right:0.5rem;}
+.tl-b-spacer{flex:1;}
+.tl-t{font-family:'Inter',sans-serif;font-size:0.52rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--crimson);margin-bottom:0.18rem;font-weight:500;}
+.tl-ev{font-family:'Playfair Display',serif;font-size:0.95rem;font-weight:600;color:var(--text-dark);line-height:1.3;}
+.tl-row.tl-passed .tl-ev,.tl-row.tl-passed .tl-t{opacity:0.5;}
+
+
+/* ══ DRESS CODE ══ */
+#dresscode{text-align:center;background:var(--bg-section-light);}
+.swatches{display:flex;justify-content:center;gap:1rem;margin-top:1.8rem;flex-wrap:wrap;}
+.sw{display:flex;flex-direction:column;align-items:center;gap:0.55rem;}
+.sw-ring{width:56px;height:56px;border-radius:50%;padding:3px;background:var(--crimson-mist);border:1px solid var(--border-mid);}
+.sw-inner{width:100%;height:100%;border-radius:50%;box-shadow:0 3px 12px rgba(0,0,0,0.15);}
+.sw-name{font-family:'Inter',sans-serif;font-size:0.47rem;letter-spacing:0.1em;color:var(--text-muted);text-transform:uppercase;}
+.dc-note{
+  margin-top:1.5rem;font-size:0.68rem;color:var(--text-muted);font-style:italic;
+  padding:0.8rem 1.1rem;border:1px solid var(--border-light);
+  border-radius:6px;background:var(--crimson-mist);
+  font-family:'Cormorant Garamond',serif;
+}
+
+/* ══ MAP ══ */
+#location{background:var(--crimson-mist);}
+.map-visual{
+  width:100%;height:160px;margin:1.5rem 0;
+  border:1px solid var(--border-mid);border-radius:6px;
+  display:flex;align-items:center;justify-content:center;
+  position:relative;overflow:hidden;background:rgba(var(--rgb-primary),0.04);
+}
+#mapCanvas{position:absolute;inset:0;}
+.map-pin{font-size:2.4rem;position:relative;z-index:1;animation:pinFloat 2.2s ease infinite;}
+@keyframes pinFloat{0%,100%{transform:translateY(0);}50%{transform:translateY(-7px);}}
+.map-ripple{position:absolute;bottom:28%;left:50%;transform:translateX(-50%);width:24px;height:8px;border-radius:50%;background:rgba(var(--rgb-primary),0.2);animation:mapRipple 2.2s ease infinite;z-index:1;}
+@keyframes mapRipple{0%{width:24px;opacity:0.5;}100%{width:70px;opacity:0;}}
+.map-name{font-family:'Playfair Display',serif;font-size:1rem;font-weight:700;color:var(--text-dark);margin-bottom:0.3rem;}
+.map-addr{font-size:0.72rem;color:var(--text-muted);margin-bottom:1rem;line-height:1.5;}
+.map-btns{display:flex;gap:0.65rem;}
+.map-btn{
+  flex:1;display:flex;align-items:center;justify-content:center;gap:0.45rem;
+  padding:0.72rem;border-radius:50px;
+  font-family:'Inter',sans-serif;font-size:0.65rem;
+  letter-spacing:0.08em;text-decoration:none;border:none;cursor:pointer;transition:opacity 0.2s;
+}
+.map-btn:active{opacity:0.75;}
+.mw{background:#33CCFF;color:#000;}
+.mg{background:var(--crimson);color:#fff;}
+
+/* ══ LOVE STORY ══ */
+#lovestory{background:var(--bg-section-light);}
+.love-tl{margin-top:1.8rem;}
+.love-row{display:flex;gap:1rem;padding:1rem 0;border-bottom:1px solid var(--border-light);}
+.love-row:last-child{border-bottom:none;}
+.love-badge{
+  min-width:50px;height:50px;border-radius:6px;
+  background:var(--crimson);border:none;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Playfair Display',serif;font-size:0.58rem;color:#fff;flex-shrink:0;text-align:center;font-weight:700;
+  box-shadow:0 2px 8px rgba(var(--rgb-primary),0.2);
+}
+.love-body{padding-top:0.2rem;}
+.love-ti{font-family:'Playfair Display',serif;font-size:0.96rem;font-weight:600;color:var(--text-dark);margin-bottom:0.2rem;}
+.love-d{font-size:0.73rem;color:var(--text-muted);line-height:1.65;}
+
+/* ══ MESEJ ══ */
+#mesej{padding:6rem 1.4rem;text-align:center;position:relative;overflow:hidden;background:var(--crimson);}
+.mesej-inner{max-width:400px;margin:0 auto;position:relative;z-index:1;}
+.mesej-inner::before{content:'"';font-family:'Playfair Display',serif;font-size:8rem;font-weight:800;color:rgba(255,255,255,0.08);line-height:0.6;position:absolute;top:0;left:-0.5rem;pointer-events:none;}
+.mesej-text{font-family:'Cormorant Garamond',serif;font-size:1.15rem;font-style:italic;line-height:1.9;color:rgba(255,255,255,0.9);margin-bottom:2rem;position:relative;z-index:1;}
+.mesej-from{font-family:'Inter',sans-serif;font-size:0.5rem;letter-spacing:0.4em;text-transform:uppercase;color:rgba(255,255,255,0.6);}
+.mesej-name{font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:700;color:#fff;margin-top:0.4rem;}
+
+/* Mesej damask overlay */
+#mesej::before{
+  content:'';position:absolute;inset:0;z-index:0;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cg fill='none' stroke='rgba(255,255,255,0.05)' stroke-width='0.8'%3E%3Cpath d='M40 8 C48 16 56 16 56 24 C56 32 48 32 40 40 C32 32 24 32 24 24 C24 16 32 16 40 8Z'/%3E%3Cpath d='M40 40 C48 48 56 48 56 56 C56 64 48 64 40 72 C32 64 24 64 24 56 C24 48 32 48 40 40Z'/%3E%3Ccircle cx='40' cy='40' r='4'/%3E%3C/g%3E%3C/svg%3E");
+  background-size:80px 80px;
+  pointer-events:none;
+}
+
+/* ══ FORMS ══ */
+.form-card{
+  background:var(--bg-card);border:1px solid var(--border-light);
+  border-radius:8px;padding:1.7rem 1.4rem;margin-top:1.2rem;position:relative;overflow:hidden;
+  box-shadow:var(--shadow-soft);
+}
+.form-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--crimson);}
+.fg{margin-bottom:1rem;}
+.fl{font-family:'Inter',sans-serif;font-size:0.5rem;letter-spacing:0.25em;text-transform:uppercase;color:var(--crimson);margin-bottom:0.42rem;display:block;font-weight:500;}
+.fi,.fsel,.fta{
+  width:100%;padding:0.75rem 0.95rem;
+  background:var(--bg-input);
+  border:1px solid var(--border-mid);border-radius:6px;
+  font-family:'Inter',sans-serif;font-size:0.86rem;
+  color:var(--text-dark);outline:none;-webkit-appearance:none;
+  transition:border-color 0.3s;
+}
+.fi::placeholder,.fta::placeholder{color:var(--text-light);}
+.fi:focus,.fsel:focus,.fta:focus{border-color:var(--crimson);box-shadow:0 0 0 3px rgba(var(--rgb-primary),0.06);}
+.fsel option{background:var(--bg-input);color:var(--text-dark);}
+.fta{resize:none;min-height:80px;}
+.btn-g{
+  width:100%;padding:0.85rem;
+  background:var(--crimson);
+  border:none;border-radius:50px;
+  font-family:'Inter',sans-serif;font-size:0.65rem;letter-spacing:0.2em;text-transform:uppercase;
+  color:#fff;cursor:pointer;margin-top:0.4rem;
+  transition:opacity 0.2s,transform 0.15s;
+  box-shadow:0 4px 20px rgba(var(--rgb-primary),0.3);
+}
+.btn-g:active{transform:scale(0.98);opacity:0.9);}
+
+/* ══ RSVP LIST ══ */
+#rsvp{background:var(--crimson-mist);}
+.rsvp-entries{margin-top:0.9rem;display:flex;flex-direction:column;gap:0.45rem;}
+.re-row{display:flex;justify-content:space-between;align-items:center;padding:0.65rem 0.9rem;background:var(--bg-card);border:1px solid var(--border-light);border-radius:6px;font-size:0.78rem;box-shadow:var(--shadow-soft);}
+.re-n{font-family:'Playfair Display',serif;font-size:0.9rem;color:var(--text-dark);}
+.re-s{font-size:0.65rem;color:var(--crimson);font-family:'Inter',sans-serif;letter-spacing:0.08em;}
+
+/* ══ REGISTRY ══ */
+#registry{background:var(--bg-section-light);}
+.qr-sec{margin-top:1rem;background:var(--crimson-mist);border:1px solid var(--border-light);border-radius:8px;padding:1.4rem;text-align:center;}
+.qr-box{width:145px;height:145px;border:1px solid var(--border-mid);border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;margin:0 auto 0.9rem;background:var(--bg-card);gap:0.4rem;}
+.qr-lbl{font-size:0.65rem;color:var(--text-muted);}
+
+/* ══ DOA WALL ══ */
+#doa{background:var(--crimson-mist);}
+.doa-wall{margin-top:1rem;display:flex;flex-direction:column;gap:0.75rem;max-height:370px;overflow-y:auto;}
+.doa-card{background:var(--bg-card);border:1px solid var(--border-light);border-radius:8px;border-left:3px solid var(--crimson);padding:0.85rem 0.95rem;animation:cardIn 0.45s ease;box-shadow:var(--shadow-soft);}
+@keyframes cardIn{from{opacity:0;transform:translateX(-12px);}to{opacity:1;transform:translateX(0);}}
+.doa-n{font-family:'Inter',sans-serif;font-size:0.58rem;letter-spacing:0.12em;color:var(--crimson);margin-bottom:0.28rem;font-weight:500;text-transform:uppercase;}
+.doa-m{font-size:0.8rem;color:var(--text-dark);line-height:1.6;font-family:'Cormorant Garamond',serif;}
+
+/* ══ SAVE DATE ══ */
+#savedate{background:var(--bg-section-light);}
+.cal-btns{display:flex;flex-direction:column;gap:0.65rem;margin-top:1.4rem;}
+.cal-btn-a{
+  display:flex;align-items:center;justify-content:center;gap:0.75rem;
+  padding:0.85rem 1.4rem;
+  border:1px solid var(--border-mid);border-radius:50px;
+  background:var(--bg-card);
+  font-family:'Inter',sans-serif;font-size:0.65rem;letter-spacing:0.1em;
+  color:var(--text-dark);text-decoration:none;transition:all 0.2s;
+  box-shadow:var(--shadow-soft);
+}
+.cal-btn-a:hover{border-color:var(--crimson);color:var(--crimson);}
+.cal-btn-a:active{background:var(--crimson-mist);}
+
+/* ══ WEATHER ══ */
+#weather{background:var(--crimson-mist);}
+.wx-card{
+  background:var(--bg-card);border:1px solid var(--border-light);
+  border-radius:8px;padding:1.9rem 1.4rem;margin-top:1.2rem;position:relative;overflow:hidden;
+  box-shadow:var(--shadow-soft);
+}
+.wx-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--crimson);}
+.wx-icon{font-size:2.6rem;margin-bottom:0.4rem;}
+.wx-temp{font-family:'Playfair Display',serif;font-size:2.2rem;font-weight:800;color:var(--crimson);}
+.wx-desc{font-size:0.78rem;color:var(--text-muted);margin-top:0.3rem;}
+.wx-note{font-family:'Inter',sans-serif;font-size:0.58rem;color:var(--text-light);margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border-light);}
+
+/* ══ GAME ══ */
+#game{background:var(--bg-section-light);}
+.game-hud{display:flex;justify-content:space-between;padding:0.6rem 0.9rem;margin-bottom:0.75rem;background:var(--crimson-mist);border:1px solid var(--border-light);border-radius:6px;font-size:0.65rem;color:var(--text-muted);}
+.game-hud span{color:var(--crimson);font-family:'Playfair Display',serif;font-weight:600;}
+.mem-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0.42rem;}
+.mc{aspect-ratio:3/4;cursor:pointer;perspective:700px;}
+.mc-inner{width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:transform 0.58s cubic-bezier(0.4,0,0.2,1);border-radius:6px;}
+.mc.flipped .mc-inner,.mc.matched .mc-inner{transform:rotateY(180deg);}
+.mc-f,.mc-b{position:absolute;inset:0;backface-visibility:hidden;border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.18rem;}
+.mc-f{background:var(--crimson-mist);border:1px solid var(--border-mid);}
+.mc-f-ico{font-size:0.8rem;color:var(--crimson);opacity:0.5;}
+.mc-f-line{width:16px;height:1px;background:var(--border-mid);}
+.mc-b{background:rgba(var(--rgb-primary),0.05);border:1px solid var(--border-mid);transform:rotateY(180deg);font-size:clamp(1.1rem,4vw,1.5rem);}
+.mc-b-lbl{font-family:'Inter',sans-serif;font-size:0.42rem;letter-spacing:0.1em;color:var(--text-muted);text-transform:uppercase;}
+.mc.matched .mc-b{background:rgba(var(--rgb-primary),0.08);border-color:var(--crimson);animation:matchPop 0.5s ease;}
+@keyframes matchPop{0%{transform:rotateY(180deg) scale(1);}40%{transform:rotateY(180deg) scale(1.08);}100%{transform:rotateY(180deg) scale(1);}}
+.game-result{text-align:center;margin-top:1rem;min-height:1.5rem;font-family:'Playfair Display',serif;font-size:0.98rem;font-weight:700;color:var(--crimson);}
+.btn-outline{
+  display:block;width:100%;padding:0.75rem;margin-top:0.65rem;
+  background:transparent;border:1px solid var(--border-mid);border-radius:50px;
+  font-family:'Inter',sans-serif;font-size:0.65rem;letter-spacing:0.2em;text-transform:uppercase;
+  color:var(--text-dark);cursor:pointer;transition:all 0.2s;
+}
+.btn-outline:active{background:var(--crimson-mist);}
+
+/* ══ CONTACT ══ */
+#contact{background:var(--crimson-mist);}
+.ct-list{display:flex;flex-direction:column;gap:0.65rem;margin-top:1.2rem;}
+.ct-card{
+  display:flex;align-items:center;gap:0.95rem;padding:1.05rem 1.15rem;
+  background:var(--bg-card);border:1px solid var(--border-light);
+  border-radius:8px;text-decoration:none;color:var(--text-dark);transition:all 0.2s;
+  box-shadow:var(--shadow-soft);
+}
+.ct-card:active{background:var(--crimson-mist);border-color:var(--border-mid);}
+.ct-ico{width:42px;height:42px;flex-shrink:0;border-radius:6px;background:var(--crimson);display:flex;align-items:center;justify-content:center;font-size:1.1rem;}
+.ct-role{font-family:'Inter',sans-serif;font-size:0.48rem;letter-spacing:0.22em;text-transform:uppercase;color:var(--crimson);margin-bottom:0.18rem;font-weight:500;}
+.ct-name{font-family:'Playfair Display',serif;font-size:0.95rem;font-weight:600;color:var(--text-dark);}
+.ct-num{font-size:0.68rem;color:var(--text-muted);margin-top:0.1rem;}
+.ct-wa{margin-left:auto;font-size:0.58rem;color:var(--text-light);font-family:'Inter',sans-serif;}
+
+/* ══ FOOTER ══ */
+footer{background:var(--crimson-dark);text-align:center;padding:4.5rem 1.4rem;position:relative;overflow:hidden;}
+footer::before{
+  content:'';position:absolute;inset:0;z-index:0;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cg fill='none' stroke='rgba(255,255,255,0.06)' stroke-width='0.8'%3E%3Cpath d='M40 8 C48 16 56 16 56 24 C56 32 48 32 40 40 C32 32 24 32 24 24 C24 16 32 16 40 8Z'/%3E%3Cpath d='M40 40 C48 48 56 48 56 56 C56 64 48 64 40 72 C32 64 24 64 24 56 C24 48 32 48 40 40Z'/%3E%3Ccircle cx='40' cy='40' r='4'/%3E%3C/g%3E%3C/svg%3E");
+  background-size:80px 80px;
+  pointer-events:none;
+}
+.ft-inner{position:relative;z-index:1;}
+.ft-names{font-family:'Playfair Display',serif;font-size:1.7rem;font-weight:800;color:#fff;margin-bottom:0.4rem;letter-spacing:-0.01em;}
+.ft-date{font-family:'Inter',sans-serif;font-size:0.52rem;letter-spacing:0.3em;text-transform:uppercase;color:rgba(255,255,255,0.5);}
+.ft-msg{font-family:'Cormorant Garamond',serif;font-size:0.95rem;font-style:italic;color:rgba(255,255,255,0.65);margin-top:1.4rem;line-height:1.7;}
+.ft-line{width:40px;height:1px;background:rgba(255,255,255,0.2);margin:1.2rem auto;}
+.ft-credit{font-family:'Inter',sans-serif;font-size:0.48rem;color:rgba(255,255,255,0.35);letter-spacing:0.12em;}
+
+/* ══ SEARCH ══ */
+#rsvpSearchWrap{display:none;position:relative;margin-bottom:0.6rem;}
+#rsvpSearch{width:100%;box-sizing:border-box;padding:0.55rem 0.75rem 0.55rem 2.1rem;border:1px solid var(--border-mid);border-radius:6px;background:var(--bg-input);font-family:'Inter',sans-serif;font-size:0.68rem;color:var(--text-dark);outline:none;transition:border-color 0.25s;}
+#rsvpSearch:focus{border-color:var(--crimson);}
+#rsvpSearch::placeholder{color:var(--text-light);}
+#rsvpTotalBadge{display:none;background:rgba(var(--rgb-primary),0.08);border:1px solid var(--border-light);border-radius:20px;padding:0.25rem 0.75rem;font-family:'Inter',sans-serif;font-size:0.54rem;color:var(--crimson);letter-spacing:0.1em;}
+
+@media(max-width:400px){.h-names{font-size:2.8rem!important;}}
+
+/* ══ GALLERY (Horizontal Swipe Carousel) ══ */
+#gallery{background:var(--bg-section-light);overflow:hidden;}
+.gal-carousel{
+  display:flex;gap:0.7rem;
+  margin:1.6rem -1.4rem 0;
+  padding:0 1.4rem;
+  overflow-x:auto;scroll-snap-type:x mandatory;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:none;
+}
+.gal-carousel::-webkit-scrollbar{display:none;}
+.gal-item{
+  position:relative;flex:0 0 72%;max-width:280px;
+  aspect-ratio:3/4;border-radius:10px;overflow:hidden;
+  cursor:pointer;background:var(--crimson-mist);
+  box-shadow:0 8px 22px rgba(0,0,0,0.16);
+  scroll-snap-align:center;
+  transition:transform 0.3s ease;
+}
+.gal-item:active{transform:scale(0.97);}
+.gal-item img{
+  width:100%;height:100%;object-fit:cover;display:block;
+}
+.gal-overlay{
+  position:absolute;inset:0;
+  background:linear-gradient(180deg,transparent 55%,rgba(0,0,0,0.4) 100%);
+  opacity:0;transition:opacity 0.3s ease;
+  display:flex;align-items:flex-end;justify-content:center;padding-bottom:0.7rem;
+}
+.gal-item:hover .gal-overlay,.gal-item:active .gal-overlay{opacity:1;}
+.gal-zoom-icon{
+  width:26px;height:26px;border-radius:50%;
+  background:rgba(255,255,255,0.92);
+  display:flex;align-items:center;justify-content:center;
+  font-size:0.8rem;color:var(--crimson);
+}
+.gal-counter-row{
+  display:flex;justify-content:center;gap:0.35rem;margin-top:1.1rem;
+}
+.gal-counter-dot{
+  width:5px;height:5px;border-radius:50%;
+  background:rgba(var(--rgb-primary),0.2);
+  transition:background 0.3s ease,width 0.3s ease;
+}
+.gal-counter-dot.active{background:var(--crimson);width:16px;border-radius:3px;}
+.gal-hint{
+  text-align:center;font-size:0.62rem;color:var(--text-muted);
+  margin-top:0.6rem;letter-spacing:0.08em;opacity:0.7;
+}
+
+/* Lightbox */
+.gal-lightbox{
+  position:fixed;inset:0;z-index:9999;
+  background:rgba(10,5,5,0.96);
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;visibility:hidden;
+  transition:opacity 0.35s ease,visibility 0.35s ease;
+}
+.gal-lightbox.open{opacity:1;visibility:visible;}
+.gal-lb-img-wrap{
+  position:relative;width:92%;max-width:420px;
+  display:flex;align-items:center;justify-content:center;
+}
+.gal-lb-img{
+  width:100%;max-height:80vh;object-fit:contain;
+  border-radius:4px;
+  opacity:0;transform:scale(0.92);
+  transition:opacity 0.3s ease,transform 0.3s ease;
+}
+.gal-lb-img.show{opacity:1;transform:scale(1);}
+.gal-lb-close{
+  position:absolute;top:1.2rem;right:1.2rem;z-index:2;
+  width:34px;height:34px;border-radius:50%;
+  background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.25);
+  color:#fff;font-size:1.1rem;display:flex;align-items:center;justify-content:center;
+  cursor:pointer;backdrop-filter:blur(6px);
+}
+.gal-lb-nav{
+  position:absolute;top:50%;transform:translateY(-50%);z-index:2;
+  width:38px;height:38px;border-radius:50%;
+  background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);
+  color:#fff;font-size:1.1rem;display:flex;align-items:center;justify-content:center;
+  cursor:pointer;backdrop-filter:blur(6px);
+}
+.gal-lb-prev{left:0.6rem;}
+.gal-lb-next{right:0.6rem;}
+.gal-lb-counter{
+  position:absolute;bottom:-2.2rem;left:50%;transform:translateX(-50%);
+  font-size:0.68rem;color:rgba(255,255,255,0.6);letter-spacing:0.1em;
+}
+
+</style>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+</head>
+<body>
+<canvas id="confettiCanvas"></canvas>
+<div id="bgAudio" style="display:none;"><div id="ytPlayer"></div></div>
+<script src="https://www.youtube.com/iframe_api"></script>
+<button id="shareBtn" onclick="shareKad()" title="Kongsi Kad">🔗</button>
+<div id="audioViz">
+  <div class="viz-bar" style="height:20px;"></div>
+  <div class="viz-bar" style="height:20px;"></div>
+  <div class="viz-bar" style="height:20px;"></div>
+  <div class="viz-bar" style="height:20px;"></div>
+  <div class="viz-bar" style="height:20px;"></div>
+  <div class="viz-bar" style="height:20px;"></div>
+  <div class="viz-bar" style="height:20px;"></div>
+  <div class="viz-bar" style="height:20px;"></div>
+</div>
+<div id="safariAudioNotice">🎵 Safari: music may not autoplay<br><span style="font-size:0.58rem;color:rgba(255,255,255,0.7);">Tap ▶ to play</span></div>
+<button id="audioBtn" onclick="toggleAudio()">🎵</button>
+<div id="langBar">
+  <button class="lb active" onclick="setLang('ms')">BM</button>
+  <button class="lb" onclick="setLang('en')">EN</button>
+  <button class="lb" onclick="setLang('ar')">ع</button>
+</div>
+
+<!-- STICKY NAV -->
+<nav id="stickyNav">
+  <div class="nav-inner">
+    <button class="nav-btn" data-ms="Pengantin" data-en="Couple" data-ar="العروسان" onclick="navTo('info')">Pengantin</button>
+    <div class="nav-sep"></div>
+    <button class="nav-btn" data-ms="Butiran" data-en="Details" data-ar="التفاصيل" onclick="navTo('details')">Butiran</button>
+    <div class="nav-sep"></div>
+    <button class="nav-btn" data-ms="Kiraan" data-en="Countdown" data-ar="العد" onclick="navTo('countdown')">Kiraan</button>
+    <div class="nav-sep"></div>
+    <button class="nav-btn" data-ms="Aturcara" data-en="Programme" data-ar="البرنامج" onclick="navTo('itinerary')">Aturcara</button>
+    <div class="nav-sep"></div>
+    <button class="nav-btn" data-ms="Pakaian" data-en="Attire" data-ar="اللباس" onclick="navTo('dresscode')">Pakaian</button>
+    <div class="nav-sep"></div>
+    <button class="nav-btn" data-ms="Lokasi" data-en="Venue" data-ar="الموقع" onclick="navTo('location')">Lokasi</button>
+    <div class="nav-sep"></div>
+    <button class="nav-btn" data-ms="Kisah" data-en="Story" data-ar="قصتنا" onclick="navTo('lovestory')">Kisah</button>
+    <div class="nav-sep"></div>
+    <button class="nav-btn" data-ms="Mesej" data-en="Message" data-ar="الرسالة" onclick="navTo('mesej')">Mesej</button>
+    <div class="nav-sep"></div>
+    <button class="nav-btn" data-ms="RSVP" data-en="RSVP" data-ar="تأكيد" onclick="navTo('rsvp')">RSVP</button>
+    <div class="nav-sep"></div>
+    <button class="nav-btn" data-ms="Hadiah" data-en="Gift" data-ar="هدية" onclick="navTo('registry')">Hadiah</button>
+    <div class="nav-sep"></div>
+    <button class="nav-btn" data-ms="Doa" data-en="Wishes" data-ar="الدعاء" onclick="navTo('doa')">Doa</button>
+    <div class="nav-sep"></div>
+    <button class="nav-btn" data-ms="Tarikh" data-en="Save Date" data-ar="احفظ" onclick="navTo('savedate')">Tarikh</button>
+    <div class="nav-sep"></div>
+    <button class="nav-btn" data-ms="Cuaca" data-en="Weather" data-ar="الطقس" onclick="navTo('weather')">Cuaca</button>
+    <div class="nav-sep"></div>
+    <button class="nav-btn" data-ms="Game" data-en="Game" data-ar="لعبة" onclick="navTo('game')">Game</button>
+    <div class="nav-sep"></div>
+    <button class="nav-btn" data-ms="Hubungi" data-en="Contact" data-ar="اتصل" onclick="navTo('contact')">Hubungi</button>
+  </div>
+</nav>
+
+<!-- MODAL -->
+<div class="modal-bg" id="modal">
+  <div class="modal-box">
+    <div class="modal-handle"></div>
+    <div class="modal-icon">✨</div>
+    <div class="modal-title" data-ms="Terima Kasih" data-en="Thank You" data-ar="شكراً لك">Terima Kasih</div>
+    <div class="modal-text" data-ms="Ucapan anda telah kami terima dengan penuh rasa syukur. Semoga Allah memberkati anda sekeluarga." data-en="Your message has been received. May Allah bless you and your family." data-ar="تم استلام رسالتك. بارك الله فيك.">Ucapan anda telah kami terima dengan penuh rasa syukur. Semoga Allah memberkati anda sekeluarga.</div>
+    <button class="modal-close" onclick="closeModal()">Tutup</button>
+  </div>
+</div>
+
+<!-- ████ ENVELOPE SECTION ████ -->
+<div id="envSection">
+  <canvas id="envCanvas"></canvas>
+  <canvas id="envParticleCanvas" style="position:absolute;inset:0;pointer-events:none;z-index:10;"></canvas>
+  <div class="env-wrap">
+    <div style="margin-bottom:0.6rem;">
+      <!-- Ornamental crest -->
+      <svg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg" style="opacity:0.5;margin-bottom:0.8rem;">
+        <circle cx="30" cy="30" r="28" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="0.8"/>
+        <circle cx="30" cy="30" r="20" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="0.5" stroke-dasharray="3,3"/>
+        <path d="M30 10 L34 22 L30 20 L26 22 Z" fill="rgba(255,255,255,0.3)"/>
+        <path d="M30 50 L34 38 L30 40 L26 38 Z" fill="rgba(255,255,255,0.3)"/>
+        <path d="M10 30 L22 26 L20 30 L22 34 Z" fill="rgba(255,255,255,0.3)"/>
+        <path d="M50 30 L38 26 L40 30 L38 34 Z" fill="rgba(255,255,255,0.3)"/>
+        <text id="sealInitials" x="30" y="34" text-anchor="middle" font-family="Playfair Display,serif" font-size="9" font-weight="700" fill="rgba(255,255,255,0.7)" letter-spacing="1">✦</text>
+      </svg>
+    </div>
+    <div class="env-label">— Special Invitation —</div>
+    <div class="envelope" id="envelope" onclick="openEnvelope()">
+      <div class="env-body"></div>
+      <!-- European border lines on envelope -->
+      <svg class="env-graphic" viewBox="0 0 300 188" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+        <rect x="8" y="8" width="284" height="172" rx="2" fill="none" stroke="rgba(var(--rgb-primary),0.15)" stroke-width="0.7"/>
+        <rect x="14" y="14" width="272" height="160" rx="1" fill="none" stroke="rgba(var(--rgb-primary),0.08)" stroke-width="0.4"/>
+        <line x1="0" y1="0" x2="150" y2="94" stroke="rgba(var(--rgb-primary),0.05)" stroke-width="0.6"/>
+        <line x1="300" y1="0" x2="150" y2="94" stroke="rgba(var(--rgb-primary),0.05)" stroke-width="0.6"/>
+        <!-- Corner accents -->
+        <path d="M18,18 L36,18 M18,18 L18,36" fill="none" stroke="rgba(var(--rgb-primary),0.3)" stroke-width="1.2" stroke-linecap="square"/>
+        <path d="M282,18 L264,18 M282,18 L282,36" fill="none" stroke="rgba(var(--rgb-primary),0.3)" stroke-width="1.2" stroke-linecap="square"/>
+        <path d="M18,170 L36,170 M18,170 L18,152" fill="none" stroke="rgba(var(--rgb-primary),0.3)" stroke-width="1.2" stroke-linecap="square"/>
+        <path d="M282,170 L264,170 M282,170 L282,152" fill="none" stroke="rgba(var(--rgb-primary),0.3)" stroke-width="1.2" stroke-linecap="square"/>
+        <!-- Centre diamond -->
+        <path d="M150,70 L160,84 L150,98 L140,84 Z" fill="none" stroke="rgba(var(--rgb-primary),0.18)" stroke-width="0.7"/>
+        <!-- Postage stamp box -->
+        <rect x="254" y="18" width="22" height="16" rx="1" fill="none" stroke="rgba(var(--rgb-primary),0.2)" stroke-width="0.7" stroke-dasharray="2,1.5"/>
+      </svg>
+      <div class="env-bottom"></div>
+      <div class="env-left"></div>
+      <div class="env-right"></div>
+      <div class="env-flap"></div>
+      <div class="env-seal" id="sealWrap">
+        <svg viewBox="0 0 56 56" width="52" height="52" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="waxGrad" cx="38%" cy="32%" r="65%">
+              <stop offset="0%" stop-color="var(--crimson-light)"/>
+              <stop offset="55%" stop-color="var(--crimson)"/>
+              <stop offset="100%" stop-color="var(--crimson-dark)"/>
+            </radialGradient>
+            <filter id="waxEmboss" x="-20%" y="-20%" width="140%" height="140%">
+              <feGaussianBlur in="SourceAlpha" stdDeviation="0.6" result="blur"/>
+              <feOffset in="blur" dx="0" dy="0.7" result="offsetBlur"/>
+              <feSpecularLighting in="blur" surfaceScale="2" specularConstant="0.7" specularExponent="14" lighting-color="#fff" result="spec">
+                <fePointLight x="20" y="15" z="22"/>
+              </feSpecularLighting>
+              <feComposite in="spec" in2="SourceAlpha" operator="in" result="specOut"/>
+              <feComposite in="SourceGraphic" in2="specOut" operator="arithmetic" k1="0" k2="1" k3="0.65" k4="0"/>
+            </filter>
+          </defs>
+          <path d="M28,3 C38,2 47,7 50,16 C53,24 53,32 49,40 C45,48 37,53 28,53 C19,53 10,48 6,40 C2,32 2,23 6,15 C9,7 18,4 28,3 Z"
+                fill="url(#waxGrad)" stroke="rgba(0,0,0,0.2)" stroke-width="0.5"/>
+          <path d="M11,42 C10,46 11,49 13,50" fill="none" stroke="rgba(0,0,0,0.18)" stroke-width="1.4" stroke-linecap="round"/>
+          <path d="M45,40 C46,44 45,47 43,49" fill="none" stroke="rgba(0,0,0,0.15)" stroke-width="1.2" stroke-linecap="round"/>
+          <path d="M28,52 C27,55 28,57 30,58" fill="none" stroke="rgba(0,0,0,0.12)" stroke-width="1" stroke-linecap="round"/>
+          <circle cx="28" cy="28" r="19" fill="none" stroke="rgba(0,0,0,0.18)" stroke-width="0.6"/>
+          <circle cx="28" cy="28" r="19" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="0.4" transform="translate(0,0.6)"/>
+          <ellipse cx="20" cy="16" rx="11" ry="7" fill="rgba(255,255,255,0.22)" transform="rotate(-25 20 16)"/>
+          <text id="sealInitialsEnv" x="28" y="33" text-anchor="middle" font-family="Playfair Display,serif" font-size="13" font-weight="700" fill="rgba(0,0,0,0.35)" letter-spacing="1" filter="url(#waxEmboss)">✦</text>
+          <text x="28" y="32.4" text-anchor="middle" font-family="Playfair Display,serif" font-size="13" font-weight="700" fill="rgba(255,255,255,0.92)" letter-spacing="1">✦</text>
+        </svg>
+        <svg class="seal-crack" viewBox="0 0 56 56" width="52" height="52" xmlns="http://www.w3.org/2000/svg">
+          <path d="M28,5 L25,20 L31,26 L22,35 L28,52" fill="none" stroke="rgba(0,0,0,0.45)" stroke-width="0.8" stroke-linecap="round"/>
+          <path d="M9,22 L22,26 L20,32 L33,30" fill="none" stroke="rgba(0,0,0,0.35)" stroke-width="0.6" stroke-linecap="round"/>
+          <path d="M47,24 L34,28 L38,34 L26,37" fill="none" stroke="rgba(0,0,0,0.35)" stroke-width="0.6" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="env-letter">
+        <svg class="el-flourish" viewBox="0 0 36 14" xmlns="http://www.w3.org/2000/svg">
+          <path d="M2,7 Q9,1 18,7 Q27,13 34,7" fill="none" stroke="rgba(0,0,0,0.45)" stroke-width="0.7" stroke-linecap="round"/>
+          <circle cx="18" cy="7" r="1.3" fill="rgba(0,0,0,0.5)"/>
+        </svg>
+        <div class="el-top-wrap">
+          <div class="el-top" data-ms="Jemputan Istimewa" data-en="Special Invitation" data-ar="دعوة خاصة">Jemputan Istimewa</div>
+        </div>
+        <div class="el-foil"></div>
+      </div>
+    </div>
+    <div class="env-hint">✦ Tap to open ✦</div>
+  </div>
+</div>
+
+<!-- ████ MAIN CONTENT ████ -->
+<div id="main">
+
+<!-- ══ HERO ══ -->
+<section id="hero">
+  <img class="hero-bg-img" id="heroBgImg" src="{{HERO_BG_URL}}" alt="" onerror="this.remove()">
+  <!-- Corner ornaments -->
+  <svg class="hero-corner tl" width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+    <path d="M4,4 L32,4 M4,4 L4,32" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="1.5" stroke-linecap="square"/>
+    <path d="M4,4 L14,14" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="0.8"/>
+    <rect x="2" y="2" width="4" height="4" fill="rgba(255,255,255,0.4)"/>
+  </svg>
+  <svg class="hero-corner tr" width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+    <path d="M4,4 L32,4 M4,4 L4,32" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="1.5" stroke-linecap="square"/>
+    <rect x="2" y="2" width="4" height="4" fill="rgba(255,255,255,0.4)"/>
+  </svg>
+  <svg class="hero-corner bl" width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+    <path d="M4,4 L32,4 M4,4 L4,32" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="1.5" stroke-linecap="square"/>
+    <rect x="2" y="2" width="4" height="4" fill="rgba(255,255,255,0.4)"/>
+  </svg>
+  <svg class="hero-corner br" width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+    <path d="M4,4 L32,4 M4,4 L4,32" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="1.5" stroke-linecap="square"/>
+    <rect x="2" y="2" width="4" height="4" fill="rgba(255,255,255,0.4)"/>
+  </svg>
+
+  <div class="hero-content">
+    <!-- Ornamental top line -->
+    <div style="display:flex;align-items:center;gap:0.8rem;justify-content:center;margin-bottom:1.4rem;animation:fadeUp 1s ease 0.2s both;">
+      <div style="width:30px;height:1px;background:rgba(255,255,255,0.3);"></div>
+      <svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" style="opacity:0.4;">
+        <path d="M8 0 L10 6 L16 8 L10 10 L8 16 L6 10 L0 8 L6 6 Z" fill="rgba(255,255,255,0.6)"/>
+      </svg>
+      <div style="width:30px;height:1px;background:rgba(255,255,255,0.3);"></div>
+    </div>
+
+    <p class="h-overline">Wedding Invitation</p>
+    <p class="h-invite" data-ms="Dengan penuh kegembiraan, kami menjemput tuan/puan ke majlis perkahwinan" data-en="With great joy, we invite you to our wedding celebration" data-ar="بكل سرور، ندعوكم إلى حفل زفافنا">Dengan penuh kegembiraan, kami menjemput tuan/puan ke majlis perkahwinan</p>
+
+    <h1 class="h-names">
+      <span>{{GROOM_NAME}}</span>
+      <span class="h-amp">— &amp; —</span>
+      <span>{{BRIDE_NAME}}</span>
+    </h1>
+
+    <div class="h-rule"></div>
+
+    <p class="h-date"><strong>{{DATE_DD}}</strong> · <strong>{{DATE_MM}}</strong> · <strong>{{DATE_YYYY}}</strong></p>
+    <p class="h-venue">{{VENUE_NAME}} · {{VENUE_CITY}}</p>
+  </div>
+
+  <div class="h-scroll">
+    <div class="h-scroll-txt" data-ms="Tatal ke bawah" data-en="Scroll down" data-ar="مرر للأسفل">Tatal ke bawah</div>
+    <div class="h-scroll-dot"></div>
+  </div>
+</section>
+
+<!-- Torn paper: crimson → white -->
+<div class="torn-divider" style="background:var(--crimson-dark);">
+  <svg viewBox="0 0 480 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M0,60 L0,28 C18,22 30,38 50,32 C68,26 80,14 100,20 C120,26 132,40 155,34 C176,28 188,12 210,18 C232,24 244,42 265,36 C286,30 298,10 320,16 C340,22 352,38 375,32 C396,26 408,8 430,14 C450,20 465,36 480,28 L480,60 Z" fill="var(--bg-section-light)"/>
+  </svg>
+</div>
+
+<!-- ══ GALLERY (Horizontal Swipe Carousel) ══ -->
+<section id="gallery" class="sec">
+  <div class="si reveal sec-content">
+    <div style="text-align:center;margin-bottom:0.5rem;">
+      <div class="eu-chip" style="justify-content:center;" data-ms="Detik Indah" data-en="Beautiful Moments" data-ar="لحظات جميلة">Detik Indah</div>
+      <h2 class="sec-h" data-ms="Galeri <em>Kami</em>" data-en="Our <em>Gallery</em>" data-ar="معرض <em>صورنا</em>" style="text-align:center;">Galeri <em>Kami</em></h2>
+    </div>
+  </div>
+  <div class="gal-carousel" id="galCarousel">
+    <div class="gal-item" data-idx="0"><img src="{{GALLERY1_URL}}" alt="" loading="lazy"><div class="gal-overlay"><div class="gal-zoom-icon">⛶</div></div></div>
+    <div class="gal-item" data-idx="1"><img src="{{GALLERY2_URL}}" alt="" loading="lazy"><div class="gal-overlay"><div class="gal-zoom-icon">⛶</div></div></div>
+    <div class="gal-item" data-idx="2"><img src="{{GALLERY3_URL}}" alt="" loading="lazy"><div class="gal-overlay"><div class="gal-zoom-icon">⛶</div></div></div>
+    <div class="gal-item" data-idx="3"><img src="{{GALLERY4_URL}}" alt="" loading="lazy"><div class="gal-overlay"><div class="gal-zoom-icon">⛶</div></div></div>
+    <div class="gal-item" data-idx="4"><img src="{{GALLERY5_URL}}" alt="" loading="lazy"><div class="gal-overlay"><div class="gal-zoom-icon">⛶</div></div></div>
+    <div class="gal-item" data-idx="5"><img src="{{GALLERY6_URL}}" alt="" loading="lazy"><div class="gal-overlay"><div class="gal-zoom-icon">⛶</div></div></div>
+    <div class="gal-item" data-idx="6"><img src="{{GALLERY7_URL}}" alt="" loading="lazy"><div class="gal-overlay"><div class="gal-zoom-icon">⛶</div></div></div>
+    <div class="gal-item" data-idx="7"><img src="{{GALLERY8_URL}}" alt="" loading="lazy"><div class="gal-overlay"><div class="gal-zoom-icon">⛶</div></div></div>
+    <div class="gal-item" data-idx="8"><img src="{{GALLERY9_URL}}" alt="" loading="lazy"><div class="gal-overlay"><div class="gal-zoom-icon">⛶</div></div></div>
+    <div class="gal-item" data-idx="9"><img src="{{GALLERY10_URL}}" alt="" loading="lazy"><div class="gal-overlay"><div class="gal-zoom-icon">⛶</div></div></div>
+  </div>
+  <div class="gal-counter-row" id="galCounterRow"></div>
+  <div class="gal-hint" data-ms="← Leret untuk lihat lagi →" data-en="← Swipe to see more →" data-ar="← اسحب لرؤية المزيد →">← Leret untuk lihat lagi →</div>
+</section>
+
+<!-- Lightbox -->
+<div class="gal-lightbox" id="galLightbox">
+  <div class="gal-lb-img-wrap">
+    <div class="gal-lb-close" onclick="closeLightbox()">✕</div>
+    <div class="gal-lb-nav gal-lb-prev" onclick="navLightbox(-1)">‹</div>
+    <img class="gal-lb-img" id="galLbImg" src="" alt="">
+    <div class="gal-lb-nav gal-lb-next" onclick="navLightbox(1)">›</div>
+    <div class="gal-lb-counter" id="galLbCounter"></div>
+  </div>
+</div>
+
+<!-- Torn: white → crimson (lepas gallery, masuk info) -->
+<div class="torn-divider" style="background:var(--bg-section-light);">
+  <svg viewBox="0 0 480 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M0,60 L0,30 C24,24 36,42 60,36 C82,30 92,10 118,16 C142,22 154,44 178,38 C200,32 210,10 235,16 C260,22 272,46 296,40 C318,34 330,12 354,18 C376,24 388,42 412,36 C434,30 446,10 470,17 L480,20 L480,60 Z" fill="var(--crimson)"/>
+  </svg>
+</div>
+
+<!-- ══ INFO (Pengantin) ══ -->
+<section id="info" class="sec">
+  <div class="si reveal sec-content">
+    <div style="text-align:center;margin-bottom:0.5rem;">
+      <!-- Section ornament -->
+      <svg width="100" height="20" viewBox="0 0 100 20" xmlns="http://www.w3.org/2000/svg" style="margin-bottom:0.8rem;">
+        <line x1="0" y1="10" x2="40" y2="10" stroke="rgba(var(--rgb-primary),0.2)" stroke-width="0.8"/>
+        <path d="M50 4 L54 10 L50 16 L46 10 Z" fill="none" stroke="rgba(var(--rgb-primary),0.4)" stroke-width="0.8"/>
+        <line x1="60" y1="10" x2="100" y2="10" stroke="rgba(var(--rgb-primary),0.2)" stroke-width="0.8"/>
+      </svg>
+    </div>
+    <div class="eu-chip" data-ms="Majlis Perkahwinan" data-en="Wedding Ceremony" data-ar="حفل الزفاف">Majlis Perkahwinan</div>
+    <h2 class="sec-h" data-ms="Pengantin <em>Kami</em>" data-en="Our <em>Couple</em>" data-ar="عروسانا">Pengantin <em>Kami</em></h2>
+    <div class="o-div"><span>✦</span></div>
+    <div class="p-duo">
+      <div class="p-portrait">
+        <div style="display:none;align-items:center;justify-content:center;width:52px;height:52px;border-radius:4px;background:var(--crimson);margin-bottom:1rem;font-size:1.3rem;box-shadow:0 4px 16px rgba(var(--rgb-primary),0.25);">💍</div>
+        <p class="p-side" data-ms="— Pengantin Lelaki —" data-en="— Groom —" data-ar="— العريس —">— Pengantin Lelaki —</p>
+        <p class="p-name">{{GROOM_NAME}}</p>
+        <div class="p-portrait-line"></div>
+        <p class="p-conn" data-ms="putera kepada" data-en="son of" data-ar="ابن">putera kepada</p>
+        <p class="p-parents">{{GROOM_FATHER}}<br><span style="font-size:0.75rem;opacity:0.4;font-family:'Inter',sans-serif;">&amp;</span><br>{{GROOM_MOTHER}}</p>
+      </div>
+      <div class="p-and-divider"><span class="p-and-text">&amp;</span></div>
+      <div class="p-portrait">
+        <div style="display:none;align-items:center;justify-content:center;width:52px;height:52px;border-radius:4px;background:rgba(var(--rgb-primary),0.08);border:1px solid var(--border-mid);margin-bottom:1rem;font-size:1.3rem;">🌸</div>
+        <p class="p-side" data-ms="— Pengantin Perempuan —" data-en="— Bride —" data-ar="— العروس —">— Pengantin Perempuan —</p>
+        <p class="p-name">{{BRIDE_NAME}}</p>
+        <div class="p-portrait-line"></div>
+        <p class="p-conn" data-ms="puteri kepada" data-en="daughter of" data-ar="بنت">puteri kepada</p>
+        <p class="p-parents">{{BRIDE_FATHER}}<br><span style="font-size:0.75rem;opacity:0.4;font-family:'Inter',sans-serif;">&amp;</span><br>{{BRIDE_MOTHER}}</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Torn: white → crimson-mist -->
+<div class="torn-divider" style="background:var(--bg-section-light);">
+  <svg viewBox="0 0 480 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M0,60 L0,32 C22,26 35,42 58,36 C80,30 90,14 112,20 C134,26 145,44 168,38 C190,32 200,10 225,16 C248,22 258,44 280,38 C302,32 312,12 335,18 C356,24 368,40 392,34 C414,28 425,8 450,14 C465,18 475,34 480,30 L480,60 Z" fill="var(--crimson-mist)"/>
+  </svg>
+</div>
+
+<!-- ══ DETAILS ══ -->
+<section id="details" class="sec">
+  <div class="si reveal sec-content">
+    <div class="eu-chip" data-ms="Maklumat Majlis" data-en="Event Details" data-ar="تفاصيل الحفل">Maklumat Majlis</div>
+    <h2 class="sec-h" data-ms="Butiran <em>Majlis</em>" data-en="Event <em>Details</em>" data-ar="تفاصيل <em>الحفل</em>">Butiran <em>Majlis</em></h2>
+    <div class="det-cards">
+      <div class="det-card" id="dc-tarikh" onclick="toggleDet('tarikh')">
+        <div class="dh"><div class="dl"><div class="di">📅</div><div><div class="dlb" data-ms="Tarikh" data-en="Date" data-ar="التاريخ">Tarikh</div><div class="dv">{{DATE_DAY}}, {{DATE_DISPLAY}}</div><div class="ds">{{DATE_HIJRI}}</div></div></div><div class="da" id="da-tarikh">▼</div></div>
+        <div class="det-exp" id="de-tarikh"><div class="det-exp-b"><div class="cal-wrap"><div class="cal-head"><div class="cal-month">September 2026</div><div class="cal-yr">September 2026</div></div><div class="cal-grid" id="calGrid"></div></div></div></div>
+      </div>
+      <div class="det-card" id="dc-masa" onclick="toggleDet('masa')">
+        <div class="dh"><div class="dl"><div class="di">🕙</div><div><div class="dlb" data-ms="Masa" data-en="Time" data-ar="الوقت">Masa</div><div class="dv">{{TIME_START}} — {{TIME_END}}</div><div class="ds" data-ms="Tetamu dijemput hadir" data-en="Guests are welcome" data-ar="يرحب بالضيوف">Tetamu dijemput hadir</div></div></div><div class="da" id="da-masa">▼</div></div>
+        <div class="det-exp" id="de-masa"><div class="det-exp-b"><div class="clk-wrap">
+          <svg class="clk-svg" viewBox="0 0 105 105">
+            <circle cx="52.5" cy="52.5" r="50" fill="none" stroke="var(--border-light)" stroke-width="0.8"/>
+            <circle cx="52.5" cy="52.5" r="44" fill="var(--crimson-mist)" stroke="var(--border-light)" stroke-width="0.5"/>
+            <g stroke="var(--border-mid)" stroke-width="0.8"><line x1="52.5" y1="10" x2="52.5" y2="16"/><line x1="95" y1="52.5" x2="89" y2="52.5"/><line x1="52.5" y1="95" x2="52.5" y2="89"/><line x1="10" y1="52.5" x2="16" y2="52.5"/></g>
+            <text x="52.5" y="22" text-anchor="middle" font-size="6" fill="var(--text-muted)" font-family="Inter">12</text>
+            <text x="88" y="55.5" text-anchor="middle" font-size="6" fill="var(--text-muted)" font-family="Inter">3</text>
+            <text x="52.5" y="90" text-anchor="middle" font-size="6" fill="var(--text-muted)" font-family="Inter">6</text>
+            <text x="17" y="55.5" text-anchor="middle" font-size="6" fill="var(--text-muted)" font-family="Inter">9</text>
+            <line id="svgHour" x1="52.5" y1="52.5" x2="52.5" y2="32" stroke="var(--crimson)" stroke-width="2.5" stroke-linecap="round"/>
+            <line id="svgMin" x1="52.5" y1="52.5" x2="52.5" y2="20" stroke="var(--crimson-light)" stroke-width="1.5" stroke-linecap="round"/>
+            <circle cx="52.5" cy="52.5" r="3" fill="var(--crimson)"/>
+            <circle cx="52.5" cy="52.5" r="1.5" fill="var(--bg-section-light)"/>
+          </svg>
+          <div class="clk-time">{{TIME_START_SHORT}} — {{TIME_END_SHORT}}</div>
+          <div class="clk-sub" data-ms="Tetamu dijemput hadir pada masa ini" data-en="Guests are warmly welcomed at this time" data-ar="يرحب بالضيوف في هذا الوقت">Tetamu dijemput hadir pada masa ini</div>
+        </div></div></div>
+      </div>
+      <div class="det-card" id="dc-venue" onclick="toggleDet('venue')">
+        <div class="dh"><div class="dl"><div class="di">📍</div><div><div class="dlb" data-ms="Tempat" data-en="Venue" data-ar="المكان">Tempat</div><div class="dv">{{VENUE_NAME}}</div><div class="ds">{{VENUE_CITY}}</div></div></div><div class="da" id="da-venue">▼</div></div>
+        <div class="det-exp" id="de-venue"><div class="det-exp-b">
+          <p style="font-size:0.72rem;color:var(--text-muted);margin-bottom:0.85rem;line-height:1.5;">{{VENUE_ADDRESS}}</p>
+          <div style="display:flex;gap:0.6rem;"><a href="https://waze.com/ul?q={{VENUE_WAZE_QUERY}}" target="_blank" class="map-btn mw" style="flex:1;">🚗 Waze</a><a href="https://maps.google.com/?q={{VENUE_GMAPS_QUERY}}" target="_blank" class="map-btn mg" style="flex:1;">📍 Google Maps</a></div>
+        </div></div>
+      </div>
+      <div class="det-card" style="cursor:default;">
+        <div class="dh"><div class="dl"><div class="di">🏠</div><div><div class="dlb" data-ms="Tuan Rumah" data-en="Host" data-ar="صاحب المنزل">Tuan Rumah</div><div class="dv">{{HOST_FAMILY}}</div><div class="ds" data-ms="Bersama keluarga" data-en="Together with family" data-ar="مع العائلة">Bersama keluarga</div></div></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Torn: crimson-mist → white -->
+<div class="torn-divider" style="background:var(--crimson-mist);">
+  <svg viewBox="0 0 480 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M0,60 L0,25 C25,19 38,35 62,28 C84,22 96,8 120,15 C142,22 154,38 178,31 C200,25 210,5 235,12 C258,18 270,40 294,33 C316,26 328,6 352,13 C374,20 386,38 410,32 C432,26 445,10 465,17 L480,22 L480,60 Z" fill="var(--bg-section-light)"/>
+  </svg>
+</div>
+
+<!-- ══ COUNTDOWN ══ -->
+<section id="countdown" class="reveal">
+  <div class="cd-inner sec-content">
+    <div style="text-align:center;">
+      <div class="eu-chip" style="justify-content:center;" data-ms="Kiraan Masa" data-en="Countdown" data-ar="العد التنازلي">Kiraan Masa</div>
+      <h2 class="sec-h" data-ms="Menuju <em>Hari Bahagia</em>" data-en="Counting <em>Down</em>" data-ar="العد <em>التنازلي</em>">Menuju <em>Hari Bahagia</em></h2>
+    </div>
+    <div class="cd-grid">
+      <div class="cd-box"><div class="cd-n" id="cdD">--</div><div class="cd-l" data-ms="Hari" data-en="Days" data-ar="أيام">Hari</div></div>
+      <div class="cd-box"><div class="cd-n" id="cdH">--</div><div class="cd-l" data-ms="Jam" data-en="Hours" data-ar="ساعات">Jam</div></div>
+      <div class="cd-box"><div class="cd-n" id="cdM">--</div><div class="cd-l" data-ms="Minit" data-en="Minutes" data-ar="دقائق">Minit</div></div>
+      <div class="cd-box"><div class="cd-n" id="cdS">--</div><div class="cd-l" data-ms="Saat" data-en="Seconds" data-ar="ثواني">Saat</div></div>
+    </div>
+    <div id="cdDone">
+      <div class="cd-live-ring">
+        <svg class="cd-live-svg" viewBox="0 0 180 180" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="90" cy="90" r="80" fill="none" stroke="rgba(var(--rgb-primary),0.15)" stroke-width="0.6" stroke-dasharray="6,6"/>
+          <circle cx="90" cy="90" r="65" fill="none" stroke="rgba(var(--rgb-primary),0.1)" stroke-width="0.4" stroke-dasharray="4,8"/>
+        </svg>
+        <div class="cd-live-centre">
+          <div class="cd-live-icon">🌸</div>
+          <div class="cd-live-title">Majlis</div>
+        </div>
+      </div>
+      <div class="cd-live-badge">
+        <div class="cd-live-dot"></div>
+        <div class="cd-live-label" data-ms="Sedang Berlangsung" data-en="In Progress" data-ar="يجري الآن">Sedang Berlangsung</div>
+      </div>
+      <div class="cd-live-petals" id="cdPetals"></div>
+    </div>
+  </div>
+</section>
+
+<!-- Torn: white → crimson-mist -->
+<div class="torn-divider" style="background:var(--bg-section-light);">
+  <svg viewBox="0 0 480 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M0,60 L0,30 C20,24 32,40 55,34 C76,28 88,12 110,18 C132,24 144,42 167,36 C188,30 200,12 222,18 C244,24 256,40 280,34 C302,28 314,8 338,14 C360,20 372,38 396,32 C418,26 430,8 455,15 C468,18 476,32 480,28 L480,60 Z" fill="var(--crimson-mist)"/>
+  </svg>
+</div>
+
+<!-- ══ ITINERARY ══ -->
+<section id="itinerary" class="sec">
+  <div class="si reveal sec-content">
+    <div class="eu-chip" data-ms="Aturcara" data-en="Programme" data-ar="البرنامج">Aturcara</div>
+    <h2 class="sec-h" data-ms="Aturcara <em>Majlis</em>" data-en="Event <em>Programme</em>" data-ar="برنامج <em>الحفل</em>">Aturcara <em>Majlis</em></h2>
+    <div class="tl">
+      <div class="tl-progress" id="tlProgress"></div>
+      <div class="tl-row from-left" data-time="{{TIME_ARRIVAL}}"><div class="tl-b-left"><div class="tl-t">{{TIME_ARRIVAL}}<span class="tl-now-badge" style="display:none;" data-en-badge="NOW" data-ms-badge="SEKARANG">SEKARANG</span></div><div class="tl-ev" data-ms="Ketibaan Tetamu" data-en="Arrival of Guests" data-ar="وصول الضيوف">Ketibaan Tetamu</div></div><div class="tl-dot">🌅</div><div class="tl-b-spacer"></div></div>
+      <div class="tl-row from-right" data-time="{{TIME_AKAD}}"><div class="tl-b-spacer"></div><div class="tl-dot">🌸</div><div class="tl-b-right"><div class="tl-t">{{TIME_AKAD}}<span class="tl-now-badge" style="display:none;">SEKARANG</span></div><div class="tl-ev" data-ms="Akad Nikah" data-en="Solemnization" data-ar="عقد الزواج">Akad Nikah</div></div></div>
+      <div class="tl-row from-left" data-time="{{TIME_BERSANDING}}"><div class="tl-b-left"><div class="tl-t">{{TIME_BERSANDING}}<span class="tl-now-badge" style="display:none;">SEKARANG</span></div><div class="tl-ev" data-ms="Persandingan Pengantin" data-en="Bridal Dais" data-ar="جلوس العروسين">Persandingan Pengantin</div></div><div class="tl-dot">👑</div><div class="tl-b-spacer"></div></div>
+      <div class="tl-row from-right" data-time="{{TIME_MAKAN}}"><div class="tl-b-spacer"></div><div class="tl-dot">🍽️</div><div class="tl-b-right"><div class="tl-t">{{TIME_MAKAN}}<span class="tl-now-badge" style="display:none;">SEKARANG</span></div><div class="tl-ev" data-ms="Jamuan Makan" data-en="Luncheon" data-ar="حفل الغداء">Jamuan Makan</div></div></div>
+      <div class="tl-row from-left" data-time="{{TIME_BERSURAI}}"><div class="tl-b-left"><div class="tl-t">{{TIME_BERSURAI}}<span class="tl-now-badge" style="display:none;">SEKARANG</span></div><div class="tl-ev" data-ms="Majlis Bersurai" data-en="End of Programme" data-ar="نهاية الحفل">Majlis Bersurai</div></div><div class="tl-dot">🌙</div><div class="tl-b-spacer"></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- Torn: crimson-mist → white -->
+<div class="torn-divider" style="background:var(--crimson-mist);">
+  <svg viewBox="0 0 480 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M0,60 L0,22 C28,15 42,34 65,28 C88,22 98,6 122,12 C146,18 158,36 182,30 C205,24 215,4 240,10 C264,16 276,38 300,31 C322,24 334,4 358,11 C380,18 392,36 416,30 C440,24 452,6 475,13 L480,14 L480,60 Z" fill="var(--bg-section-light)"/>
+  </svg>
+</div>
+
+<!-- ══ DRESS CODE ══ -->
+<section id="dresscode" class="sec">
+  <div class="si reveal sec-content" style="text-align:center;">
+    <div class="eu-chip" style="justify-content:center;" data-ms="Kod Pakaian" data-en="Dress Code" data-ar="قواعد اللباس">Kod Pakaian</div>
+    <h2 class="sec-h" data-ms="Tema <em>Warna</em>" data-en="Dress <em>Code</em>" data-ar="رمز <em>اللباس</em>">Tema <em>Warna</em></h2>
+    <div class="swatches">
+      <div class="sw"><div class="sw-ring"><div class="sw-inner" style="background:{{COLOR1_HEX}};"></div></div><div class="sw-name">{{COLOR1_NAME}}</div></div>
+      <div class="sw"><div class="sw-ring"><div class="sw-inner" style="background:{{COLOR2_HEX}};"></div></div><div class="sw-name">{{COLOR2_NAME}}</div></div>
+      <div class="sw"><div class="sw-ring"><div class="sw-inner" style="background:{{COLOR3_HEX}};"></div></div><div class="sw-name">{{COLOR3_NAME}}</div></div>
+      <div class="sw"><div class="sw-ring"><div class="sw-inner" style="background:{{COLOR4_HEX}};"></div></div><div class="sw-name">{{COLOR4_NAME}}</div></div>
+      <div class="sw"><div class="sw-ring"><div class="sw-inner" style="background:{{COLOR5_HEX}};"></div></div><div class="sw-name">{{COLOR5_NAME}}</div></div>
+    </div>
+    <p class="dc-note" data-ms="* Tema: {{DRESSCODE_THEME}} — {{DRESSCODE_NOTE}}" data-en="* Theme: {{DRESSCODE_THEME}} — {{DRESSCODE_NOTE}}" data-ar="* {{DRESSCODE_THEME}} — {{DRESSCODE_NOTE}}">* Tema: {{DRESSCODE_THEME}} — {{DRESSCODE_NOTE}}</p>
+  </div>
+</section>
+
+<!-- Torn: white → crimson-mist -->
+<div class="torn-divider" style="background:var(--bg-section-light);">
+  <svg viewBox="0 0 480 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M0,60 L0,28 C18,22 30,38 52,32 C72,26 82,10 105,16 C128,22 140,40 164,34 C185,28 195,8 220,14 C244,20 256,40 280,33 C302,26 314,6 338,12 C360,18 372,36 396,30 C418,24 430,6 454,12 C468,16 476,30 480,26 L480,60 Z" fill="var(--crimson-mist)"/>
+  </svg>
+</div>
+
+<!-- ══ LOCATION ══ -->
+<section id="location" class="sec">
+  <div class="si reveal sec-content">
+    <div class="eu-chip" data-ms="Lokasi Majlis" data-en="Venue Location" data-ar="موقع الحفل">Lokasi Majlis</div>
+    <h2 class="sec-h" data-ms="Cara <em>Ke Sana</em>" data-en="How To <em>Get There</em>" data-ar="كيفية <em>الوصول</em>">Cara <em>Ke Sana</em></h2>
+    <div class="map-visual"><canvas id="mapCanvas"></canvas><div class="map-ripple"></div><div class="map-pin">📍</div></div>
+    <p class="map-name">{{VENUE_FULLNAME}}</p>
+    <p class="map-addr">{{VENUE_ADDRESS}}</p>
+    <div class="map-btns"><a href="https://waze.com/ul?q={{VENUE_WAZE_QUERY}}" target="_blank" class="map-btn mw">🚗 Buka Waze</a><a href="https://maps.google.com/?q={{VENUE_GMAPS_QUERY}}" target="_blank" class="map-btn mg">📍 Google Maps</a></div>
+  </div>
+</section>
+
+<!-- Torn: crimson-mist → white -->
+<div class="torn-divider" style="background:var(--crimson-mist);">
+  <svg viewBox="0 0 480 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M0,60 L0,26 C22,20 34,38 58,32 C80,26 90,8 115,14 C138,20 150,40 174,34 C196,28 206,6 232,12 C256,18 268,42 292,36 C314,30 326,10 350,16 C372,22 384,40 408,34 C430,28 442,8 466,15 L480,19 L480,60 Z" fill="var(--bg-section-light)"/>
+  </svg>
+</div>
+
+<!-- ══ LOVE STORY ══ -->
+<section id="lovestory" class="sec">
+  <div class="si reveal sec-content">
+    <div class="eu-chip" data-ms="Perjalanan Cinta" data-en="Our Story" data-ar="قصتنا">Perjalanan Cinta</div>
+    <h2 class="sec-h" data-ms="Kisah <em>Kami</em>" data-en="Our <em>Story</em>" data-ar="قصتنا <em>معاً</em>">Kisah <em>Kami</em></h2>
+    <div class="love-tl">
+      <div class="love-row"><div class="love-badge">{{LOVE_YEAR_1}}</div><div class="love-body"><div class="love-ti" data-ms="Pertemuan Pertama" data-en="First Meeting" data-ar="اللقاء الأول">Pertemuan Pertama</div><div class="love-d">{{LOVE_STORY_1}}</div></div></div>
+      <div class="love-row"><div class="love-badge">{{LOVE_YEAR_2}}</div><div class="love-body"><div class="love-ti" data-ms="Mula Bercinta" data-en="We Started Dating" data-ar="بداية الحب">Mula Bercinta</div><div class="love-d">{{LOVE_STORY_2}}</div></div></div>
+      <div class="love-row"><div class="love-badge">{{LOVE_YEAR_3}}</div><div class="love-body"><div class="love-ti" data-ms="Bertunang" data-en="Engaged" data-ar="الخطوبة">Bertunang</div><div class="love-d">{{LOVE_STORY_3}}</div></div></div>
+      <div class="love-row"><div class="love-badge">{{LOVE_YEAR_4}}</div><div class="love-body"><div class="love-ti" data-ms="Hari Perkahwinan 💍" data-en="Wedding Day 💍" data-ar="يوم الزفاف 💍">Hari Perkahwinan 💍</div><div class="love-d" data-ms="Alhamdulillah, saat yang dinantikan telah tiba. Semoga kebahagiaan ini berkekalan hingga ke syurga." data-en="Alhamdulillah, the moment we've been waiting for. May this happiness last till Jannah." data-ar="الحمد لله، جاءت اللحظة المنتظرة.">Alhamdulillah, saat yang dinantikan telah tiba. Semoga kebahagiaan ini berkekalan hingga ke syurga.</div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- Torn: white → crimson -->
+<div class="torn-divider" style="background:var(--bg-section-light);">
+  <svg viewBox="0 0 480 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M0,60 L0,30 C24,24 36,42 60,36 C82,30 92,10 118,16 C142,22 154,44 178,38 C200,32 210,10 235,16 C260,22 272,46 296,40 C318,34 330,12 354,18 C376,24 388,42 412,36 C434,30 446,10 470,17 L480,20 L480,60 Z" fill="var(--crimson)"/>
+  </svg>
+</div>
+
+<!-- ══ MESEJ ══ -->
+<section id="mesej" class="reveal">
+  <div class="mesej-inner sec-content">
+    <div style="display:none;align-items:center;justify-content:center;width:52px;height:52px;border-radius:4px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.2);margin:0 auto 1rem;font-size:1.3rem;">💌</div>
+    <div class="eu-chip" style="justify-content:center;color:rgba(255,255,255,0.6);" data-ms="Dari Hati Kami" data-en="From Our Hearts" data-ar="من قلوبنا">Dari Hati Kami</div>
+    <p class="mesej-text" data-ms="{{HOST_MESSAGE_BM}}" data-en="{{HOST_MESSAGE_EN}}" data-ar="[رسالة صادقة]">{{HOST_MESSAGE_BM}}</p>
+    <div class="mesej-from" data-ms="Dengan penuh kasih sayang," data-en="With love and warmth," data-ar="بكل محبة ومودة،">Dengan penuh kasih sayang,</div>
+    <div class="mesej-name">{{HOST_FAMILY_FULL}}</div>
+  </div>
+</section>
+
+<!-- Torn: crimson → crimson-mist -->
+<div class="torn-divider" style="background:var(--crimson);">
+  <svg viewBox="0 0 480 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M0,60 L0,28 C20,21 32,38 56,32 C78,26 88,8 112,14 C136,20 148,40 172,34 C194,28 204,6 230,12 C254,18 266,42 290,35 C312,28 324,6 348,13 C370,20 382,38 406,32 C428,26 440,8 464,15 L480,19 L480,60 Z" fill="var(--crimson-mist)"/>
+  </svg>
+</div>
+
+<!-- ══ RSVP ══ -->
+<section id="rsvp" class="sec">
+  <div class="si reveal sec-content">
+    <div class="eu-chip" data-ms="Pengesahan Kehadiran" data-en="RSVP" data-ar="تأكيد الحضور">Pengesahan Kehadiran</div>
+    <h2 class="sec-h" data-ms="Sahkan <em>Kehadiran</em>" data-en="Confirm <em>Attendance</em>" data-ar="تأكيد <em>الحضور</em>">Sahkan <em>Kehadiran</em></h2>
+    <div class="form-card" id="rsvpForm">
+      <div class="fg"><label class="fl" data-ms="Nama Penuh" data-en="Full Name" data-ar="الاسم الكامل">Nama Penuh</label><input type="text" class="fi" id="rsvpName" placeholder="Nama anda..." data-ph-ms="Nama anda..." data-ph-en="Your name..." data-ph-ar="اسمك..."></div>
+      <div class="fg"><label class="fl" data-ms="Bilangan Hadir" data-en="No. of Guests" data-ar="عدد الضيوف">Bilangan Hadir</label><div style="display:flex;align-items:center;gap:0;border:1px solid var(--border-mid);border-radius:6px;overflow:hidden;background:var(--bg-card);"><button type="button" onclick="rsvpCountAdj(-1)" style="width:44px;height:44px;background:var(--crimson-mist);border:none;color:var(--crimson);font-size:1.2rem;cursor:pointer;flex-shrink:0;transition:background 0.2s;" onmouseenter="this.style.background='rgba(var(--rgb-primary),0.15)'" onmouseleave="this.style.background='var(--crimson-mist)'">−</button><input type="text" id="rsvpCount" value="1" readonly style="flex:1;text-align:center;background:transparent;border:none;color:var(--text-dark);font-family:'Inter',sans-serif;font-size:0.85rem;outline:none;padding:0;min-width:0;"></input><button type="button" onclick="rsvpCountAdj(1)" style="width:44px;height:44px;background:var(--crimson-mist);border:none;color:var(--crimson);font-size:1.2rem;cursor:pointer;flex-shrink:0;transition:background 0.2s;" onmouseenter="this.style.background='rgba(var(--rgb-primary),0.15)'" onmouseleave="this.style.background='var(--crimson-mist)'">+</button></div></div>
+      <div class="fg"><label class="fl" data-ms="Status Kehadiran" data-en="Attendance" data-ar="حالة الحضور">Status Kehadiran</label><select class="fsel" id="rsvpStatus"><option value="">-- Pilih --</option><option value="hadir">✅ Insya-Allah hadir</option></select></div>
+      <button class="btn-g" onclick="submitRSVP()" data-ms="Hantar Kehadiran" data-en="Submit RSVP" data-ar="أرسل التأكيد">Hantar Kehadiran</button>
+    </div>
+    <div id="rsvpSuccess">
+      <div class="rsvp-tick">✅</div>
+      <div class="rsvp-ok-txt">Terima Kasih</div>
+      <div class="rsvp-ok-sub">Kehadiran anda telah direkodkan. Kami menantikan kehadiran anda!</div>
+      <div id="rsvpCards"></div>
+      <button class="btn-outline" onclick="resetRSVP()" style="margin-top:0.5rem;">Daftar lain</button>
+    </div>
+    <div style="margin-top:1.4rem;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.8rem;">
+        <div class="eu-chip">Senarai Hadir</div>
+        <div id="rsvpTotalBadge"><span id="rsvpTotalPax">0</span> pax dijangka hadir</div>
+      </div>
+      <div id="rsvpSearchWrap">
+        <div style="position:relative;">
+          <span style="position:absolute;left:0.75rem;top:50%;transform:translateY(-50%);font-size:0.75rem;opacity:0.4;pointer-events:none;">🔍</span>
+          <input type="text" id="rsvpSearch" placeholder="Cari nama tetamu..." oninput="filterRSVP()">
+        </div>
+        <div id="rsvpSearchEmpty" style="display:none;font-size:0.62rem;color:var(--text-muted);text-align:center;padding:0.6rem 0;font-style:italic;">Tiada nama yang sepadan.</div>
+      </div>
+      <div class="rsvp-entries" id="rsvpList" style="max-height:260px;overflow-y:auto;"></div>
+    </div>
+  </div>
+</section>
+
+<!-- Torn: crimson-mist → white -->
+<div class="torn-divider" style="background:var(--crimson-mist);">
+  <svg viewBox="0 0 480 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M0,60 L0,24 C26,18 38,36 62,30 C84,24 94,4 120,10 C144,16 156,38 180,32 C202,26 212,4 238,10 C262,16 274,42 298,36 C320,30 332,8 356,14 C378,20 390,40 414,34 C436,28 448,6 472,13 L480,16 L480,60 Z" fill="var(--bg-section-light)"/>
+  </svg>
+</div>
+
+<!-- ══ REGISTRY ══ -->
+<section id="registry" class="sec">
+  <div class="si reveal sec-content">
+    <div class="eu-chip" data-ms="Salam Kaut" data-en="Gift / Salam Kaut" data-ar="الهدايا">Salam Kaut</div>
+    <h2 class="sec-h">Hadiah & <em>Salam Kaut</em></h2>
+    <p style="font-size:0.75rem;color:var(--text-muted);margin-top:0.4rem;font-style:italic;font-family:'Cormorant Garamond',serif;">Kehadiran anda sudah cukup bermakna bagi kami 🌿</p>
+    <div class="form-card" id="regForm">
+      <div class="fg"><label class="fl">Nama Pemberi</label><input type="text" class="fi" id="regName" placeholder="Nama anda..." data-ph-ms="Nama anda..." data-ph-en="Your name..." data-ph-ar="اسمك..."></div>
+      <div class="fg"><label class="fl">Nilai Hadiah (RM)</label><input type="number" class="fi" id="regAmount" placeholder="Contoh: 100" min="0" step="1"></div>
+      <div class="qr-sec"><div class="qr-box" style="border:none;padding:0;background:transparent;"><img src="{{QR_CODE_URL}}" style="width:145px;height:145px;object-fit:contain;border-radius:4px;" alt="QR Code Salam Kaut"></div><div class="qr-lbl">Imbas QR Code untuk salam kaut digital</div></div>
+      <button class="btn-g" onclick="submitRegistry()" style="margin-top:1rem;">Hantar</button>
+    </div>
+    <div id="regSuccess" style="display:none;flex-direction:column;align-items:center;gap:1rem;padding:1.5rem;text-align:center;">
+      <div style="font-size:2.5rem;">🎊</div>
+      <div id="regSuccessMsg" style="font-size:0.9rem;font-style:italic;color:var(--text-dark);line-height:1.7;padding:1rem 1.2rem;background:var(--crimson-mist);border:1px solid var(--border-light);border-radius:8px;font-family:'Cormorant Garamond',serif;"></div>
+      <button onclick="screenshotReg()" style="display:flex;align-items:center;gap:0.5rem;padding:0.7rem 1.6rem;background:var(--crimson);border:none;border-radius:50px;font-family:'Inter',sans-serif;font-size:0.65rem;letter-spacing:0.2em;color:#fff;cursor:pointer;">📸 Screenshot</button>
+      <button class="btn-outline" onclick="resetReg()">Hantar lagi</button>
+    </div>
+  </div>
+</section>
+
+<!-- Torn: white → crimson-mist -->
+<div class="torn-divider" style="background:var(--bg-section-light);">
+  <svg viewBox="0 0 480 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M0,60 L0,32 C22,26 34,44 58,38 C80,32 90,12 115,18 C138,24 150,46 174,40 C196,34 206,10 232,16 C256,22 268,44 292,38 C314,32 326,10 350,16 C372,22 384,42 408,36 C430,30 442,10 466,17 L480,21 L480,60 Z" fill="var(--crimson-mist)"/>
+  </svg>
+</div>
+
+<!-- ══ DOA ══ -->
+<section id="doa" class="sec">
+  <div class="si reveal sec-content">
+    <div class="eu-chip" data-ms="Ucapan & Doa" data-en="Wishes & Prayers" data-ar="التهاني والدعاء">Ucapan & Doa</div>
+    <h2 class="sec-h" data-ms="Titipkan <em>Doa Anda</em>" data-en="Leave Your <em>Wishes</em>" data-ar="اترك <em>دعواتك</em>">Titipkan <em>Doa Anda</em></h2>
+    <div class="form-card">
+      <div class="fg"><label class="fl">Nama</label><input type="text" class="fi" id="doaName" placeholder="Nama anda..." data-ph-ms="Nama anda..." data-ph-en="Your name..." data-ph-ar="اسمك..."></div>
+      <div class="fg"><label class="fl">Ucapan / Doa</label><textarea class="fta" id="doaMsg" placeholder="Tulis ucapan di sini..."></textarea></div>
+      <button class="btn-g" onclick="submitDoa()">Hantar Ucapan 🤲</button>
+      <div style="margin-top:0.85rem;padding:0.75rem 1rem;background:rgba(var(--rgb-primary),0.05);border:1px solid rgba(var(--rgb-primary),0.15);border-radius:8px;border-left:3px solid var(--crimson);">
+  <p style="font-size:0.68rem;color:var(--text-muted);line-height:1.7;font-family:'Cormorant Garamond',serif;font-style:italic;margin:0;">
+    💬 <strong style="font-style:normal;font-family:'Inter',sans-serif;font-size:0.6rem;letter-spacing:0.1em;color:var(--crimson);">PERINGATAN</strong><br>
+    Ucapan anda akan dipaparkan secara langsung dan boleh dibaca oleh semua tetamu. Sila pastikan tutur kata yang baik dan sopan. Terima kasih! 🙏
+  </p>
+</div>
+    </div>
+    <div class="doa-wall" id="doaWall"></div>
+  </div>
+</section>
+
+<!-- Torn: crimson-mist → white -->
+<div class="torn-divider" style="background:var(--crimson-mist);">
+  <svg viewBox="0 0 480 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M0,60 L0,26 C18,20 30,38 54,32 C76,26 86,6 112,12 C136,18 148,40 172,34 C194,28 204,6 230,12 C254,18 266,42 290,36 C312,30 324,8 348,14 C370,20 382,40 406,34 C428,28 440,6 464,13 L480,17 L480,60 Z" fill="var(--bg-section-light)"/>
+  </svg>
+</div>
+
+<!-- ══ SAVE DATE ══ -->
+<section id="savedate" class="sec">
+  <div class="si reveal sec-content" style="text-align:center;">
+    <div class="eu-chip" style="justify-content:center;" data-ms="Tandakan Kalendar" data-en="Save The Date" data-ar="احفظ الموعد">Tandakan Kalendar</div>
+    <h2 class="sec-h">Simpan <em>Tarikhnya</em></h2>
+    <div class="cal-btns">
+      <a href="https://calendar.google.com/calendar/render?action=TEMPLATE&text=Walimatul+Urus+{{GROOM_NAME_URL}}+%26+{{BRIDE_NAME_URL}}&dates={{DATE_YYYYMMDD}}T{{TIME_START_HHMM}}00/{{DATE_YYYYMMDD}}T{{TIME_END_HHMM}}00&location={{VENUE_NAME_URL}}" target="_blank" class="cal-btn-a" data-ms="📅 Tambah ke Google Calendar" data-en="📅 Add to Google Calendar" data-ar="📅 أضف لتقويم Google">📅 Tambah ke Google Calendar</a>
+      <a href="data:text/calendar;charset=utf8,BEGIN:VCALENDAR%0AVERSION:2.0%0ABEGIN:VEVENT%0ADTSTART:{{DATE_YYYYMMDD}}T{{TIME_START_HHMM}}00%0ADTEND:{{DATE_YYYYMMDD}}T{{TIME_END_HHMM}}00%0ASUMMARY:Walimatul Urus {{GROOM_NAME}} %26 {{BRIDE_NAME}}%0ALOCATION:{{VENUE_NAME}}%0AEND:VEVENT%0AEND:VCALENDAR" download="kahwin.ics" class="cal-btn-a" data-ms="🍎 Tambah ke Apple Calendar" data-en="🍎 Add to Apple Calendar" data-ar="🍎 أضف لتقويم Apple">🍎 Tambah ke Apple Calendar</a>
+    </div>
+  </div>
+</section>
+
+<!-- Torn: white → crimson-mist -->
+<div class="torn-divider" style="background:var(--bg-section-light);">
+  <svg viewBox="0 0 480 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M0,60 L0,30 C22,24 34,42 58,36 C80,30 90,10 115,16 C138,22 150,44 174,38 C196,32 206,8 232,14 C256,20 268,46 292,40 C314,34 326,12 350,18 C372,24 384,44 408,38 C430,32 442,10 466,17 L480,21 L480,60 Z" fill="var(--crimson-mist)"/>
+  </svg>
+</div>
+
+<!-- ══ WEATHER ══ -->
+<section id="weather" class="sec">
+  <div class="si reveal sec-content" style="text-align:center;">
+    <div class="eu-chip" style="justify-content:center;">Cuaca Semasa</div>
+    <h2 class="sec-h">Ramalan <em>Cuaca</em></h2>
+    <div class="wx-card" id="wxCard">
+      <div class="wx-icon" id="wxIcon">⏳</div>
+      <div class="wx-temp" id="wxTemp" style="color:var(--text-muted);">Memuatkan...</div>
+      <div class="wx-desc" id="wxDesc"></div>
+      <div style="display:flex;justify-content:center;gap:1.4rem;margin-top:0.9rem;" id="wxExtras" style="display:none;">
+        <div style="text-align:center;"><div style="font-family:'Inter',sans-serif;font-size:0.48rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.2rem;font-weight:500;">Kelembapan</div><div style="font-family:'Playfair Display',serif;font-size:0.9rem;font-weight:600;color:var(--crimson);" id="wxHumidity">--</div></div>
+        <div style="text-align:center;"><div style="font-family:'Inter',sans-serif;font-size:0.48rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.2rem;font-weight:500;">Rasa Seperti</div><div style="font-family:'Playfair Display',serif;font-size:0.9rem;font-weight:600;color:var(--crimson);" id="wxFeels">--</div></div>
+        <div style="text-align:center;"><div style="font-family:'Inter',sans-serif;font-size:0.48rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.2rem;font-weight:500;">Angin</div><div style="font-family:'Playfair Display',serif;font-size:0.9rem;font-weight:600;color:var(--crimson);" id="wxWind">--</div></div>
+      </div>
+      <div class="wx-note" id="wxNote">📍 {{VENUE_CITY}}</div>
+    </div>
+  </div>
+</section>
+
+<!-- Torn: crimson-mist → white -->
+<div class="torn-divider" style="background:var(--crimson-mist);">
+  <svg viewBox="0 0 480 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M0,60 L0,28 C20,22 32,40 56,34 C78,28 88,6 114,12 C138,18 150,42 174,36 C196,30 206,6 232,12 C256,18 268,44 292,38 C314,32 326,8 350,14 C372,20 384,40 408,34 C430,28 442,8 466,15 L480,19 L480,60 Z" fill="var(--bg-section-light)"/>
+  </svg>
+</div>
+
+<!-- ══ GAME ══ -->
+<section id="game" class="sec">
+  <div class="si reveal sec-content">
+    <div class="eu-chip">Mini Permainan</div>
+    <h2 class="sec-h">Memory <em>Game</em></h2>
+    <p style="font-size:0.74rem;color:var(--text-muted);margin-top:0.3rem;font-family:'Cormorant Garamond',serif;font-style:italic;">Cari & padankan kad yang sepasang 🃏</p>
+    <div class="game-hud"><span>Langkah: <span id="moveCount">0</span></span><span>Padanan: <span id="matchCount">0</span>/6</span></div>
+    <div class="mem-grid" id="memGrid"></div>
+    <div class="game-result" id="gameResult"></div>
+    <button class="btn-outline" onclick="initGame()">Main Semula </button>
+  </div>
+</section>
+
+<!-- Torn: white → crimson-mist -->
+<div class="torn-divider" style="background:var(--bg-section-light);">
+  <svg viewBox="0 0 480 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M0,60 L0,26 C24,20 36,40 60,34 C82,28 92,6 118,12 C142,18 154,44 178,38 C200,32 210,8 236,14 C260,20 272,46 296,40 C318,34 330,10 354,16 C376,22 388,44 412,38 C434,32 446,8 470,15 L480,19 L480,60 Z" fill="var(--crimson-mist)"/>
+  </svg>
+</div>
+
+<!-- ══ CONTACT ══ -->
+<section id="contact" class="sec">
+  <div class="si reveal sec-content">
+    <div class="eu-chip" data-ms="Hubungi Kami" data-en="Contact Us" data-ar="اتصل بنا">Hubungi Kami</div>
+    <h2 class="sec-h">Ada <em>Pertanyaan?</em></h2>
+    <div class="ct-list">
+      <a href="https://wa.me/{{CONTACT1_PHONE_WA}}" target="_blank" class="ct-card"><div class="ct-ico">📞</div><div><div class="ct-role" data-ms="Urusetia Majlis" data-en="Event Coordinator" data-ar="منسق الحفل">Urusetia Majlis</div><div class="ct-name">{{CONTACT1_NAME}}</div><div class="ct-num">{{CONTACT1_PHONE_DISPLAY}}</div></div><div class="ct-wa">WhatsApp →</div></a>
+      <a href="https://wa.me/{{CONTACT2_PHONE_WA}}" target="_blank" class="ct-card"><div class="ct-ico">📞</div><div><div class="ct-role" data-ms="Urusetia Majlis" data-en="Event Coordinator" data-ar="منسق الحفل">Urusetia Majlis</div><div class="ct-name">{{CONTACT2_NAME}}</div><div class="ct-num">{{CONTACT2_PHONE_DISPLAY}}</div></div><div class="ct-wa">WhatsApp →</div></a>
+    </div>
+  </div>
+</section>
+
+<!-- Torn: crimson-mist → crimson-dark -->
+<div class="torn-divider" style="background:var(--crimson-mist);">
+  <svg viewBox="0 0 480 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M0,60 L0,30 C22,24 34,44 58,38 C80,32 90,10 116,16 C140,22 152,46 176,40 C198,34 208,8 234,14 C258,20 270,48 294,42 C316,36 328,10 352,16 C374,22 386,44 410,38 C432,32 444,8 468,15 L480,19 L480,60 Z" fill="var(--crimson-dark)"/>
+  </svg>
+</div>
+
+<!-- ══ FOOTER ══ -->
+<footer>
+  <div class="ft-inner">
+    <!-- Ornamental top -->
+    <div style="display:flex;align-items:center;gap:0.8rem;justify-content:center;margin-bottom:1.5rem;">
+      <div style="width:30px;height:1px;background:rgba(255,255,255,0.2);"></div>
+      <svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" style="opacity:0.35;">
+        <path d="M8 0 L10 6 L16 8 L10 10 L8 16 L6 10 L0 8 L6 6 Z" fill="white"/>
+      </svg>
+      <div style="width:30px;height:1px;background:rgba(255,255,255,0.2);"></div>
+    </div>
+    <div class="ft-names">{{GROOM_NAME}} & {{BRIDE_NAME}}</div>
+    <div class="ft-date">{{DATE_DISPLAY}} · {{VENUE_FULLNAME}}</div>
+    <div class="ft-msg" data-ms="Terima kasih atas kehadiran dan doa restu anda" data-en="Thank you for your presence and blessings" data-ar="شكراً جزيلاً على حضوركم ودعواتكم">Terima kasih atas kehadiran dan doa restu anda</div>
+    <div class="ft-line"></div>
+    <div class="ft-credit">Digital Wedding Card · Essential Package</div>
+  </div>
+  <div style="margin-top:2rem;padding-top:1.2rem;border-top:1px solid rgba(255,255,255,0.08);text-align:center;">
+    <p style="font-family:'Inter',sans-serif;font-size:0.48rem;letter-spacing:0.3em;text-transform:uppercase;color:rgba(255,255,255,0.25);margin-bottom:0.7rem;">Kad Digital oleh</p>
+    <a href="https://eqstudio.com.my" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:0.5rem;padding:0.55rem 1.4rem;border:1px solid rgba(255,255,255,0.15);border-radius:50px;background:rgba(255,255,255,0.06);font-family:'Inter',sans-serif;font-size:0.58rem;letter-spacing:0.28em;text-transform:uppercase;color:rgba(255,255,255,0.5);text-decoration:none;">✦ EqStudio</a>
+  </div>
+</footer>
+</div><!-- #main -->
+
+<script>
+// ══════════════════════════════════════════════
+//  GEN Z CANVAS ENGINE — Ambient particle system
+// ══════════════════════════════════════════════
+class GZCanvas {
+  constructor(id, opts={}) {
+    this.c = document.getElementById(id);
+    if(!this.c) return;
+    this.ctx = this.c.getContext('2d');
+    this.opts = Object.assign({particles:12,blobs:2,lines:1}, opts);
+    this.t = 0; this.particles = []; this.blobs = []; this.lines = [];
+    this.resize();
+    window.addEventListener('resize', () => this.resize());
+  }
+  resize() {
+    if(!this.c) return;
+    const p = this.c.parentElement;
+    this.c.width = p.offsetWidth; this.c.height = p.offsetHeight;
+    this.w = this.c.width; this.h = this.c.height;
+    this._init();
+  }
+  _init() {
+    if(!this.w) return;
+    this.particles = Array.from({length:this.opts.particles}, () => ({
+      x: Math.random()*this.w, y: Math.random()*this.h,
+      vx: (Math.random()-.5)*0.3, vy: (Math.random()-.5)*0.3-.06,
+      r: Math.random()*0.9+0.2, op: Math.random()*0.15+0.03,
+      pulse: Math.random()*Math.PI*2, ch: ['✦','·','◦','∘'][Math.floor(Math.random()*4)]
+    }));
+    this.blobs = Array.from({length:this.opts.blobs}, (_, i) => ({
+      x: Math.random()*this.w, y: Math.random()*this.h,
+      vx: (Math.random()-.5)*0.1, vy: (Math.random()-.5)*0.1,
+      r: 60+Math.random()*100, op: 0.04+Math.random()*0.06,
+      color: i%2===0 ? [124,58,237] : [244,114,182], phase: Math.random()*Math.PI*2
+    }));
+    this.lines = Array.from({length:this.opts.lines}, () => ({
+      x1: Math.random()*this.w, y1: 0, x2: Math.random()*this.w, y2: this.h,
+      op: 0.02+Math.random()*0.025, speed: (Math.random()-.5)*0.15
+    }));
+  }
+  draw() {
+    if(!this.c||!this.ctx) return;
+    const ctx = this.ctx; this.t += 0.007;
+    ctx.clearRect(0,0,this.w,this.h);
+    this.blobs.forEach(b => {
+      b.x+=b.vx; b.y+=b.vy; b.phase+=0.005;
+      if(b.x<-b.r)b.x=this.w+b.r; if(b.x>this.w+b.r)b.x=-b.r;
+      if(b.y<-b.r)b.y=this.h+b.r; if(b.y>this.h+b.r)b.y=-b.r;
+      const op = b.op*(0.7+0.3*Math.sin(b.phase));
+      const g = ctx.createRadialGradient(b.x,b.y,0,b.x,b.y,b.r);
+      g.addColorStop(0,`rgba(${b.color.join(',')},${op})`);
+      g.addColorStop(1,`rgba(${b.color.join(',')},0)`);
+      ctx.fillStyle=g; ctx.beginPath(); ctx.arc(b.x,b.y,b.r,0,Math.PI*2); ctx.fill();
+    });
+    this.lines.forEach(l => {
+      l.x1+=l.speed; l.x2+=l.speed*.7;
+      if(l.x1>this.w+60){l.x1=-60; l.x2=Math.random()*this.w;}
+      const g = ctx.createLinearGradient(l.x1,l.y1,l.x2,l.y2);
+      g.addColorStop(0,'rgba(124,58,237,0)');
+      g.addColorStop(.5,`rgba(124,58,237,${l.op})`);
+      g.addColorStop(1,'rgba(124,58,237,0)');
+      ctx.strokeStyle=g; ctx.lineWidth=0.4;
+      ctx.beginPath(); ctx.moveTo(l.x1,l.y1); ctx.lineTo(l.x2,l.y2); ctx.stroke();
+    });
+    this.particles.forEach(p => {
+      p.x+=p.vx; p.y+=p.vy; p.pulse+=0.018;
+      const op = p.op*(0.5+0.5*Math.sin(p.pulse));
+      if(p.y<-12)p.y=this.h+12; if(p.x<-12)p.x=this.w+12; if(p.x>this.w+12)p.x=-12;
+      ctx.globalAlpha=op; ctx.fillStyle='rgba(157,92,255,1)';
+      ctx.font=`${p.r*8}px serif`; ctx.fillText(p.ch,p.x,p.y);
+    });
+    ctx.globalAlpha=1;
+  }
+}
+// ══════════════════════
+//  HERO CANVAS
+// ══════════════════════
+class HeroCanvas {
+  constructor() {
+    this.c = document.getElementById('heroCanvas');
+    if(!this.c) return;
+    this.ctx = this.c.getContext('2d');
+    this.t = 0;
+    this.resize(); window.addEventListener('resize',()=>this.resize());
+    this._init();
+  }
+  resize(){this.c.width=window.innerWidth; this.c.height=window.innerHeight; this.w=this.c.width; this.h=this.c.height;}
+  _init(){
+    const w=this.w||window.innerWidth, h=this.h||window.innerHeight;
+    this.blobs = Array.from({length:5},(_, i)=>({
+      x:Math.random()*w, y:Math.random()*h,
+      vx:(Math.random()-.5)*0.08, vy:(Math.random()-.5)*0.08,
+      r:100+Math.random()*180, base:0.05+Math.random()*0.08,
+      phase:Math.random()*Math.PI*2,
+      color: i<3 ? [124,58,237] : [244,114,182]
+    }));
+    this.stars = Array.from({length:60},()=>({
+      x:Math.random()*w, y:Math.random()*h,
+      r:Math.random()*0.9+0.2, op:Math.random()*0.2+0.05,
+      pulse:Math.random()*Math.PI*2, spd:0.01+Math.random()*0.02
+    }));
+    this.orbits = [
+      {cx:.15,cy:.25,r:80,spd:.0035,op:.05},
+      {cx:.85,cy:.75,r:110,spd:-.0028,op:.045},
+      {cx:.5,cy:.1,r:60,spd:.006,op:.055},
+    ].map(o=>({...o,angle:Math.random()*Math.PI*2}));
+    // Grid lines
+    this.gridLines = [];
+    for(let x=0;x<w;x+=40) this.gridLines.push({x,type:'v'});
+    for(let y=0;y<h;y+=40) this.gridLines.push({y,type:'h'});
+  }
+  draw(){
+    if(!this.c) return;
+    const ctx=this.ctx, w=this.w, h=this.h;
+    ctx.clearRect(0,0,w,h); this.t+=0.007;
+    // Subtle grid
+    ctx.strokeStyle='rgba(124,58,237,0.04)'; ctx.lineWidth=0.4;
+    this.gridLines.forEach(l=>{
+      ctx.beginPath();
+      if(l.type==='v'){ctx.moveTo(l.x,0);ctx.lineTo(l.x,h);}
+      else{ctx.moveTo(0,l.y);ctx.lineTo(w,l.y);}
+      ctx.stroke();
+    });
+    // Blobs
+    this.blobs.forEach(b=>{
+      b.x+=b.vx; b.y+=b.vy; b.phase+=0.005;
+      if(b.x<-b.r)b.x=w+b.r; if(b.x>w+b.r)b.x=-b.r;
+      if(b.y<-b.r)b.y=h+b.r; if(b.y>h+b.r)b.y=-b.r;
+      const op=b.base*(0.65+0.35*Math.sin(b.phase));
+      const g=ctx.createRadialGradient(b.x,b.y,0,b.x,b.y,b.r);
+      g.addColorStop(0,`rgba(${b.color.join(',')},${op})`);
+      g.addColorStop(1,`rgba(${b.color.join(',')},0)`);
+      ctx.fillStyle=g; ctx.beginPath(); ctx.arc(b.x,b.y,b.r,0,Math.PI*2); ctx.fill();
+    });
+    // Orbits
+    this.orbits.forEach(o=>{
+      o.angle+=o.spd;
+      ctx.save(); ctx.translate(o.cx*w,o.cy*h); ctx.rotate(o.angle);
+      ctx.strokeStyle=`rgba(157,92,255,${o.op})`; ctx.lineWidth=0.5;
+      ctx.setLineDash([4,8]);
+      ctx.beginPath(); ctx.arc(0,0,o.r,0,Math.PI*2); ctx.stroke();
+      ctx.setLineDash([]);
+      const dx=o.r*Math.cos(0), dy=0;
+      ctx.fillStyle=`rgba(192,132,252,${o.op*3})`;
+      ctx.beginPath(); ctx.arc(dx,dy,2,0,Math.PI*2); ctx.fill();
+      ctx.restore();
+    });
+    // Stars
+    this.stars.forEach((s,i)=>{
+      s.pulse+=s.spd;
+      const op=s.op*(0.4+0.6*Math.sin(s.pulse));
+      ctx.fillStyle=`rgba(157,92,255,${op})`;
+      ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2); ctx.fill();
+      if(i%5===0&&i<this.stars.length-1){
+        const n=this.stars[i+1],d=Math.hypot(s.x-n.x,s.y-n.y);
+        if(d<120){ctx.strokeStyle=`rgba(124,58,237,${0.03*(1-d/120)})`;ctx.lineWidth=0.3;ctx.beginPath();ctx.moveTo(s.x,s.y);ctx.lineTo(n.x,n.y);ctx.stroke();}
+      }
+    });
+  }
+}
+// ══════════════════════
+//  ENVELOPE CANVAS
+// ══════════════════════
+class EnvCanvas {
+  constructor(){
+    this.c=document.getElementById('envCanvas');
+    this.ctx=this.c.getContext('2d');
+    this.resize(); window.addEventListener('resize',()=>this.resize());
+    this.blobs=Array.from({length:8},(_,i)=>({
+      x:Math.random()*(window.innerWidth), y:Math.random()*(window.innerHeight),
+      vx:(Math.random()-.5)*0.12, vy:(Math.random()-.5)*0.12,
+      r:80+Math.random()*140, op:0.06+Math.random()*0.08,
+      color:i<5?[124,58,237]:[244,114,182]
+    }));
+  }
+  resize(){this.c.width=window.innerWidth; this.c.height=window.innerHeight;}
+  draw(){
+    const ctx=this.ctx,w=this.c.width,h=this.c.height;
+    ctx.clearRect(0,0,w,h);
+    this.blobs.forEach(b=>{
+      b.x+=b.vx; b.y+=b.vy;
+      if(b.x<-b.r)b.x=w+b.r; if(b.x>w+b.r)b.x=-b.r;
+      if(b.y<-b.r)b.y=h+b.r; if(b.y>h+b.r)b.y=-b.r;
+      const g=ctx.createRadialGradient(b.x,b.y,0,b.x,b.y,b.r);
+      g.addColorStop(0,`rgba(${b.color.join(',')},${b.op})`);
+      g.addColorStop(1,'rgba(0,0,0,0)');
+      ctx.fillStyle=g; ctx.beginPath(); ctx.arc(b.x,b.y,b.r,0,Math.PI*2); ctx.fill();
+    });
+  }
+}
+// ══════════════════════
+//  MAP CANVAS
+// ══════════════════════
+class MapCanvas {
+  constructor(){
+    this.c=document.getElementById('mapCanvas');
+    if(!this.c)return;
+    this.ctx=this.c.getContext('2d'); this.t=0;
+    this.resize(); window.addEventListener('resize',()=>this.resize());
+  }
+  resize(){const p=this.c.parentElement; this.c.width=p.offsetWidth; this.c.height=p.offsetHeight; this.w=this.c.width; this.h=this.c.height;}
+  draw(){
+    if(!this.c)return;
+    const ctx=this.ctx; ctx.clearRect(0,0,this.w,this.h); this.t+=0.01;
+    // Grid
+    ctx.strokeStyle='rgba(var(--rgb-primary),0.06)'; ctx.lineWidth=0.6;
+    for(let x=0;x<this.w;x+=24){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,this.h);ctx.stroke();}
+    for(let y=0;y<this.h;y+=24){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(this.w,y);ctx.stroke();}
+    const cx=this.w/2,cy=this.h/2;
+    const g=ctx.createRadialGradient(cx,cy,0,cx,cy,this.w*.6);
+    g.addColorStop(0,'rgba(var(--rgb-primary),0.06)');g.addColorStop(.5,'rgba(var(--rgb-primary),0.02)');g.addColorStop(1,'rgba(var(--rgb-primary),0)');
+    ctx.fillStyle=g; ctx.fillRect(0,0,this.w,this.h);
+    for(let i=0;i<3;i++){
+      const r=((this.t*18+i*38)%110);
+      const op=0.2*(1-r/110);
+      ctx.strokeStyle=`rgba(var(--rgb-primary),${op})`; ctx.lineWidth=0.7;
+      ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.stroke();
+    }
+  }
+}
+// ══════════════════════
+//  INIT
+// ══════════════════════
+let envC, heroC, mapC;
+const painters = [];
+function initPainters(){
+  envC = new EnvCanvas();
+  heroC = new HeroCanvas();
+  mapC = new MapCanvas();
+  const secs=[
+    ['quranCanvas',{particles:14,blobs:2,lines:1}],
+    ['infoCanvas',{particles:10,blobs:2,lines:0}],
+    ['detCanvas',{particles:8,blobs:1,lines:1}],
+    ['cdCanvas',{particles:18,blobs:3,lines:2}],
+    ['tlCanvas',{particles:8,blobs:1,lines:0}],
+    ['dcCanvas',{particles:12,blobs:2,lines:0}],
+    ['locCanvas',{particles:6,blobs:1,lines:0}],
+    ['lsCanvas',{particles:10,blobs:2,lines:1}],
+    ['mesejCanvas',{particles:18,blobs:3,lines:1}],
+    ['rsvpCanvas',{particles:6,blobs:1,lines:0}],
+    ['regCanvas',{particles:6,blobs:1,lines:0}],
+    ['doaCanvas',{particles:8,blobs:1,lines:0}],
+    ['sdCanvas',{particles:10,blobs:2,lines:0}],
+    ['wxCanvas',{particles:12,blobs:2,lines:1}],
+    ['gameCanvas',{particles:8,blobs:1,lines:0}],
+    ['ctCanvas',{particles:6,blobs:1,lines:0}],
+    ['ftCanvas',{particles:20,blobs:3,lines:2}],
+  ];
+  secs.forEach(([id,opts])=>{const p=new GZCanvas(id,opts); if(p.c) painters.push(p);});
+}
+function animLoop(){
+  if(envC) envC.draw();
+  if(heroC) heroC.draw();
+  if(mapC) mapC.draw();
+  painters.forEach(p=>p.draw());
+  requestAnimationFrame(animLoop);
+}
+window.addEventListener('load',()=>{
+  initMonogram();
+  initPainters();
+  animLoop();
+  buildCalendar();
+  renderDoa();
+  loadRSVPList();
+  fetchWeather();
+  initTimeline();
+});
+
+// ══════════════════════
+//  TIMELINE — fly-in animation + live now/passed indicator + progress bar
+// ══════════════════════
+function parseTimeToMinutes(str){
+  if(!str) return null;
+  const s=str.trim();
+  // Format: "11:00 PG" / "11:00 PTG" / "11:00 AM" / "11:00 PM" / "11:00"
+  const m=s.match(/(\d{1,2}):(\d{2})\s*(PG|PTG|AM|PM)?/i);
+  if(!m) return null;
+  let h=parseInt(m[1],10), mi=parseInt(m[2],10);
+  const period=(m[3]||'').toUpperCase();
+  if(period==='PTG'||period==='PM'){ if(h<12) h+=12; }
+  else if(period==='PG'||period==='AM'){ if(h===12) h=0; }
+  return h*60+mi;
+}
+
+function recheckTimeline(){
+  if(window._tlManualCheck){
+    setTimeout(window._tlManualCheck,50);
+    setTimeout(window._tlManualCheck,500);
+  }
+}
+
+function initTimeline(){
+  const rows=document.querySelectorAll('.tl-row');
+  if(!rows.length) return;
+
+  // ── Fly-in on scroll — hanya aktifkan animasi kalau API browser support ──
+  // Kalau IntersectionObserver gagal langsung (browser lama / sandbox terhad),
+  // rows kekal visible (opacity:1 default dari CSS) — tak pernah blank.
+  try{
+    rows.forEach(r=>r.classList.add('js-ready'));
+    const io=new IntersectionObserver((entries)=>{
+      entries.forEach(en=>{
+        if(en.isIntersecting) en.target.classList.add('in-view');
+      });
+    },{threshold:0.1,rootMargin:'0px 0px -50px 0px'});
+    rows.forEach(r=>io.observe(r));
+
+    // Manual checker — guna untuk fallback timer dan scroll/resize backup
+    function manualCheck(){
+      rows.forEach(r=>{
+        if(r.classList.contains('in-view')) return;
+        const rect=r.getBoundingClientRect();
+        if(rect.top<window.innerHeight && rect.bottom>0){
+          r.classList.add('in-view');
+        }
+      });
+    }
+
+    // Fallback timers — beberapa kali sebab #main mungkin masih opacity:0
+    // semasa load (sebelum envelope dibuka), so kena re-check lepas tu jugak
+    setTimeout(manualCheck,400);
+    setTimeout(manualCheck,1200);
+
+    // Scroll/resize backup — kalau IntersectionObserver gagal kesan disebabkan
+    // parent yang baru jadi visible (opacity transition), scroll event akan
+    // tetap fire bila customer scroll sendiri
+    window.addEventListener('scroll',manualCheck,{passive:true});
+    window.addEventListener('resize',manualCheck);
+
+    // Simpan reference untuk recheckTimeline()
+    window._tlManualCheck=manualCheck;
+  }catch(e){
+    // IntersectionObserver tak support — rows kekal visible (default opacity:1)
+  }
+
+  // ── Live now/passed state + progress bar ──
+  const nowMin=(()=>{ const d=new Date(); return d.getHours()*60+d.getMinutes(); })();
+  let lastPassedIdx=-1;
+  let currentIdx=-1;
+
+  rows.forEach((row,idx)=>{
+    const t=parseTimeToMinutes(row.getAttribute('data-time'));
+    if(t===null) return;
+    if(nowMin>=t){
+      lastPassedIdx=idx;
+    }
+  });
+
+  // Tentukan event "current" — event terakhir yang dah lalu, sebelum yang seterusnya
+  rows.forEach((row,idx)=>{
+    if(idx<lastPassedIdx){
+      row.classList.add('tl-passed');
+    }else if(idx===lastPassedIdx){
+      row.classList.add('tl-current');
+      const badge=row.querySelector('.tl-now-badge');
+      if(badge) badge.style.display='inline-block';
+    }
+  });
+
+  // ── Progress bar height — berdasarkan event terakhir yang dah lalu ──
+  const progress=document.getElementById('tlProgress');
+  if(progress){
+    setTimeout(()=>{
+      if(lastPassedIdx>=0){
+        const targetRow=rows[lastPassedIdx];
+        const tl=document.querySelector('.tl');
+        const dotEl=targetRow.querySelector('.tl-dot');
+        if(tl && dotEl){
+          const tlRect=tl.getBoundingClientRect();
+          const dotRect=dotEl.getBoundingClientRect();
+          const heightPx=(dotRect.top+dotRect.height/2)-tlRect.top;
+          progress.style.height=Math.max(0,heightPx)+'px';
+        }
+      }
+    },300);
+  }
+}
+// ══════════════════════
+//  ENVELOPE
+// ══════════════════════
+function openEnvelope(){
+  const env=document.getElementById('envelope');
+  if(env.classList.contains('open')) return;
+
+  const seal=document.getElementById('sealWrap');
+  const letter=document.querySelector('.env-letter');
+  const flap=document.querySelector('.env-flap');
+
+  // T+0ms: Seal anticipation — slight squeeze
+  if(seal) seal.classList.add('anticipate');
+
+  // T+180ms: Anticipation habis, seal shake & crack mula (900ms)
+  setTimeout(()=>{
+    if(seal){ seal.classList.remove('anticipate'); seal.classList.add('cracking'); }
+    playSealCrack();
+  },180);
+
+  // T+1080ms: Seal pecah, flap anticipation (dip sebelum terangkat)
+  setTimeout(()=>{
+    if(flap) flap.classList.add('anticipate');
+  },1080);
+
+  // T+1300ms: Flap mula terbuka penuh (2400ms, selesai ~3700ms)
+  setTimeout(()=>{
+    if(flap) flap.classList.remove('anticipate');
+    env.classList.add('open');
+  },1300);
+
+  // T+1650ms: Gold particles mula — overlap, flap masih terbuka
+  setTimeout(()=>{
+    launchEnvelopeParticles();
+  },1650);
+
+  // T+4000ms: Letter dah selesai exit penuh (selesai ~3950ms), mula zoom Phase A
+  setTimeout(()=>{
+    if(letter) letter.classList.add('zooming','zoom-approach');
+  },4000);
+
+  // T+4620ms: Phase A selesai (620ms), mula Phase B — rush through dengan motion blur
+  setTimeout(()=>{
+    if(letter){ letter.classList.remove('zoom-approach'); letter.classList.add('zoom-rush'); }
+  },4620);
+
+  // T+5340ms: Zoom rush selesai (720ms), reveal main content
+  setTimeout(()=>{
+    document.getElementById('envSection').classList.add('hide');
+    document.getElementById('main').classList.add('show');
+    document.getElementById('langBar').style.display='flex';
+    document.getElementById('audioBtn').style.display='flex';
+    startAudio(); startCountdown(); initReveal(); initGame();
+    (function(){
+      const t='{{TIME_START_HHMM}}';
+      if(t&&t.length===4&&!t.includes('{')){buildClock(parseInt(t.slice(0,2)),parseInt(t.slice(2,4)));}
+      else{buildClock(11,0);}
+    })();
+    document.getElementById('stickyNav').style.display='flex';
+    const viz=document.getElementById('audioViz'); if(viz) viz.style.display='flex';
+    launchConfetti();
+    showShare();
+    recheckTimeline();
+    setTimeout(()=>toggleDet('tarikh'),500);
+  },5340);
+}
+
+// Gold dust particles bila flap terbuka
+function launchEnvelopeParticles(){
+  const canvas=document.getElementById('envParticleCanvas'); if(!canvas) return;
+  const ctx=canvas.getContext('2d');
+  const wrap=canvas.parentElement.querySelector('.envelope');
+  const rect=wrap?wrap.getBoundingClientRect():{left:window.innerWidth/2,top:window.innerHeight/2,width:300,height:188};
+  canvas.width=window.innerWidth; canvas.height=window.innerHeight;
+  const cx=rect.left+rect.width/2, cy=rect.top+rect.height*0.25;
+  const pieces=[];
+  for(let i=0;i<60;i++){
+    const angle=-Math.PI/2+(Math.random()-0.5)*1.4, speed=1.5+Math.random()*3.5;
+    pieces.push({
+      x:cx+(Math.random()-0.5)*rect.width*0.6,
+      y:cy,
+      vx:Math.cos(angle)*speed*0.4,
+      vy:Math.sin(angle)*speed-2,
+      r:1+Math.random()*2.2,
+      life:1,
+      drift:(Math.random()-0.5)*0.6
+    });
+  }
+  function draw(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    let alive=false;
+    pieces.forEach(p=>{
+      p.x+=p.vx+p.drift; p.y+=p.vy; p.vy+=0.045; p.life-=0.012;
+      if(p.life>0) alive=true;
+      ctx.save();
+      ctx.globalAlpha=Math.max(0,p.life)*0.85;
+      ctx.fillStyle='rgba(232,200,110,0.9)';
+      ctx.shadowColor='rgba(232,200,110,0.8)';
+      ctx.shadowBlur=4;
+      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fill();
+      ctx.restore();
+    });
+    if(alive) requestAnimationFrame(draw);
+    else ctx.clearRect(0,0,canvas.width,canvas.height);
+  }
+  draw();
+}
+
+// Sound effect untuk seal crack (Web Audio API — tak perlu file audio)
+function playSealCrack(){
+  try{
+    const Ctx=window.AudioContext||window.webkitAudioContext;
+    const ac=new Ctx();
+    const dur=0.18;
+    const bufferSize=ac.sampleRate*dur;
+    const buffer=ac.createBuffer(1,bufferSize,ac.sampleRate);
+    const data=buffer.getChannelData(0);
+    for(let i=0;i<bufferSize;i++){
+      data[i]=(Math.random()*2-1)*Math.pow(1-i/bufferSize,2.5);
+    }
+    const noise=ac.createBufferSource();
+    noise.buffer=buffer;
+    const filter=ac.createBiquadFilter();
+    filter.type='highpass';
+    filter.frequency.value=1800;
+    const gain=ac.createGain();
+    gain.gain.value=0.18;
+    noise.connect(filter); filter.connect(gain); gain.connect(ac.destination);
+    noise.start();
+    noise.onended=()=>ac.close();
+  }catch(e){/* audio context tak available, skip senyap */}
+}
+
+// Parallax background pattern — mouse move (desktop) & gyroscope (mobile)
+(function initParallax(){
+  const envSection=document.getElementById('envSection');
+  if(!envSection) return;
+  function setParallax(x,y){
+    envSection.style.setProperty('--px',(x*14)+'px');
+    envSection.style.setProperty('--py',(y*14)+'px');
+  }
+  window.addEventListener('mousemove',(e)=>{
+    const nx=(e.clientX/window.innerWidth-0.5);
+    const ny=(e.clientY/window.innerHeight-0.5);
+    setParallax(nx,ny);
+  });
+  if(window.DeviceOrientationEvent){
+    window.addEventListener('deviceorientation',(e)=>{
+      if(e.gamma===null||e.beta===null) return;
+      const nx=Math.max(-1,Math.min(1,e.gamma/30));
+      const ny=Math.max(-1,Math.min(1,(e.beta-45)/30));
+      setParallax(nx,ny);
+    });
+  }
+})();
+// ══════════════════════
+//  AUDIO
+// ══════════════════════
+let isPlaying=false;
+let _ytPlayer=null;
+let _ytReady=false;
+let _audioPending=false;
+let _startPending=false;
+window.onYouTubeIframeAPIReady=function(){
+  _ytPlayer=new YT.Player('ytPlayer',{
+    height:'0',width:'0',
+    videoId:'{{YT_VIDEO_ID}}',
+    playerVars:{autoplay:0,controls:0,loop:1,playlist:'{{YT_VIDEO_ID}}',playsinline:1,rel:0,modestbranding:1},
+    events:{
+      onReady:function(e){
+        _ytReady=true;
+        e.target.setVolume(0);
+        if(_startPending){_doStartAudio();}
+      },
+      onStateChange:function(e){
+        if(e.data===YT.PlayerState.PLAYING){
+          const btn=document.getElementById('audioBtn');
+          const viz=document.getElementById('audioViz');
+          isPlaying=true;
+          if(btn){btn.textContent='🔊';btn.classList.add('playing');}
+          if(viz){viz.style.display='flex';viz.classList.add('viz-playing');}
+          let v=0;
+          const fade=setInterval(()=>{v=Math.min(v+3,75);_ytPlayer.setVolume(v);if(v>=75)clearInterval(fade);},200);
+        }
+      }
+    }
+  });
+};
+function _doStartAudio(){
+  if(!_ytReady||!_ytPlayer){_startPending=true;return;}
+  _ytPlayer.setVolume(0);
+  try{_ytPlayer.playVideo();}catch(e){
+    const btn=document.getElementById('audioBtn');
+    if(btn){btn.textContent='▶️';btn.style.display='flex';}_audioPending=true;
+  }
+}
+function startAudio(){
+  if(!_ytReady){_startPending=true;return;}
+  _doStartAudio();
+}
+function toggleAudio(){
+  const btn=document.getElementById('audioBtn');
+  const viz=document.getElementById('audioViz');
+  if(!_ytReady||!_ytPlayer) return;
+  if(isPlaying){
+    _ytPlayer.pauseVideo();
+    isPlaying=false;
+    if(btn){btn.textContent='🎵';btn.classList.remove('playing');}
+    if(viz)viz.classList.remove('viz-playing');
+  } else {
+    _ytPlayer.playVideo();
+  }
+}
+// ══════════════════════
+//  COUNTDOWN
+// ══════════════════════
+function startCountdown(){
+  const target=new Date('{{DATE_YYYYMMDD}}T{{TIME_START_HHMM}}:00');
+  let prev={};
+  function upd(){
+    const diff=target-new Date();
+    if(diff<=0){
+      document.querySelector('#countdown .cd-inner').style.display='none';
+      const done=document.getElementById('cdDone');
+      if(done){done.style.display='flex';if(window._lang)setLang(window._lang);spawnCdPetals();}
+      return;
+    }
+    const v={cdD:String(Math.floor(diff/86400000)).padStart(2,'0'),cdH:String(Math.floor((diff%86400000)/3600000)).padStart(2,'0'),cdM:String(Math.floor((diff%3600000)/60000)).padStart(2,'0'),cdS:String(Math.floor((diff%60000)/1000)).padStart(2,'0')};
+    Object.entries(v).forEach(([id,val])=>{
+      const el=document.getElementById(id);
+      if(val!==prev[id]){el.classList.add('tick');el.textContent=val;setTimeout(()=>el.classList.remove('tick'),200);prev[id]=val;}
+    });
+  }
+  upd(); setInterval(upd,1000);
+}
+// ══════════════════════
+//  CALENDAR
+// ══════════════════════
+function buildCalendar(){
+  const g=document.getElementById('calGrid'); if(!g) return;
+  const raw='{{DATE_YYYYMMDD}}';
+  let wYear,wMonth,wDay;
+  if(raw&&raw.length===8&&!raw.includes('{')){
+    wYear=parseInt(raw.slice(0,4));wMonth=parseInt(raw.slice(4,6))-1;wDay=parseInt(raw.slice(6,8));
+  } else {const n=new Date();wYear=n.getFullYear();wMonth=n.getMonth();wDay=n.getDate();}
+  const monthNames=['Januari','Februari','Mac','April','Mei','Jun','Julai','Ogos','September','Oktober','November','Disember'];
+  const hd=document.querySelector('.cal-month'); if(hd) hd.textContent=monthNames[wMonth]+' '+wYear;
+  const hd2=document.querySelector('.cal-yr'); if(hd2) hd2.textContent=monthNames[wMonth]+' '+wYear;
+  const firstDay=new Date(wYear,wMonth,1).getDay();
+  const daysInMonth=new Date(wYear,wMonth+1,0).getDate();
+  const days=['Ah','Is','Se','Ra','Kh','Ju','Sa'];
+  let h=days.map(d=>`<div class="cdn">${d}</div>`).join('');
+  for(let i=0;i<firstDay;i++) h+=`<div class="cdd em"></div>`;
+  for(let d=1;d<=daysInMonth;d++) h+=`<div class="cdd${d===wDay?' hl':''}">${d}</div>`;
+  g.innerHTML=h;
+}
+// ══════════════════════
+//  CLOCK
+// ══════════════════════
+function buildClock(h,m){
+  const cx=52.5,cy=52.5;
+  const hA=((h%12)*30+m*.5-90)*Math.PI/180;
+  const mA=(m*6-90)*Math.PI/180;
+  document.getElementById('svgHour').setAttribute('x2',cx+20*Math.cos(hA));
+  document.getElementById('svgHour').setAttribute('y2',cy+20*Math.sin(hA));
+  document.getElementById('svgMin').setAttribute('x2',cx+30*Math.cos(mA));
+  document.getElementById('svgMin').setAttribute('y2',cy+30*Math.sin(mA));
+}
+// ══════════════════════
+//  DETAIL EXPAND
+// ══════════════════════
+function toggleDet(id){
+  const keys=['tarikh','masa','venue'];
+  const isOpen=document.getElementById('de-'+id).classList.contains('open');
+  keys.forEach(k=>{
+    document.getElementById('de-'+k).classList.remove('open');
+    const a=document.getElementById('da-'+k);
+    if(a){a.textContent='▼';a.classList.remove('open');}
+    document.getElementById('dc-'+k).classList.remove('expanded');
+  });
+  if(!isOpen){
+    document.getElementById('de-'+id).classList.add('open');
+    const a=document.getElementById('da-'+id);
+    if(a){a.textContent='▲';a.classList.add('open');}
+    document.getElementById('dc-'+id).classList.add('expanded');
+  }
+}
+// ══════════════════════
+//  GALLERY LIGHTBOX
+// ══════════════════════
+let galCurrentIdx=0;
+let galTotalImgs=0;
+
+function initGallery(){
+  const items=document.querySelectorAll('.gal-item');
+  galTotalImgs=items.length;
+  items.forEach((item,idx)=>{
+    item.addEventListener('click',()=>openLightbox(idx));
+  });
+
+  // Generate dot indicators
+  const counterRow=document.getElementById('galCounterRow');
+  if(counterRow && galTotalImgs>0){
+    counterRow.innerHTML=Array.from({length:galTotalImgs}).map((_,i)=>
+      `<div class="gal-counter-dot${i===0?' active':''}" data-dot="${i}"></div>`
+    ).join('');
+  }
+
+  // Update active dot bila scroll/swipe carousel
+  const carousel=document.getElementById('galCarousel');
+  if(carousel){
+    let scrollTimeout;
+    carousel.addEventListener('scroll',()=>{
+      clearTimeout(scrollTimeout);
+      scrollTimeout=setTimeout(()=>{
+        const scrollLeft=carousel.scrollLeft;
+        const itemWidth=items[0]?.offsetWidth+10||280; // +gap estimate
+        const activeIdx=Math.round(scrollLeft/itemWidth);
+        document.querySelectorAll('.gal-counter-dot').forEach((dot,i)=>{
+          dot.classList.toggle('active',i===activeIdx);
+        });
+      },80);
+    },{passive:true});
+  }
+}
+
+function openLightbox(idx){
+  // Skip kalau gambar kosong/placeholder tak diganti
+  const items=document.querySelectorAll('.gal-item');
+  const img=items[idx]?.querySelector('img');
+  if(!img||!img.src||img.src.includes('{{')||img.naturalWidth===0&&!img.complete) {
+    // masih cuba — browser kadang belum load, proceed je
+  }
+  galCurrentIdx=idx;
+  showLightboxImg();
+  document.getElementById('galLightbox').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+
+function showLightboxImg(){
+  const items=document.querySelectorAll('.gal-item');
+  const srcImg=items[galCurrentIdx]?.querySelector('img');
+  const lbImg=document.getElementById('galLbImg');
+  const counter=document.getElementById('galLbCounter');
+  if(!srcImg||!lbImg) return;
+  lbImg.classList.remove('show');
+  setTimeout(()=>{
+    lbImg.src=srcImg.src;
+    lbImg.classList.add('show');
+  },120);
+  if(counter) counter.textContent=`${galCurrentIdx+1} / ${galTotalImgs}`;
+}
+
+function navLightbox(dir){
+  galCurrentIdx=(galCurrentIdx+dir+galTotalImgs)%galTotalImgs;
+  showLightboxImg();
+}
+
+function closeLightbox(){
+  document.getElementById('galLightbox').classList.remove('open');
+  document.body.style.overflow='';
+}
+
+// Swipe support untuk lightbox
+(function(){
+  let touchStartX=0;
+  const lb=document.getElementById('galLightbox');
+  if(!lb) return;
+  lb.addEventListener('touchstart',(e)=>{touchStartX=e.touches[0].clientX;},{passive:true});
+  lb.addEventListener('touchend',(e)=>{
+    const diff=e.changedTouches[0].clientX-touchStartX;
+    if(Math.abs(diff)>50){ navLightbox(diff>0?-1:1); }
+  },{passive:true});
+  lb.addEventListener('click',(e)=>{
+    if(e.target===lb) closeLightbox();
+  });
+})();
+
+// ══════════════════════
+//  SCROLL REVEAL
+// ══════════════════════
+function initReveal(){
+  initGallery();
+  const obs=new IntersectionObserver(entries=>{
+    entries.forEach(e=>{if(e.isIntersecting) e.target.classList.add('visible');});
+  },{threshold:0.07});
+  document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+}
+// ══════════════════════
+//  NAV
+// ══════════════════════
+function navTo(id){
+  const el=document.getElementById(id); if(!el) return;
+  el.scrollIntoView({behavior:'smooth',block:'start'});
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('nav-act'));
+  const btn=document.querySelector(`.nav-btn[onclick="navTo('${id}')"]`);
+  if(btn) btn.classList.add('nav-act');
+}
+window.addEventListener('scroll',()=>{
+  const sections=['info','details','countdown','itinerary','dresscode','location','lovestory','mesej','rsvp','registry','doa','savedate','weather','game','contact'];
+  let cur='';
+  sections.forEach(id=>{const el=document.getElementById(id);if(el&&el.getBoundingClientRect().top<120)cur=id;});
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('nav-act'));
+  if(cur){const btn=document.querySelector(`.nav-btn[onclick="navTo('${cur}')"]`);if(btn)btn.classList.add('nav-act');}
+},{passive:true});
+// ══════════════════════
+//  LANG
+// ══════════════════════
+function setLang(l){
+  window._lang=l;
+  document.querySelectorAll('[data-ms]').forEach(el=>{const txt=el.getAttribute('data-'+l)||el.getAttribute('data-ms');if(txt)el.innerHTML=txt;});
+  document.querySelectorAll('[data-ph-ms]').forEach(el=>{const ph=el.getAttribute('data-ph-'+l)||el.getAttribute('data-ph-ms');if(ph)el.setAttribute('placeholder',ph);});
+  document.querySelectorAll('option[data-ms]').forEach(el=>{const txt=el.getAttribute('data-'+l)||el.getAttribute('data-ms');if(txt)el.textContent=txt;});
+  document.querySelectorAll('.nav-btn[data-ms]').forEach(el=>{const txt=el.getAttribute('data-'+l)||el.getAttribute('data-ms');if(txt)el.textContent=txt;});
+  document.querySelectorAll('.lb').forEach(b=>{b.classList.toggle('active',b.getAttribute('onclick').includes("'"+l+"'"));});
+  document.body.style.direction=l==='ar'?'rtl':'ltr';
+}
+// ══════════════════════
+//  CONFETTI
+// ══════════════════════
+function launchConfetti(){
+  const canvas=document.getElementById('confettiCanvas'); if(!canvas) return;
+  const ctx=canvas.getContext('2d');
+  canvas.width=window.innerWidth; canvas.height=window.innerHeight;
+  const cols=['rgba(var(--rgb-primary),0.9)','rgba(180,0,0,0.85)','rgba(255,255,255,0.9)','rgba(200,150,150,0.85)','rgba(var(--rgb-primary-dark),0.85)'];
+  const pieces=[];
+  for(let i=0;i<140;i++){
+    const angle=Math.random()*Math.PI*2, speed=3+Math.random()*5;
+    pieces.push({x:window.innerWidth/2,y:window.innerHeight*.45,vx:Math.cos(angle)*speed*(0.5+Math.random()),vy:Math.sin(angle)*speed*(0.5+Math.random())-6,r:3+Math.random()*4,col:cols[Math.floor(Math.random()*cols.length)],rot:Math.random()*360,rspd:(Math.random()-.5)*8,shape:Math.random()<.5?'circle':'rect',w:4+Math.random()*6,h:3+Math.random()*4,alpha:1,life:1});
+  }
+  function draw(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    let alive=false;
+    pieces.forEach(p=>{
+      p.x+=p.vx;p.y+=p.vy;p.vy+=0.18;p.vx*=.99;p.rot+=p.rspd;p.life-=0.008;p.alpha=Math.max(0,p.life);
+      if(p.life>0) alive=true;
+      ctx.save();ctx.globalAlpha=p.alpha;ctx.translate(p.x,p.y);ctx.rotate(p.rot*Math.PI/180);ctx.fillStyle=p.col;
+      if(p.shape==='circle'){ctx.beginPath();ctx.arc(0,0,p.r,0,Math.PI*2);ctx.fill();}
+      else{ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h);}
+      ctx.restore();
+    });
+    if(alive) requestAnimationFrame(draw);
+    else{canvas.style.opacity='0';}
+  }
+  draw();
+}
+// ══════════════════════
+//  SHARE
+// ══════════════════════
+function shareKad(){
+  const groom='{{GROOM_NAME}}'!='{{GROOM_NAME}}'?'{{GROOM_NAME}}':'Pengantin';
+  const bride='{{BRIDE_NAME}}'!='{{BRIDE_NAME}}'?'{{BRIDE_NAME}}':"";
+  const names=bride?groom+' & '+bride:groom;
+  const txt='Jemputan Walimatul Urus '+names;
+  if(navigator.share){navigator.share({title:txt,text:'Anda dijemput ke majlis perkahwinan '+names+'. Sila buka pautan untuk maklumat lanjut.',url:window.location.href}).catch(()=>{});}
+  else{navigator.clipboard&&navigator.clipboard.writeText(window.location.href).then(()=>{const btn=document.getElementById('shareBtn');const orig=btn.textContent;btn.textContent='✓';setTimeout(()=>btn.textContent=orig,2000);});}
+}
+function showShare(){
+  const s=document.getElementById('shareBtn');if(s)s.style.display='flex';
+  const isSafari=/^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+  const notice=document.getElementById('safariAudioNotice');
+  if(notice&&isSafari)notice.style.display='block';
+}
+// ══════════════════════
+//  MONOGRAM
+// ══════════════════════
+function initMonogram(){
+  const groom='{{GROOM_NAME}}';const bride='{{BRIDE_NAME}}';
+  const gi=groom&&groom!=='{{GROOM_NAME}}'?groom.trim()[0].toUpperCase():'G';
+  const bi=bride&&bride!=='{{BRIDE_NAME}}'?bride.trim()[0].toUpperCase():'B';
+  const el=document.getElementById('sealInitials');
+  if(el) el.textContent=gi+'&'+bi;
+  const el2=document.getElementById('sealInitialsEnv');
+  if(el2) el2.textContent=gi+'&'+bi;
+}
+// ══════════════════════
+//  MODAL
+// ══════════════════════
+function showModal(){document.getElementById('modal').classList.add('show');}
+function closeModal(){document.getElementById('modal').classList.remove('show');}
+document.getElementById('modal').addEventListener('click',function(e){if(e.target===this)closeModal();});
+// ══════════════════════
+//  FIREBASE + RSVP + DOA + REGISTRY
+// ══════════════════════
+const firebaseConfig={apiKey:"AIzaSyBiubRnhd-PPamnc0rxJ_NDmmxsa7W2Lsw",authDomain:"eqstudio-6225d.firebaseapp.com",databaseURL:"https://eqstudio-6225d-default-rtdb.asia-southeast1.firebasedatabase.app",projectId:"eqstudio-6225d",storageBucket:"eqstudio-6225d.firebasestorage.app",messagingSenderId:"702399155563",appId:"1:702399155563:web:2e397996948663fa27102e"};
+firebase.initializeApp(firebaseConfig);
+const db=firebase.database();
+const KAD_ID='es-genz-dark-violet';
+const kadRef=db.ref('kads/'+KAD_ID);
+const _isTemplate=KAD_ID.includes('{{');
+async function submitRSVP(){
+  const n=document.getElementById('rsvpName').value.trim();
+  const count=document.getElementById('rsvpCount').value;
+  const s=document.getElementById('rsvpStatus').value;
+  if(!n||!count||!s){alert(window._lang==='en'?'Please fill in all fields.':'Sila lengkapkan semua maklumat.');return;}
+  if(s==='hadir'){try{await kadRef.child('rsvp').push({n,c:count,s,t:Date.now()});}catch(e){console.warn('RSVP fail',e);}}
+  document.getElementById('rsvpForm').style.display='none';
+  const succ=document.getElementById('rsvpSuccess');
+  if(succ){succ.style.display='flex';const rc=document.getElementById('rsvpCards');if(rc)rc.innerHTML=`<div class="rsvp-card">${n} · ${count} · Insya-Allah Hadir ✅</div>`;}
+}
+function resetRSVP(){
+  const nameEl=document.getElementById('rsvpName');if(nameEl)nameEl.value='';
+  const countEl=document.getElementById('rsvpCount');if(countEl)countEl.value='1';
+  const statusEl=document.getElementById('rsvpStatus');if(statusEl)statusEl.value='';
+  const s=document.getElementById('rsvpSuccess');if(s)s.style.display='none';
+  document.getElementById('rsvpForm').style.display='block';
+}
+function rsvpCountAdj(d){const el=document.getElementById('rsvpCount');if(!el)return;el.value=Math.max(1,(parseInt(el.value)||1)+d);}
+let _rsvpAllEntries=[];
+function _parsePax(c){const m=String(c||'').match(/\d+/);return m?parseInt(m[0]):1;}
+function renderRSVPList(entries,filter){
+  const list=document.getElementById('rsvpList');
+  const empty=document.getElementById('rsvpSearchEmpty');
+  if(!list)return;
+  const q=(filter||'').toLowerCase().trim();
+  const filtered=q?entries.filter(r=>r.n.toLowerCase().includes(q)):entries;
+  if(empty)empty.style.display=(q&&!filtered.length)?'block':'none';
+  if(!filtered.length&&!q){list.innerHTML='<div style="font-size:0.65rem;color:var(--text-muted);text-align:center;padding:0.8rem;">Belum ada yang mendaftar lagi.</div>';return;}
+  list.innerHTML=filtered.map(r=>`<div class="re-row"><span class="re-n">${r.n}</span><span class="re-s">${r.c} · ✅</span></div>`).join('');
+}
+function filterRSVP(){renderRSVPList(_rsvpAllEntries,document.getElementById('rsvpSearch').value);}
+function loadRSVPList(){
+  const list=document.getElementById('rsvpList');if(!list)return;
+  if(_isTemplate){list.innerHTML='';return;}
+  kadRef.child('rsvp').on('value',snap=>{
+    const data=snap.val();
+    const badge=document.getElementById('rsvpTotalBadge');
+    const totalPax=document.getElementById('rsvpTotalPax');
+    const searchWrap=document.getElementById('rsvpSearchWrap');
+    if(!data){_rsvpAllEntries=[];list.innerHTML='<div style="font-size:0.65rem;color:var(--text-muted);text-align:center;padding:0.8rem;">Belum ada yang mendaftar lagi.</div>';if(badge)badge.style.display='none';return;}
+    _rsvpAllEntries=Object.values(data).filter(r=>r.s==='hadir').sort((a,b)=>b.t-a.t);
+    if(!_rsvpAllEntries.length){list.innerHTML='<div style="font-size:0.65rem;color:var(--text-muted);text-align:center;padding:0.8rem;">Belum ada yang mendaftar lagi.</div>';if(badge)badge.style.display='none';return;}
+    const total=_rsvpAllEntries.reduce((sum,r)=>sum+_parsePax(r.c),0);
+    if(badge)badge.style.display='block';if(totalPax)totalPax.textContent=total;
+    if(searchWrap&&_rsvpAllEntries.length>2)searchWrap.style.display='block';
+    renderRSVPList(_rsvpAllEntries,document.getElementById('rsvpSearch')?document.getElementById('rsvpSearch').value:'');
+  });
+}
+async function submitRegistry(){
+  const n=document.getElementById('regName').value.trim();
+  const a=document.getElementById('regAmount').value.trim();
+  if(!n){alert(window._lang==='en'?'Please enter your name.':'Sila masukkan nama anda.');return;}
+  const amount=a?'RM '+parseFloat(a).toFixed(2):'(jumlah tidak dinyatakan)';
+  try{await kadRef.child('registry').push({n,a:a||'',t:Date.now()});}catch(e){console.warn('Registry fail',e);}
+  document.getElementById('regForm').style.display='none';
+  const succ=document.getElementById('regSuccess');
+  if(succ){succ.style.display='flex';const msg=document.getElementById('regSuccessMsg');if(msg)msg.textContent=`Terima kasih ${n} bagi hadiah ${amount}! Semoga murah rezeki selalu 😊`;}
+}
+function resetReg(){
+  document.getElementById('regName').value='';document.getElementById('regAmount').value='';
+  document.getElementById('regSuccess').style.display='none';document.getElementById('regForm').style.display='block';
+}
+async function screenshotReg(){
+  const msg=document.getElementById('regSuccessMsg');if(!msg)return;
+  if(navigator.share){try{await navigator.share({text:msg.textContent,title:'Salam Kaut'});}catch(e){}}
+  else{navigator.clipboard&&navigator.clipboard.writeText(msg.textContent).then(()=>alert('Mesej disalin! 📋'));}
+}
+async function submitDoa(){
+  const n=document.getElementById('doaName').value.trim();
+  const m=document.getElementById('doaMsg').value.trim();
+  if(!n||!m){alert(window._lang==='en'?'Please fill in name and message.':'Sila isi nama dan ucapan.');return;}
+  try{await kadRef.child('doa').push({n,m,t:Date.now()});}catch(e){console.warn('Doa fail',e);}
+  document.getElementById('doaName').value='';document.getElementById('doaMsg').value='';
+  const btn=document.querySelector('#doa .btn-g');
+  if(btn){const orig=btn.textContent;btn.textContent='Dihantar! ✓';btn.style.opacity='0.7';setTimeout(()=>{btn.textContent=orig;btn.style.opacity='1';},2000);}
+}
+function renderDoa(){
+  const w=document.getElementById('doaWall');if(!w)return;
+  if(_isTemplate){w.innerHTML='';return;}
+  kadRef.child('doa').orderByChild('t').limitToLast(50).on('value',snap=>{
+    const data=snap.val();
+    if(!data){w.innerHTML='<div style="font-size:0.65rem;color:var(--text-muted);text-align:center;padding:1rem;">Jadilah yang pertama menghantar ucapan!</div>';return;}
+    w.innerHTML=Object.values(data).sort((a,b)=>b.t-a.t).map(d=>`<div class="doa-card"><div class="doa-n">${d.n}</div><div class="doa-m">${d.m}</div></div>`).join('');
+  });
+}
+// ══════════════════════
+//  WEATHER
+// ══════════════════════
+const WMO_CODES={0:{d:'Cerah',i:'☀️'},1:{d:'Kebanyakan Cerah',i:'🌤️'},2:{d:'Separa Berawan',i:'⛅'},3:{d:'Berawan',i:'☁️'},45:{d:'Kabus',i:'🌫️'},48:{d:'Kabus Beku',i:'🌫️'},51:{d:'Renyai Ringan',i:'🌦️'},53:{d:'Renyai',i:'🌦️'},55:{d:'Renyai Lebat',i:'🌧️'},61:{d:'Hujan Ringan',i:'🌧️'},63:{d:'Hujan',i:'🌧️'},65:{d:'Hujan Lebat',i:'⛈️'},80:{d:'Hujan Renyai',i:'🌦️'},81:{d:'Hujan Lebat',i:'🌧️'},95:{d:'Ribut Petir',i:'⛈️'}};
+async function fetchWeather(){
+  const icon=document.getElementById('wxIcon');const temp=document.getElementById('wxTemp');const desc=document.getElementById('wxDesc');
+  const humidity=document.getElementById('wxHumidity');const feels=document.getElementById('wxFeels');const wind=document.getElementById('wxWind');
+  const extras=document.getElementById('wxExtras');const note=document.getElementById('wxNote');
+  try{
+    const city=encodeURIComponent('{{VENUE_CITY}}, Malaysia');
+    const geoRes=await fetch(`https://nominatim.openstreetmap.org/search?q=${city}&format=json&limit=1`,{headers:{'Accept-Language':'ms'}});
+    const geoData=await geoRes.json();
+    let lat=3.147,lon=101.6958;
+    if(geoData&&geoData[0]){lat=parseFloat(geoData[0].lat);lon=parseFloat(geoData[0].lon);}
+    const wxRes=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,apparent_temperature,relative_humidity_2m,weather_code,wind_speed_10m&timezone=Asia%2FKuala_Lumpur&forecast_days=1`);
+    const wx=await wxRes.json();const c=wx.current;
+    const wmo=WMO_CODES[c.weather_code]||{d:'Tidak Diketahui',i:'🌡️'};
+    if(icon)icon.textContent=wmo.i;
+    if(temp){temp.textContent=Math.round(c.temperature_2m)+'°C';temp.style.color='';}
+    if(desc)desc.textContent=wmo.d;
+    if(humidity)humidity.textContent=c.relative_humidity_2m+'%';
+    if(feels)feels.textContent=Math.round(c.apparent_temperature)+'°C';
+    if(wind)wind.textContent=Math.round(c.wind_speed_10m)+' km/h';
+    if(extras)extras.style.display='flex';
+    if(note)note.textContent=`📍 {{VENUE_CITY}} · Dikemaskini ${new Date().toLocaleTimeString('ms-MY',{hour:'2-digit',minute:'2-digit'})}`;
+  }catch(e){
+    if(icon)icon.textContent='🌡️';if(temp){temp.textContent='--°C';temp.style.color='var(--text-muted)';}
+    if(desc)desc.textContent='Tidak dapat memuatkan cuaca';
+  }
+}
+// ══════════════════════
+//  MEMORY GAME
+// ══════════════════════
+const PAIRS=[{e:'💍',l:'Cincin'},{e:'💐',l:'Bunga'},{e:'🕌',l:'Masjid'},{e:'🌙',l:'Bulan'},{e:'🌿',l:'Daun'},{e:'💎',l:'Berlian'}];
+let flipped=[],matched=0,moves=0,canFlip=true,cards=[];
+function initGame(){
+  flipped=[];matched=0;moves=0;canFlip=true;
+  document.getElementById('moveCount').textContent='0';document.getElementById('matchCount').textContent='0';
+  document.getElementById('gameResult').textContent='';
+  cards=[...PAIRS,...PAIRS].map((c,i)=>({...c,id:i})).sort(()=>Math.random()-.5);
+  document.getElementById('memGrid').innerHTML=cards.map((c,i)=>
+    `<div class="mc" id="mc${i}" onclick="flipCard(${i})"><div class="mc-inner"><div class="mc-f"><div class="mc-f-ico">✦</div><div class="mc-f-line"></div></div><div class="mc-b">${c.e}<div class="mc-b-lbl">${c.l}</div></div></div></div>`
+  ).join('');
+}
+function flipCard(i){
+  if(!canFlip)return;const el=document.getElementById('mc'+i);
+  if(el.classList.contains('flipped')||el.classList.contains('matched'))return;
+  el.classList.add('flipped');flipped.push(i);
+  if(flipped.length===2){moves++;document.getElementById('moveCount').textContent=moves;canFlip=false;setTimeout(checkMatch,720);}
+}
+function checkMatch(){
+  const[a,b]=flipped;const ea=document.getElementById('mc'+a),eb=document.getElementById('mc'+b);
+  if(cards[a].e===cards[b].e){
+    ea.classList.add('matched');eb.classList.add('matched');matched++;
+    document.getElementById('matchCount').textContent=matched;
+    if(matched===PAIRS.length) document.getElementById('gameResult').textContent=moves<=12?`🎉 Cemerlang! ${moves} langkah sahaja!`:`✨ Tahniah! ${moves} langkah!`;
+  } else {setTimeout(()=>{ea.classList.remove('flipped');eb.classList.remove('flipped');},300);}
+  flipped=[];canFlip=true;
+}
+// ══════════════════════
+//  PETAL SPAWNER
+// ══════════════════════
+function spawnCdPetals(){
+  const wrap=document.getElementById('cdPetals');if(!wrap)return;
+  const emojis=['🌸','🌺','✿','❀','🌼','💮'];
+  wrap.innerHTML='';
+  for(let i=0;i<12;i++){
+    const el=document.createElement('span');el.className='cd-petal';
+    el.textContent=emojis[i%emojis.length];el.style.left=(5+i*7.5)+'%';
+    el.style.animationDuration=(2.5+Math.random()*2)+'s';el.style.animationDelay=(Math.random()*2)+'s';
+    wrap.appendChild(el);
+  }
+}
+// ══════════════════════
+//  AMBIENT FLOATING PARTICLES OVERLAY
+// ══════════════════════
+(function initAmbient(){
+  const canvas=document.createElement('canvas');
+  canvas.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:1;opacity:0;transition:opacity 1.2s ease;';
+  canvas.id='petalCanvas';document.body.appendChild(canvas);
+  const ctx=canvas.getContext('2d');let W,H,particles=[],active=false;
+  function resize(){W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight;}
+  window.addEventListener('resize',resize);resize();
+  function makeP(){return{x:Math.random()*W,y:-20,vy:0.5+Math.random()*.8,vx:(Math.random()-.5)*.6,rot:Math.random()*360,vr:(Math.random()-.5)*1,size:8+Math.random()*8,op:0.2+Math.random()*.2,char:['✦','∘','◦','·'][Math.floor(Math.random()*4)]};}
+  let lastS=0;
+  function drawP(ts){
+    if(!active){requestAnimationFrame(drawP);return;}
+    ctx.clearRect(0,0,W,H);
+    if(ts-lastS>2000&&particles.length<15){particles.push(makeP());lastS=ts;}
+    particles=particles.filter(p=>p.y<H+30);
+    particles.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.rot+=p.vr;ctx.save();ctx.globalAlpha=p.op;ctx.font=p.size+'px serif';ctx.translate(p.x,p.y);ctx.rotate(p.rot*Math.PI/180);ctx.fillStyle='rgba(var(--rgb-primary),0.6)';ctx.fillText(p.char,0,0);ctx.restore();});
+    requestAnimationFrame(drawP);
+  }
+  requestAnimationFrame(drawP);
+  document.getElementById('envelope').addEventListener('click',()=>{
+    setTimeout(()=>{active=true;canvas.style.opacity='1';setTimeout(()=>{canvas.style.opacity='0.3';},8000);},2000);
+  },{once:true});
+})();
+</script>
+</body>
+</html>
