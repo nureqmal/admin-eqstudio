@@ -1976,8 +1976,8 @@ elif "🔧 Template Converter" in page:
         with cc3:
             t_color3 = st.color_picker("Warna 3 (optional)", "#FAF7F4", key="tc3")
 
-        gh_token2 = st.session_state.get("gh_token","") or st.secrets.get("GH_TOKEN","")
-        gh_repo2  = st.session_state.get("gh_repo", "") or st.secrets.get("GH_REPO", "")
+        gh_token2 = st.session_state.get("gh_token","")      or st.secrets.get("GH_TOKEN","")
+        gh_repo2  = st.session_state.get("gh_cards_repo","") or st.secrets.get("GH_CARDS_REPO","nureqmal/eqstudio-cards")
         can = bool(ready and t_name and t_file and gh_token2 and gh_repo2)
         if st.button("🚀 Upload Template!", disabled=not can):
             converted = raw_html
@@ -1986,11 +1986,13 @@ elif "🔧 Template Converter" in page:
             final_fn = f"{re.sub(r'[^a-z0-9_]','_',t_file.lower().strip())}.html"
             res = github_upload_file(gh_token2, gh_repo2, f"templates/{final_fn}", converted, f"Add template: {t_name}")
             if res["success"]:
+                template_key = re.sub(r'[^a-z0-9_]','_', t_file.lower().strip())
                 new_entry = {
                     "name": t_name,
                     "file": final_fn,
                     "has_photo": t_cat in ["Portrait","Cinematic","Prestige"],
                     "has_portrait_photo": "{{PHOTO1_URL}}" in converted and "{{PHOTO2_URL}}" in converted,
+                    "has_gallery_10": "{{GALLERY6_URL}}" in converted and "{{GALLERY10_URL}}" in converted,
                     "preview_emoji": t_emoji or "✨",
                     "desc": t_desc,
                     "style": t_style if t_style != "— Tiada —" else "",
@@ -1998,7 +2000,7 @@ elif "🔧 Template Converter" in page:
                 }
                 registry = load_registry(gh_token2, gh_repo2)
                 if t_cat not in registry: registry[t_cat]={}
-                registry[t_cat][t_file] = new_entry
+                registry[t_cat][template_key] = new_entry
                 save_registry(gh_token2, gh_repo2, registry)
                 st.cache_data.clear()
                 st.success(f"✅ Template `{t_name}` berjaya ditambah! Style: **{t_style}**")
