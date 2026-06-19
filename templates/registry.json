@@ -121,6 +121,20 @@
       "has_portrait_photo": true,
       "preview_emoji": "📸",
       "desc": "Split hero + cinematic banner. 2 slot gambar."
+    },
+    "Red Romano Gallery": {
+      "name": "Red Romano Gallery",
+      "file": "red_romano_gallery.html",
+      "has_photo": true,
+      "has_portrait_photo": false,
+      "preview_emoji": "✨",
+      "desc": "10 Pictures",
+      "style": "Powerful Love",
+      "colors": [
+        "#a80002",
+        "#F5EDE8",
+        "#58001c"
+      ]
     }
   },
   "Light": {
