@@ -440,6 +440,7 @@ def build_replacements(data):
     r["{{DOA_SAMPLE2_MSG}}"]        = s("doa_sample2_msg")
     r["{{QR_CODE_URL}}"]            = s("qr_code_url")
     r["{{HERO_PHOTO_URL}}"]         = s("hero_url")
+    r["{{HERO_BG_URL}}"]            = s("hero_bg_url")
     r["{{PHOTO1_URL}}"]             = s("photo1_url")
     r["{{PHOTO2_URL}}"]             = s("photo2_url")
     r["{{PHOTO3_URL}}"]             = s("photo3_url")
@@ -450,6 +451,11 @@ def build_replacements(data):
     r["{{GALLERY3_URL}}"]           = s("gallery3_url")
     r["{{GALLERY4_URL}}"]           = s("gallery4_url")
     r["{{GALLERY5_URL}}"]           = s("gallery5_url")
+    r["{{GALLERY6_URL}}"]           = s("gallery6_url")
+    r["{{GALLERY7_URL}}"]           = s("gallery7_url")
+    r["{{GALLERY8_URL}}"]           = s("gallery8_url")
+    r["{{GALLERY9_URL}}"]           = s("gallery9_url")
+    r["{{GALLERY10_URL}}"]          = s("gallery10_url")
 
     import calendar as _cal
     yyyymmdd = s("date_yyyymmdd")
@@ -1444,12 +1450,53 @@ elif "🆕 Jana Kad Baru" in page:
 
     # Photos
     hero_url = photo1_url = photo2_url = photo3_url = opening_url = video_url = ""
-    g1=g2=g3=g4=g5=""
+    g1=g2=g3=g4=g5=g6=g7=g8=g9=g10=""
+    hero_bg_url = ""
     is_portrait = sel.get("has_portrait_photo", False)
     if not is_portrait and tmpl_html_check:
         is_portrait = "{{PHOTO1_URL}}" in tmpl_html_check and "{{PHOTO2_URL}}" in tmpl_html_check
+    has_gallery_10 = sel.get("has_gallery_10", False)
+    if not has_gallery_10 and tmpl_html_check:
+        has_gallery_10 = "{{GALLERY6_URL}}" in tmpl_html_check and "{{GALLERY10_URL}}" in tmpl_html_check
 
-    if is_portrait:
+    if has_gallery_10:
+        st.markdown("## 🖼️ Background Hero")
+        st.markdown("<div class='info-box'>💡 Gambar ini akan jadi background di belakang nama pengantin. Saiz terbaik bawah 300KB — compress di <a href='https://squoosh.app' target='_blank'>squoosh.app</a></div>", unsafe_allow_html=True)
+        hpm = st.radio("Cara gambar background", ["📎 Upload", "🔗 URL"], horizontal=True, key="hero_bg_pm")
+        if hpm == "📎 Upload":
+            hbg = st.file_uploader("Background Hero", type=["jpg","jpeg","png","webp"], key="hero_bg_upload")
+            if hbg: hero_bg_url = file_to_data_url(hbg); st.image(hbg, width=140)
+        else:
+            hero_bg_url = st.text_input("URL Background Hero")
+        st.markdown("---")
+
+        st.markdown("## 📸 Galeri Portrait (10 slot)")
+        st.markdown("<div class='info-box'>💡 Semua gambar patut <b>portrait/tegak</b>. Saiz terbaik setiap gambar bawah 150KB supaya kad tidak terlalu besar.</div>", unsafe_allow_html=True)
+        gpm = st.radio("Cara gambar galeri", ["📎 Upload", "🔗 URL"], horizontal=True, key="gallery10_pm")
+        gallery_vars = {}
+        if gpm == "📎 Upload":
+            gcols = st.columns(5)
+            for i in range(10):
+                col = gcols[i % 5]
+                with col:
+                    st.caption(f"#{i+1}")
+                    gf = st.file_uploader(f"G{i+1}", type=["jpg","jpeg","png","webp"], key=f"gal10_{i}", label_visibility="collapsed")
+                    if gf:
+                        gallery_vars[i] = file_to_data_url(gf)
+                        st.image(gf, width=70)
+                    else:
+                        gallery_vars[i] = ""
+        else:
+            gcols = st.columns(2)
+            for i in range(10):
+                col = gcols[i % 2]
+                with col:
+                    gallery_vars[i] = st.text_input(f"Gallery {i+1} URL", key=f"gal10url_{i}")
+        g1, g2, g3, g4, g5 = gallery_vars[0], gallery_vars[1], gallery_vars[2], gallery_vars[3], gallery_vars[4]
+        g6, g7, g8, g9, g10 = gallery_vars[5], gallery_vars[6], gallery_vars[7], gallery_vars[8], gallery_vars[9]
+        st.markdown("---")
+
+    elif is_portrait:
         st.markdown("## 📸 Gambar Portrait (2 slot)")
         pm = st.radio("Cara gambar", ["📎 Upload", "🔗 URL"], horizontal=True, key="portrait_pm")
         if pm == "📎 Upload":
@@ -1552,10 +1599,13 @@ elif "🆕 Jana Kad Baru" in page:
                 "doa_sample1_name": doa1_name, "doa_sample1_msg": doa1_msg,
                 "doa_sample2_name": doa2_name, "doa_sample2_msg": doa2_msg,
                 "qr_code_url": qr_code_url, "hero_url": hero_url,
+                "hero_bg_url": hero_bg_url,
                 "photo1_url": photo1_url, "photo2_url": photo2_url,
                 "photo3_url": photo3_url, "opening_url": opening_url,
                 "video_url": video_url, "gallery1_url": g1, "gallery2_url": g2,
                 "gallery3_url": g3, "gallery4_url": g4, "gallery5_url": g5,
+                "gallery6_url": g6, "gallery7_url": g7, "gallery8_url": g8,
+                "gallery9_url": g9, "gallery10_url": g10,
             }
 
             replacements = build_replacements(data)
@@ -1628,6 +1678,7 @@ elif "🆕 Jana Kad Baru" in page:
                         "qr_code_url": qr_code_url,
                         # ── Gambar (URL je, base64 too large) ──
                         "hero_url": hero_url if not hero_url.startswith("data:") else "",
+                        "hero_bg_url": hero_bg_url if not hero_bg_url.startswith("data:") else "",
                         "photo1_url": photo1_url if not photo1_url.startswith("data:") else "",
                         "photo2_url": photo2_url if not photo2_url.startswith("data:") else "",
                         "photo3_url": photo3_url if not photo3_url.startswith("data:") else "",
@@ -1635,6 +1686,11 @@ elif "🆕 Jana Kad Baru" in page:
                         "video_url": video_url,
                         "gallery1_url": g1, "gallery2_url": g2, "gallery3_url": g3,
                         "gallery4_url": g4, "gallery5_url": g5,
+                        "gallery6_url": g6 if not g6.startswith("data:") else "",
+                        "gallery7_url": g7 if not g7.startswith("data:") else "",
+                        "gallery8_url": g8 if not g8.startswith("data:") else "",
+                        "gallery9_url": g9 if not g9.startswith("data:") else "",
+                        "gallery10_url": g10 if not g10.startswith("data:") else "",
                     }
 
                     add_to_history(gh_token, gh_cards_repo, _entry)
