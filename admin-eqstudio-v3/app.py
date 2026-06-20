@@ -105,6 +105,9 @@ if not st.session_state.get("gh_token"):
     st.session_state["gh_token"]      = st.secrets.get("GH_TOKEN", "")
     st.session_state["gh_repo"]       = st.secrets.get("GH_REPO", "")
     st.session_state["gh_cards_repo"] = st.secrets.get("GH_CARDS_REPO", "nureqmal/eqstudio-cards")
+    st.session_state["gh_output_repo"] = st.secrets.get("GH_OUTPUT_REPO", "nureqmal/eqstudio-output")
+
+OUTPUT_DOMAIN = "cards.eqstudio.link"
 
 # ─────────────────────────────────────────
 #  FIREBASE CONFIG
@@ -539,7 +542,7 @@ def sanitize_filename(name):
 # ─────────────────────────────────────────
 #  EDIT KAD FORM
 # ─────────────────────────────────────────
-def show_edit_kad_form(entry, gh_token, gh_cards_repo, username, role):
+def show_edit_kad_form(entry, gh_token, gh_cards_repo, gh_output_repo, username, role):
     """Form edit kad — pre-filled dengan data dari history entry."""
     import streamlit.components.v1 as components
 
@@ -818,8 +821,8 @@ def show_edit_kad_form(entry, gh_token, gh_cards_repo, username, role):
             )
 
         with st.spinner("💾 Mengemas kini kad..."):
-            result = github_upload_file(gh_token, gh_cards_repo, filename, final_html,
-                f"Edit kad: {groom_name} & {bride_name} [{order_id}]")
+            result = github_upload_file(gh_token, gh_output_repo, filename, final_html,
+                f"Edit kad: {groom_name} & {bride_name} [{order_id}]", custom_domain=OUTPUT_DOMAIN)
 
         if result["success"]:
             # Update history entry
@@ -864,7 +867,7 @@ def show_edit_kad_form(entry, gh_token, gh_cards_repo, username, role):
                 "opening_url": opening_url, "video_url": video_url,
                 "gallery1_url": g1, "gallery2_url": g2,
             }
-            add_to_history(gh_token, gh_cards_repo, updated_entry)
+            add_to_history(gh_token, gh_output_repo, updated_entry)
 
             log_activity(username, role, "EDIT_KAD",
                 f"{groom_name} & {bride_name} — {order_id}")
@@ -883,7 +886,7 @@ def show_edit_kad_form(entry, gh_token, gh_cards_repo, username, role):
         else:
             st.error(f"❌ {result['error']}")
 
-def github_upload_file(token, repo, filepath, content, commit_msg):
+def github_upload_file(token, repo, filepath, content, commit_msg, custom_domain=None):
     api_url = f"https://api.github.com/repos/{repo}/contents/{filepath}"
     headers = {"Authorization": f"token {token}", "Accept": "application/vnd.github.v3+json", "X-GitHub-Api-Version": "2022-11-28"}
     sha = None
@@ -900,7 +903,11 @@ def github_upload_file(token, repo, filepath, content, commit_msg):
         parts = raw_url.replace("https://raw.githubusercontent.com/", "").split("/")
         user, repo_name = parts[0], parts[1]
         file_path = "/".join(parts[3:])
-        return {"success": True, "pages_url": f"https://{user}.github.io/{repo_name}/{file_path}", "raw_url": raw_url}
+        if custom_domain:
+            pages_url = f"https://{custom_domain.rstrip('/')}/{file_path}"
+        else:
+            pages_url = f"https://{user}.github.io/{repo_name}/{file_path}"
+        return {"success": True, "pages_url": pages_url, "raw_url": raw_url}
     try: err = r.json().get("message", r.text)
     except Exception: err = r.text
     return {"success": False, "error": f"GitHub API error {r.status_code}: {err}"}
@@ -1289,6 +1296,7 @@ elif "🆕 Jana Kad Baru" in page:
     gh_token = st.session_state.get("gh_token", "") or st.secrets.get("GH_TOKEN", "")
     gh_repo  = st.session_state.get("gh_repo",  "") or st.secrets.get("GH_REPO",  "")
     gh_cards_repo = st.session_state.get("gh_cards_repo", "") or st.secrets.get("GH_CARDS_REPO", "nureqmal/eqstudio-cards")
+    gh_output_repo = st.session_state.get("gh_output_repo", "") or st.secrets.get("GH_OUTPUT_REPO", "nureqmal/eqstudio-output")
     github_ready = bool(gh_token and gh_repo)
     if not github_ready:
         st.markdown("<div class='warning-box'>⚠️ GitHub belum setup — pergi ⚙️ GitHub Settings</div>", unsafe_allow_html=True)
@@ -1623,8 +1631,8 @@ elif "🆕 Jana Kad Baru" in page:
 
             if "Deploy" in deploy_mode and github_ready:
                 with st.spinner("🚀 Deploying..."):
-                    result = github_upload_file(gh_token, gh_cards_repo, f"cards/{filename}", final_html,
-                        f"Add kad: {groom_name} & {bride_name} [{order_id}]")
+                    result = github_upload_file(gh_token, gh_output_repo, f"cards/{filename}", final_html,
+                        f"Add kad: {groom_name} & {bride_name} [{order_id}]", custom_domain=OUTPUT_DOMAIN)
                 if result["success"]:
                     _entry = {
                         # ── Meta ──
@@ -1693,7 +1701,7 @@ elif "🆕 Jana Kad Baru" in page:
                         "gallery10_url": g10 if not g10.startswith("data:") else "",
                     }
 
-                    add_to_history(gh_token, gh_cards_repo, _entry)
+                    add_to_history(gh_token, gh_output_repo, _entry)
 
                     log_activity(
                         username, role,
@@ -1757,10 +1765,11 @@ elif "📂 My Kads" in page:
 
     gh_token      = st.session_state.get("gh_token",      "") or st.secrets.get("GH_TOKEN",      "")
     gh_cards_repo = st.session_state.get("gh_cards_repo", "") or st.secrets.get("GH_CARDS_REPO", "nureqmal/eqstudio-cards")
+    gh_output_repo = st.session_state.get("gh_output_repo", "") or st.secrets.get("GH_OUTPUT_REPO", "nureqmal/eqstudio-output")
 
     if st.button("🔄 Refresh"): st.cache_data.clear(); st.rerun()
 
-    history = load_history(gh_token, gh_cards_repo)
+    history = load_history(gh_token, gh_output_repo)
     my_kads = [h for h in history if h.get("created_by") == username]
 
     if not my_kads:
@@ -1810,7 +1819,7 @@ elif "📂 My Kads" in page:
             if is_editing:
                 with st.container():
                     st.markdown("---")
-                    show_edit_kad_form(entry, gh_token, gh_cards_repo, username, role)
+                    show_edit_kad_form(entry, gh_token, gh_cards_repo, gh_output_repo, username, role)
                     st.markdown("---")
 
 # ─────────────────────────────────────────
@@ -1821,11 +1830,12 @@ elif "📜 History" in page:
     gh_token      = st.session_state.get("gh_token",      "") or st.secrets.get("GH_TOKEN",      "")
     gh_repo       = st.session_state.get("gh_repo",       "") or st.secrets.get("GH_REPO",       "")
     gh_cards_repo = st.session_state.get("gh_cards_repo", "") or st.secrets.get("GH_CARDS_REPO", "nureqmal/eqstudio-cards")
+    gh_output_repo = st.session_state.get("gh_output_repo", "") or st.secrets.get("GH_OUTPUT_REPO", "nureqmal/eqstudio-output")
     if not gh_token or not gh_repo:
         st.warning("⚠️ Setup GitHub dulu di ⚙️ GitHub Settings")
     else:
         if st.button("🔄 Refresh"): st.cache_data.clear(); st.rerun()
-        history = load_history(gh_token, gh_cards_repo)
+        history = load_history(gh_token, gh_output_repo)
         if not history:
             st.info("Belum ada kad yang di-deploy.")
         else:
@@ -1880,7 +1890,7 @@ elif "📜 History" in page:
                     if st.session_state.get(f"editing_{order_id_e}"):
                         with st.container():
                             st.markdown("---")
-                            show_edit_kad_form(entry, gh_token, gh_cards_repo, username, role)
+                            show_edit_kad_form(entry, gh_token, gh_cards_repo, gh_output_repo, username, role)
                             st.markdown("---")
                             st.session_state[f"confirm_hdel_{i}"] = True
 
@@ -1889,10 +1899,10 @@ elif "📜 History" in page:
                         cc1, cc2, _ = st.columns([1,1,4])
                         with cc1:
                             if st.button("✅ Ya", key=f"hyes_{i}"):
-                                ok, err = delete_github_file(gh_token, gh_repo, fname)
+                                ok, err = delete_github_file(gh_token, gh_output_repo, fname)
                                 if ok:
                                     new_hist = [h for h in history if h.get("order_id") != entry.get("order_id")]
-                                    save_history(gh_token, gh_cards_repo, new_hist)
+                                    save_history(gh_token, gh_output_repo, new_hist)
                                     log_activity(
                                         username, role,
                                         "DELETE_KAD",
